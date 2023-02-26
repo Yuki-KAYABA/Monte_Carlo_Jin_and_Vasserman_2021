@@ -93,5 +93,5 @@ $$
 - Each Claim has a stochastic cost $l$, drawn from an independent Pareto distribution
 - The monitoring score $s$ is drawn according to a log-normal distribution with mean $\mu_{s, i}$ and precision $\sigma_{s}$
 
-
+# Estimation
 

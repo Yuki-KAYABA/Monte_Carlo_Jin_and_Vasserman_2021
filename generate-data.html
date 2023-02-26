@@ -30,7 +30,7 @@
   
   
 
-
+<link rel="next" href="estimation.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -131,11 +131,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <nav role="navigation">
 
 <ul class="summary">
-<li class="chapter" data-level="1" data-path=""><a href="#generate-data"><i class="fa fa-check"></i><b>1</b> Generate Data</a>
+<li class="chapter" data-level="1" data-path="generate-data.html"><a href="generate-data.html"><i class="fa fa-check"></i><b>1</b> Generate Data</a>
 <ul>
-<li class="chapter" data-level="1.1" data-path=""><a href="#generate-lambda"><i class="fa fa-check"></i><b>1.1</b> Generate <span class="math inline">\(\lambda\)</span></a></li>
-<li class="chapter" data-level="1.2" data-path=""><a href="#generate-choice-in-t-0"><i class="fa fa-check"></i><b>1.2</b> Generate Choice in <span class="math inline">\(t = 0\)</span></a></li>
+<li class="chapter" data-level="1.1" data-path="generate-data.html"><a href="generate-data.html#generate-lambda"><i class="fa fa-check"></i><b>1.1</b> Generate <span class="math inline">\(\lambda\)</span></a></li>
+<li class="chapter" data-level="1.2" data-path="generate-data.html"><a href="generate-data.html#generate-choice-in-t-0"><i class="fa fa-check"></i><b>1.2</b> Generate Choice in <span class="math inline">\(t = 0\)</span></a></li>
 </ul></li>
+<li class="chapter" data-level="2" data-path="estimation.html"><a href="estimation.html"><i class="fa fa-check"></i><b>2</b> Estimation</a></li>
 </ul>
 
       </nav>
@@ -159,7 +160,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p class="date"><em>2/26/2023</em></p>
 </div>
 <div id="generate-data" class="section level1 hasAnchor" number="1">
-<h1><span class="header-section-number">1</span> Generate Data<a href="#generate-data" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<h1><span class="header-section-number">1</span> Generate Data<a href="generate-data.html#generate-data" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <p>The model is divided into two parts: choice model and cost model. First we generate data related to cost model and then we generate data related to choice model.</p>
 <ol style="list-style-type: decimal">
 <li>Generate <span class="math inline">\(\lambda_{imt}\)</span>. <span class="math inline">\(\lambda_{imt}\)</span> is one of the most significant variables that represents consumer’s risk (observable for consumers but not econometrician)</li>
@@ -167,60 +168,60 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li>Generate cost realization (claims count, severity and monitoring score) in <span class="math inline">\(t = 0\)</span> according to the cost model.</li>
 </ol>
 <div id="generate-lambda" class="section level2 hasAnchor" number="1.1">
-<h2><span class="header-section-number">1.1</span> Generate <span class="math inline">\(\lambda\)</span><a href="#generate-lambda" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<h2><span class="header-section-number">1.1</span> Generate <span class="math inline">\(\lambda\)</span><a href="generate-data.html#generate-lambda" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <ul>
 <li>The rate parameter, <span class="math inline">\(\lambda_{imt}\)</span> of Poisson distributed claims count, has mean <span class="math inline">\(\mu_{\lambda, imt}\)</span> and an additive error <span class="math inline">\(\varepsilon_{\lambda, i}\)</span> which is log-normally distributied with spread <span class="math inline">\(\sigma_{\lambda}\)</span></li>
 <li>We assume that <span class="math inline">\(\mu_{\lambda, imt} = \theta_{\lambda1}x_{1, imt} + \cdots + \theta_{\lambda4}x_{4, imt}\)</span></li>
 </ul>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>T <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>D <span class="ot">&lt;-</span> <span class="dv">3</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>J <span class="ot">&lt;-</span> <span class="dv">4</span> <span class="do">## The number of products. </span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## True Parameters</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>sigma_lambda <span class="ot">&lt;-</span> <span class="fl">0.1</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>theta_lambda <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">2</span>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## Covariates</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>mu_x_t0_m0 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">4</span>)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>mu_x_t0_m1 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">4</span>)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>mu_x_t1_m0 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, <span class="dv">4</span>)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>mu_x_t1_m1 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, <span class="dv">4</span>)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>sigma_x <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="fl">0.5</span>, <span class="dv">4</span>)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>X_t0_m0 <span class="ot">&lt;-</span> <span class="fu">mvrnorm</span>(N, mu_x_t0_m0, sigma_x)</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>X_t0_m1 <span class="ot">&lt;-</span> X_t0_m0 <span class="sc">+</span> <span class="fl">0.1</span><span class="sc">*</span><span class="fu">mvrnorm</span>(N, mu_x_t0_m1, sigma_x)</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>X_t1_m0 <span class="ot">&lt;-</span> X_t0_m0 <span class="sc">+</span> <span class="fl">0.5</span><span class="sc">*</span><span class="fu">mvrnorm</span>(N, mu_x_t1_m0, sigma_x)</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>X_t1_m1 <span class="ot">&lt;-</span> <span class="fl">0.5</span><span class="sc">*</span>X_t0_m0 <span class="sc">+</span> <span class="fl">0.5</span><span class="sc">*</span>X_t0_m1 <span class="sc">+</span> <span class="fl">0.5</span><span class="sc">*</span><span class="fu">mvrnorm</span>(N, mu_x_t1_m1, sigma_x)</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> X_t0_m0 <span class="sc">%&gt;%</span> </span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbind</span>(X_t0_m1) <span class="sc">%&gt;%</span> </span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbind</span>(X_t1_m0) <span class="sc">%&gt;%</span> </span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbind</span>(X_t1_m1)</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(X) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">paste</span>(<span class="st">&quot;x&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">sep =</span> <span class="st">&quot;_&quot;</span>))</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>X_lambda <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>N, <span class="at">m =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, <span class="at">t =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(X)</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="do">## mu_lambda</span></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>mu_lambda <span class="ot">&lt;-</span> X_lambda <span class="sc">%&gt;%</span> </span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">mu_lambda =</span> theta_lambda[<span class="dv">1</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> theta_lambda[<span class="dv">2</span>]<span class="sc">*</span>x_2 <span class="sc">+</span> theta_lambda[<span class="dv">3</span>]<span class="sc">*</span>x_3 <span class="sc">+</span> theta_lambda[<span class="dv">4</span>]<span class="sc">*</span>x_4)</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="do">## epsilon_lambda</span></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>epsilon_lambda <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>N) <span class="sc">%&gt;%</span> </span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">epsilon_lambda =</span> <span class="fu">rnorm</span>(N, <span class="dv">0</span>, sigma_lambda))</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="do">## lambda</span></span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>lambda <span class="ot">&lt;-</span> mu_lambda <span class="sc">%&gt;%</span> </span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(epsilon_lambda, <span class="at">key =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">lambda =</span> <span class="fu">exp</span>(mu_lambda <span class="sc">+</span> epsilon_lambda))</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="generate-data.html#cb1-1" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb1-2"><a href="generate-data.html#cb1-2" aria-hidden="true" tabindex="-1"></a>T <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb1-3"><a href="generate-data.html#cb1-3" aria-hidden="true" tabindex="-1"></a>D <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb1-4"><a href="generate-data.html#cb1-4" aria-hidden="true" tabindex="-1"></a>J <span class="ot">&lt;-</span> <span class="dv">4</span> <span class="do">## The number of products. </span></span>
+<span id="cb1-5"><a href="generate-data.html#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="generate-data.html#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## True Parameters</span></span>
+<span id="cb1-7"><a href="generate-data.html#cb1-7" aria-hidden="true" tabindex="-1"></a>sigma_lambda <span class="ot">&lt;-</span> <span class="fl">0.1</span></span>
+<span id="cb1-8"><a href="generate-data.html#cb1-8" aria-hidden="true" tabindex="-1"></a>theta_lambda <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb1-9"><a href="generate-data.html#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="generate-data.html#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## Covariates</span></span>
+<span id="cb1-11"><a href="generate-data.html#cb1-11" aria-hidden="true" tabindex="-1"></a>mu_x_t0_m0 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">4</span>)</span>
+<span id="cb1-12"><a href="generate-data.html#cb1-12" aria-hidden="true" tabindex="-1"></a>mu_x_t0_m1 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">4</span>)</span>
+<span id="cb1-13"><a href="generate-data.html#cb1-13" aria-hidden="true" tabindex="-1"></a>mu_x_t1_m0 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, <span class="dv">4</span>)</span>
+<span id="cb1-14"><a href="generate-data.html#cb1-14" aria-hidden="true" tabindex="-1"></a>mu_x_t1_m1 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, <span class="dv">4</span>)</span>
+<span id="cb1-15"><a href="generate-data.html#cb1-15" aria-hidden="true" tabindex="-1"></a>sigma_x <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="fl">0.5</span>, <span class="dv">4</span>)</span>
+<span id="cb1-16"><a href="generate-data.html#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="generate-data.html#cb1-17" aria-hidden="true" tabindex="-1"></a>X_t0_m0 <span class="ot">&lt;-</span> <span class="fu">mvrnorm</span>(N, mu_x_t0_m0, sigma_x)</span>
+<span id="cb1-18"><a href="generate-data.html#cb1-18" aria-hidden="true" tabindex="-1"></a>X_t0_m1 <span class="ot">&lt;-</span> X_t0_m0 <span class="sc">+</span> <span class="fl">0.1</span><span class="sc">*</span><span class="fu">mvrnorm</span>(N, mu_x_t0_m1, sigma_x)</span>
+<span id="cb1-19"><a href="generate-data.html#cb1-19" aria-hidden="true" tabindex="-1"></a>X_t1_m0 <span class="ot">&lt;-</span> X_t0_m0 <span class="sc">+</span> <span class="fl">0.5</span><span class="sc">*</span><span class="fu">mvrnorm</span>(N, mu_x_t1_m0, sigma_x)</span>
+<span id="cb1-20"><a href="generate-data.html#cb1-20" aria-hidden="true" tabindex="-1"></a>X_t1_m1 <span class="ot">&lt;-</span> <span class="fl">0.5</span><span class="sc">*</span>X_t0_m0 <span class="sc">+</span> <span class="fl">0.5</span><span class="sc">*</span>X_t0_m1 <span class="sc">+</span> <span class="fl">0.5</span><span class="sc">*</span><span class="fu">mvrnorm</span>(N, mu_x_t1_m1, sigma_x)</span>
+<span id="cb1-21"><a href="generate-data.html#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="generate-data.html#cb1-22" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> X_t0_m0 <span class="sc">%&gt;%</span> </span>
+<span id="cb1-23"><a href="generate-data.html#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbind</span>(X_t0_m1) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-24"><a href="generate-data.html#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbind</span>(X_t1_m0) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-25"><a href="generate-data.html#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbind</span>(X_t1_m1)</span>
+<span id="cb1-26"><a href="generate-data.html#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="generate-data.html#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(X) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">paste</span>(<span class="st">&quot;x&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">sep =</span> <span class="st">&quot;_&quot;</span>))</span>
+<span id="cb1-28"><a href="generate-data.html#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="generate-data.html#cb1-29" aria-hidden="true" tabindex="-1"></a>X_lambda <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>N, <span class="at">m =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, <span class="at">t =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-30"><a href="generate-data.html#cb1-30" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb1-31"><a href="generate-data.html#cb1-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(X)</span>
+<span id="cb1-32"><a href="generate-data.html#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-33"><a href="generate-data.html#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="do">## mu_lambda</span></span>
+<span id="cb1-34"><a href="generate-data.html#cb1-34" aria-hidden="true" tabindex="-1"></a>mu_lambda <span class="ot">&lt;-</span> X_lambda <span class="sc">%&gt;%</span> </span>
+<span id="cb1-35"><a href="generate-data.html#cb1-35" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">mu_lambda =</span> theta_lambda[<span class="dv">1</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> theta_lambda[<span class="dv">2</span>]<span class="sc">*</span>x_2 <span class="sc">+</span> theta_lambda[<span class="dv">3</span>]<span class="sc">*</span>x_3 <span class="sc">+</span> theta_lambda[<span class="dv">4</span>]<span class="sc">*</span>x_4)</span>
+<span id="cb1-36"><a href="generate-data.html#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-37"><a href="generate-data.html#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="do">## epsilon_lambda</span></span>
+<span id="cb1-38"><a href="generate-data.html#cb1-38" aria-hidden="true" tabindex="-1"></a>epsilon_lambda <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>N) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-39"><a href="generate-data.html#cb1-39" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb1-40"><a href="generate-data.html#cb1-40" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">epsilon_lambda =</span> <span class="fu">rnorm</span>(N, <span class="dv">0</span>, sigma_lambda))</span>
+<span id="cb1-41"><a href="generate-data.html#cb1-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-42"><a href="generate-data.html#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="do">## lambda</span></span>
+<span id="cb1-43"><a href="generate-data.html#cb1-43" aria-hidden="true" tabindex="-1"></a>lambda <span class="ot">&lt;-</span> mu_lambda <span class="sc">%&gt;%</span> </span>
+<span id="cb1-44"><a href="generate-data.html#cb1-44" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(epsilon_lambda, <span class="at">key =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-45"><a href="generate-data.html#cb1-45" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">lambda =</span> <span class="fu">exp</span>(mu_lambda <span class="sc">+</span> epsilon_lambda))</span></code></pre></div>
 <pre><code>## Joining, by = &quot;i&quot;</code></pre>
 </div>
 <div id="generate-choice-in-t-0" class="section level2 hasAnchor" number="1.2">
-<h2><span class="header-section-number">1.2</span> Generate Choice in <span class="math inline">\(t = 0\)</span><a href="#generate-choice-in-t-0" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<h2><span class="header-section-number">1.2</span> Generate Choice in <span class="math inline">\(t = 0\)</span><a href="generate-data.html#generate-choice-in-t-0" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>In the paper, consumer’s realized choice utility is modeled as follows:</p>
 <p><span class="math display">\[
 \begin{align}
@@ -241,7 +242,7 @@ h_{idt}(C, s) &amp;= -p_{idt} - \mathbf{1}_{d, t-1} \cdot \psi_{idt} - e(C, y_{d
         </div>
       </div>
 
-
+<a href="estimation.html" class="navigation navigation-next navigation-unique" aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
