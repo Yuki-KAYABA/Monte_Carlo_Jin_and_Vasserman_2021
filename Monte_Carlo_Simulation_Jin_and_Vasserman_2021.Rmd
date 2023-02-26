@@ -18,11 +18,11 @@ library(MASS)
 
 # Generate Data
 
-The model is divided into two parts: choice model and cost model. First we generate data related to cost model and then we generate data related to choice model.
+First we generate data in the following procedure.
 
 1. Generate $\lambda_{imt}$. $\lambda_{imt}$ is one of the most significant variables that represents consumer's risk (observable for consumers but not econometrician)
 2. Generate choice in $t = 0$ according to the choice model. In $t = 0$, consumers have four options: the firm with and without monitoring, competitor 1 and 2.
-3. Generate cost realization (claims count, severity and monitoring score) in $t = 0$ according to the cost model. 
+3. Generate realization of cost (claims count, severity and monitoring score) in $t = 0$ according to the cost model. 
 
 ## Generate $\lambda$
 
@@ -64,7 +64,8 @@ X_lambda <- expand.grid(i = 1:N, m = 0:1, t = 0:1) %>%
 
 ## mu_lambda
 mu_lambda <- X_lambda %>% 
-  dplyr::mutate(mu_lambda = theta_lambda[1]*x_1 + theta_lambda[2]*x_2 + theta_lambda[3]*x_3 + theta_lambda[4]*x_4)
+  dplyr::mutate(mu_lambda = theta_lambda[1]*x_1 + theta_lambda[2]*x_2
+                + theta_lambda[3]*x_3 + theta_lambda[4]*x_4)
 
 ## epsilon_lambda
 epsilon_lambda <- expand.grid(i = 1:N) %>% 
@@ -80,15 +81,28 @@ lambda <- mu_lambda %>%
 
 ## Generate Choice in $t = 0$
 
-In the paper, consumer's realized choice utility is modeled as follows: 
+- In the paper, consumer's realized choice utility is modeled as follows: 
 
 $$
 \begin{align}
 u_{idt}(C, s) &= u_{\gamma}(w_{it} + h_{idt}(C, s)) \\
 h_{idt}(C, s) &= -p_{idt} - \mathbf{1}_{d, t-1} \cdot \psi_{idt} - e(C, y_{d}) - p_{idt} \cdot R_{idt}(C, s) \\
-\text{where} \quad \psi_{idt} &= \mathbf{1}_{d, t-1} \cdot \eta_{0} + \mathbf{1}_{f_{d}, t-1} \cdot \eta_{it} + \mathbf{1}_{m_{d}} \cdot \mathbf{1}_{t=0} \cdot \xi_{it}
+\text{where } \psi_{idt} &= \mathbf{1}_{d, t-1} \cdot \eta_{0} + \mathbf{1}_{f_{d}, t-1} \cdot \eta_{it} + \mathbf{1}_{m_{d}} \cdot \mathbf{1}_{t=0} \cdot \xi_{it}
 \end{align}
 $$
+
+- At each period $t$, consumer $i$ chooses $d$ so as to maximize her expected utility:
+
+$$
+\begin{align}
+d_{it} &= \mathop{\rm argmax}\limits_{d \in D_{it}} \left\{ v_{idt} + \varepsilon_{idt} \right\} \\
+\text{where } v_{idt} &= \mathbb{E}_{C, s}[u_{idt}(C, s)] = \mathbb{E}[h_{idt}] -\frac{\gamma}{2}\mathbb{E}[h_{idt}^{2}]
+\end{align}
+$$
+
+- Thus, we start with generating each component of $h_{idt}$.
+
+## Generate Realization of Cost in $t = 0$
 
 - Each Claim has a stochastic cost $l$, drawn from an independent Pareto distribution
 - The monitoring score $s$ is drawn according to a log-normal distribution with mean $\mu_{s, i}$ and precision $\sigma_{s}$

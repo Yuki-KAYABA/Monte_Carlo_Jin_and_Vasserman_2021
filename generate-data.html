@@ -135,6 +135,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="1.1" data-path="generate-data.html"><a href="generate-data.html#generate-lambda"><i class="fa fa-check"></i><b>1.1</b> Generate <span class="math inline">\(\lambda\)</span></a></li>
 <li class="chapter" data-level="1.2" data-path="generate-data.html"><a href="generate-data.html#generate-choice-in-t-0"><i class="fa fa-check"></i><b>1.2</b> Generate Choice in <span class="math inline">\(t = 0\)</span></a></li>
+<li class="chapter" data-level="1.3" data-path="generate-data.html"><a href="generate-data.html#generate-realization-of-cost-in-t-0"><i class="fa fa-check"></i><b>1.3</b> Generate Realization of Cost in <span class="math inline">\(t = 0\)</span></a></li>
 </ul></li>
 <li class="chapter" data-level="2" data-path="estimation.html"><a href="estimation.html"><i class="fa fa-check"></i><b>2</b> Estimation</a></li>
 </ul>
@@ -161,11 +162,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="generate-data" class="section level1 hasAnchor" number="1">
 <h1><span class="header-section-number">1</span> Generate Data<a href="generate-data.html#generate-data" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<p>The model is divided into two parts: choice model and cost model. First we generate data related to cost model and then we generate data related to choice model.</p>
+<p>First we generate data in the following procedure.</p>
 <ol style="list-style-type: decimal">
 <li>Generate <span class="math inline">\(\lambda_{imt}\)</span>. <span class="math inline">\(\lambda_{imt}\)</span> is one of the most significant variables that represents consumer’s risk (observable for consumers but not econometrician)</li>
 <li>Generate choice in <span class="math inline">\(t = 0\)</span> according to the choice model. In <span class="math inline">\(t = 0\)</span>, consumers have four options: the firm with and without monitoring, competitor 1 and 2.</li>
-<li>Generate cost realization (claims count, severity and monitoring score) in <span class="math inline">\(t = 0\)</span> according to the cost model.</li>
+<li>Generate realization of cost (claims count, severity and monitoring score) in <span class="math inline">\(t = 0\)</span> according to the cost model.</li>
 </ol>
 <div id="generate-lambda" class="section level2 hasAnchor" number="1.1">
 <h2><span class="header-section-number">1.1</span> Generate <span class="math inline">\(\lambda\)</span><a href="generate-data.html#generate-lambda" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -207,29 +208,47 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-32"><a href="generate-data.html#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-33"><a href="generate-data.html#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="do">## mu_lambda</span></span>
 <span id="cb1-34"><a href="generate-data.html#cb1-34" aria-hidden="true" tabindex="-1"></a>mu_lambda <span class="ot">&lt;-</span> X_lambda <span class="sc">%&gt;%</span> </span>
-<span id="cb1-35"><a href="generate-data.html#cb1-35" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">mu_lambda =</span> theta_lambda[<span class="dv">1</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> theta_lambda[<span class="dv">2</span>]<span class="sc">*</span>x_2 <span class="sc">+</span> theta_lambda[<span class="dv">3</span>]<span class="sc">*</span>x_3 <span class="sc">+</span> theta_lambda[<span class="dv">4</span>]<span class="sc">*</span>x_4)</span>
-<span id="cb1-36"><a href="generate-data.html#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-37"><a href="generate-data.html#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="do">## epsilon_lambda</span></span>
-<span id="cb1-38"><a href="generate-data.html#cb1-38" aria-hidden="true" tabindex="-1"></a>epsilon_lambda <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>N) <span class="sc">%&gt;%</span> </span>
-<span id="cb1-39"><a href="generate-data.html#cb1-39" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb1-40"><a href="generate-data.html#cb1-40" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">epsilon_lambda =</span> <span class="fu">rnorm</span>(N, <span class="dv">0</span>, sigma_lambda))</span>
-<span id="cb1-41"><a href="generate-data.html#cb1-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-42"><a href="generate-data.html#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="do">## lambda</span></span>
-<span id="cb1-43"><a href="generate-data.html#cb1-43" aria-hidden="true" tabindex="-1"></a>lambda <span class="ot">&lt;-</span> mu_lambda <span class="sc">%&gt;%</span> </span>
-<span id="cb1-44"><a href="generate-data.html#cb1-44" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(epsilon_lambda, <span class="at">key =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb1-45"><a href="generate-data.html#cb1-45" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">lambda =</span> <span class="fu">exp</span>(mu_lambda <span class="sc">+</span> epsilon_lambda))</span></code></pre></div>
+<span id="cb1-35"><a href="generate-data.html#cb1-35" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">mu_lambda =</span> theta_lambda[<span class="dv">1</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> theta_lambda[<span class="dv">2</span>]<span class="sc">*</span>x_2</span>
+<span id="cb1-36"><a href="generate-data.html#cb1-36" aria-hidden="true" tabindex="-1"></a>                <span class="sc">+</span> theta_lambda[<span class="dv">3</span>]<span class="sc">*</span>x_3 <span class="sc">+</span> theta_lambda[<span class="dv">4</span>]<span class="sc">*</span>x_4)</span>
+<span id="cb1-37"><a href="generate-data.html#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="generate-data.html#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="do">## epsilon_lambda</span></span>
+<span id="cb1-39"><a href="generate-data.html#cb1-39" aria-hidden="true" tabindex="-1"></a>epsilon_lambda <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>N) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-40"><a href="generate-data.html#cb1-40" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb1-41"><a href="generate-data.html#cb1-41" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">epsilon_lambda =</span> <span class="fu">rnorm</span>(N, <span class="dv">0</span>, sigma_lambda))</span>
+<span id="cb1-42"><a href="generate-data.html#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-43"><a href="generate-data.html#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="do">## lambda</span></span>
+<span id="cb1-44"><a href="generate-data.html#cb1-44" aria-hidden="true" tabindex="-1"></a>lambda <span class="ot">&lt;-</span> mu_lambda <span class="sc">%&gt;%</span> </span>
+<span id="cb1-45"><a href="generate-data.html#cb1-45" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(epsilon_lambda, <span class="at">key =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-46"><a href="generate-data.html#cb1-46" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">lambda =</span> <span class="fu">exp</span>(mu_lambda <span class="sc">+</span> epsilon_lambda))</span></code></pre></div>
 <pre><code>## Joining, by = &quot;i&quot;</code></pre>
 </div>
 <div id="generate-choice-in-t-0" class="section level2 hasAnchor" number="1.2">
 <h2><span class="header-section-number">1.2</span> Generate Choice in <span class="math inline">\(t = 0\)</span><a href="generate-data.html#generate-choice-in-t-0" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>In the paper, consumer’s realized choice utility is modeled as follows:</p>
+<ul>
+<li>In the paper, consumer’s realized choice utility is modeled as follows:</li>
+</ul>
 <p><span class="math display">\[
 \begin{align}
 u_{idt}(C, s) &amp;= u_{\gamma}(w_{it} + h_{idt}(C, s)) \\
 h_{idt}(C, s) &amp;= -p_{idt} - \mathbf{1}_{d, t-1} \cdot \psi_{idt} - e(C, y_{d}) - p_{idt} \cdot R_{idt}(C, s) \\
-\text{where} \quad \psi_{idt} &amp;= \mathbf{1}_{d, t-1} \cdot \eta_{0} + \mathbf{1}_{f_{d}, t-1} \cdot \eta_{it} + \mathbf{1}_{m_{d}} \cdot \mathbf{1}_{t=0} \cdot \xi_{it}
+\text{where } \psi_{idt} &amp;= \mathbf{1}_{d, t-1} \cdot \eta_{0} + \mathbf{1}_{f_{d}, t-1} \cdot \eta_{it} + \mathbf{1}_{m_{d}} \cdot \mathbf{1}_{t=0} \cdot \xi_{it}
 \end{align}
 \]</span></p>
+<ul>
+<li>At each period <span class="math inline">\(t\)</span>, consumer <span class="math inline">\(i\)</span> chooses <span class="math inline">\(d\)</span> so as to maximize her expected utility:</li>
+</ul>
+<p><span class="math display">\[
+\begin{align}
+d_{it} &amp;= \mathop{\rm argmax}\limits_{d \in D_{it}} \left\{ v_{idt} + \varepsilon_{idt} \right\} \\
+\text{where } v_{idt} &amp;= \mathbb{E}_{C, s}[u_{idt}(C, s)] = \mathbb{E}[h_{idt}] -\frac{\gamma}{2}\mathbb{E}[h_{idt}^{2}]
+\end{align}
+\]</span></p>
+<ul>
+<li>Thus, we start with generating each component of <span class="math inline">\(h_{idt}\)</span>.</li>
+</ul>
+</div>
+<div id="generate-realization-of-cost-in-t-0" class="section level2 hasAnchor" number="1.3">
+<h2><span class="header-section-number">1.3</span> Generate Realization of Cost in <span class="math inline">\(t = 0\)</span><a href="generate-data.html#generate-realization-of-cost-in-t-0" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <ul>
 <li>Each Claim has a stochastic cost <span class="math inline">\(l\)</span>, drawn from an independent Pareto distribution</li>
 <li>The monitoring score <span class="math inline">\(s\)</span> is drawn according to a log-normal distribution with mean <span class="math inline">\(\mu_{s, i}\)</span> and precision <span class="math inline">\(\sigma_{s}\)</span></li>
