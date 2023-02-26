@@ -1,0 +1,97 @@
+---
+title: 'Monte Carlo Simulation: Jin and Vasserman (2021)'
+author: "Yuki KAYABA"
+date: "2/26/2023"
+site: bookdown::bookdown_site
+output:
+  bookdown::gitbook: default
+#output_dir: docs
+#bookdown::gitbook: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(bookdown)
+library(magrittr)
+library(MASS)
+```
+
+# Generate Data
+
+The model is divided into two parts: choice model and cost model. First we generate data related to cost model and then we generate data related to choice model.
+
+1. Generate $\lambda_{imt}$. $\lambda_{imt}$ is one of the most significant variables that represents consumer's risk (observable for consumers but not econometrician)
+2. Generate choice in $t = 0$ according to the choice model. In $t = 0$, consumers have four options: the firm with and without monitoring, competitor 1 and 2.
+3. Generate cost realization (claims count, severity and monitoring score) in $t = 0$ according to the cost model. 
+
+## Generate $\lambda$
+
+- The rate parameter, $\lambda_{imt}$ of Poisson distributed claims count, has mean $\mu_{\lambda, imt}$ and an additive error $\varepsilon_{\lambda, i}$ which is log-normally distributied with spread $\sigma_{\lambda}$
+- We assume that $\mu_{\lambda, imt} = \theta_{\lambda1}x_{1, imt} + \cdots + \theta_{\lambda4}x_{4, imt}$ 
+
+```{r generate lambda}
+N <- 1000
+T <- 1
+D <- 3
+J <- 4 ## The number of products. 
+
+## True Parameters
+sigma_lambda <- 0.1
+theta_lambda <- c(1, 0.5, 1, 2)
+
+## Covariates
+mu_x_t0_m0 <- rep(-1, 4)
+mu_x_t0_m1 <- rep(-2, 4)
+mu_x_t1_m0 <- rep(0, 4)
+mu_x_t1_m1 <- rep(0, 4)
+sigma_x <- diag(0.5, 4)
+
+X_t0_m0 <- mvrnorm(N, mu_x_t0_m0, sigma_x)
+X_t0_m1 <- X_t0_m0 + 0.1*mvrnorm(N, mu_x_t0_m1, sigma_x)
+X_t1_m0 <- X_t0_m0 + 0.5*mvrnorm(N, mu_x_t1_m0, sigma_x)
+X_t1_m1 <- 0.5*X_t0_m0 + 0.5*X_t0_m1 + 0.5*mvrnorm(N, mu_x_t1_m1, sigma_x)
+
+X <- X_t0_m0 %>% 
+  rbind(X_t0_m1) %>% 
+  rbind(X_t1_m0) %>% 
+  rbind(X_t1_m1)
+
+colnames(X) <- c(paste("x", 1:4, sep = "_"))
+
+X_lambda <- expand.grid(i = 1:N, m = 0:1, t = 0:1) %>% 
+  tibble::as_tibble() %>% 
+  cbind(X)
+
+## mu_lambda
+mu_lambda <- X_lambda %>% 
+  dplyr::mutate(mu_lambda = theta_lambda[1]*x_1 + theta_lambda[2]*x_2 + theta_lambda[3]*x_3 + theta_lambda[4]*x_4)
+
+## epsilon_lambda
+epsilon_lambda <- expand.grid(i = 1:N) %>% 
+  tibble::as_tibble() %>% 
+  dplyr::mutate(epsilon_lambda = rnorm(N, 0, sigma_lambda))
+
+## lambda
+lambda <- mu_lambda %>% 
+  dplyr::left_join(epsilon_lambda, key = c("i")) %>% 
+  dplyr::mutate(lambda = exp(mu_lambda + epsilon_lambda))
+
+```
+
+## Generate Choice in $t = 0$
+
+In the paper, consumer's realized choice utility is modeled as follows: 
+
+$$
+\begin{align}
+u_{idt}(C, s) &= u_{\gamma}(w_{it} + h_{idt}(C, s)) \\
+h_{idt}(C, s) &= -p_{idt} - \mathbf{1}_{d, t-1} \cdot \psi_{idt} - e(C, y_{d}) - p_{idt} \cdot R_{idt}(C, s) \\
+\text{where} \quad \psi_{idt} &= \mathbf{1}_{d, t-1} \cdot \eta_{0} + \mathbf{1}_{f_{d}, t-1} \cdot \eta_{it} + \mathbf{1}_{m_{d}} \cdot \mathbf{1}_{t=0} \cdot \xi_{it}
+\end{align}
+$$
+
+- Each Claim has a stochastic cost $l$, drawn from an independent Pareto distribution
+- The monitoring score $s$ is drawn according to a log-normal distribution with mean $\mu_{s, i}$ and precision $\sigma_{s}$
+
+
+
