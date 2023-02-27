@@ -32,8 +32,7 @@ First we generate data in the following procedure.
 ```{r generate lambda}
 N <- 1000
 T <- 1
-D <- 3
-J <- 4 ## The number of products. 
+D <- 4
 
 ## True Parameters
 sigma_lambda <- 0.1
@@ -101,6 +100,48 @@ d_{it} &= \mathop{\rm argmax}\limits_{d \in D_{it}} \left\{ v_{idt} + \varepsilo
 $$
 
 - Thus, we start with generating each component of $h_{idt}$.
+
+```{r generate choice}
+
+price_par_t0_d1 <- c(2, 3, 1)
+price_par_t0_d2 <- c(2, 3, 1)
+price_par_t0_d3 <- c(1, 2, 3)
+price_par_t0_d4 <- c(3, 1, 2)
+
+price_par_t0 <- price_par_t0_d1 %>% 
+  rbind(price_par_t0_d2) %>% 
+  rbind(price_par_t0_d3) %>% 
+  rbind(price_par_t0_d4)
+
+
+choice_t0 <- expand.grid(i = 1:N, d = 1:D, t = 0) %>% 
+  tibble::as_tibble() %>% 
+  dplyr::mutate(m = ifelse(d == 1, 1, 0),
+                f = dplyr::case_when(
+                  d <= 2 ~ 1,
+                  d == 3 ~ 2,
+                  d == 4 ~ 3)) %>% 
+  dplyr::left_join(lambda, by = c("i", "m", "t")) %>% 
+  
+
+# ## Price in t = 0
+# price_gen <- function(N, f, m, t, price_par, X){
+#   output <- expand.grid(i = 1:N, f = f, m = m, t = t) %>% 
+#     tibble::as_tibble() %>% 
+#     dplyr::mutate(mu_price = price_par[1]*X[1] + price_par[2]*X[2] + 
+#                     price_par[3]*X[3],
+#                   price = rnorm(1, mu_price, 1),
+#                   price = ifelse(m == 1, 0.95*price, price))
+#   
+#   return(output)
+# }
+# 
+# ## Price parameter
+# price_par_1 <- c(1, 2, 3)
+# 
+# price_1 <- price_gen(N, 1, 0, 0, price_par_1, X_lambda)
+
+```
 
 ## Generate Realization of Cost in $t = 0$
 
