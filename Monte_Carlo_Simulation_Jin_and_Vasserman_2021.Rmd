@@ -121,26 +121,8 @@ choice_t0 <- expand.grid(i = 1:N, d = 1:D, t = 0) %>%
                   d <= 2 ~ 1,
                   d == 3 ~ 2,
                   d == 4 ~ 3)) %>% 
-  dplyr::left_join(lambda, by = c("i", "m", "t")) %>% 
+  dplyr::left_join(lambda, by = c("i", "m", "t"))
   
-
-# ## Price in t = 0
-# price_gen <- function(N, f, m, t, price_par, X){
-#   output <- expand.grid(i = 1:N, f = f, m = m, t = t) %>% 
-#     tibble::as_tibble() %>% 
-#     dplyr::mutate(mu_price = price_par[1]*X[1] + price_par[2]*X[2] + 
-#                     price_par[3]*X[3],
-#                   price = rnorm(1, mu_price, 1),
-#                   price = ifelse(m == 1, 0.95*price, price))
-#   
-#   return(output)
-# }
-# 
-# ## Price parameter
-# price_par_1 <- c(1, 2, 3)
-# 
-# price_1 <- price_gen(N, 1, 0, 0, price_par_1, X_lambda)
-
 ```
 
 ## Generate Realization of Cost in $t = 0$
