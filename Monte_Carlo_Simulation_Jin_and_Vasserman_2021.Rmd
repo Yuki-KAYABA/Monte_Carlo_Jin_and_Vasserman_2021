@@ -10,7 +10,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, cache = FALSE)
 library(bookdown)
 library(magrittr)
 library(MASS)
@@ -30,30 +30,31 @@ First we generate data in the following procedure.
 - We assume that $\mu_{\lambda, imt} = \theta_{\lambda1}x_{1, imt} + \cdots + \theta_{\lambda4}x_{4, imt}$ 
 
 ```{r generate lambda}
+rm(list = ls())
+
 N <- 1000
 T <- 1
 D <- 4
 
+# set the seed
+set.seed(1)
+
 ## True Parameters
 sigma_lambda <- 0.1
-theta_lambda <- c(1, 0.5, 1, 2)
+theta_lambda <- c(1, 0.5, 1, 2, -0.5)
 
 ## Covariates
-mu_x_t0_m0 <- rep(-1, 4)
-mu_x_t0_m1 <- rep(-2, 4)
-mu_x_t1_m0 <- rep(0, 4)
-mu_x_t1_m1 <- rep(0, 4)
+mu_x_t0 <- rep(-1, 4)
+mu_x_t1 <- rep(0, 4)
 sigma_x <- diag(0.5, 4)
 
-X_t0_m0 <- mvrnorm(N, mu_x_t0_m0, sigma_x)
-X_t0_m1 <- X_t0_m0 + 0.1*mvrnorm(N, mu_x_t0_m1, sigma_x)
-X_t1_m0 <- X_t0_m0 + 0.5*mvrnorm(N, mu_x_t1_m0, sigma_x)
-X_t1_m1 <- 0.5*X_t0_m0 + 0.5*X_t0_m1 + 0.5*mvrnorm(N, mu_x_t1_m1, sigma_x)
+X_t0 <- mvrnorm(N, mu_x_t0, sigma_x)
+X_t1 <- 0.5*X_t0 + 0.5*mvrnorm(N, mu_x_t1, sigma_x)
 
-X <- X_t0_m0 %>% 
-  rbind(X_t0_m1) %>% 
-  rbind(X_t1_m0) %>% 
-  rbind(X_t1_m1)
+X <- X_t0 %>% 
+  rbind(X_t0) %>% 
+  rbind(X_t1) %>% 
+  rbind(X_t1)
 
 colnames(X) <- c(paste("x", 1:4, sep = "_"))
 
@@ -64,7 +65,8 @@ X_lambda <- expand.grid(i = 1:N, m = 0:1, t = 0:1) %>%
 ## mu_lambda
 mu_lambda <- X_lambda %>% 
   dplyr::mutate(mu_lambda = theta_lambda[1]*x_1 + theta_lambda[2]*x_2
-                + theta_lambda[3]*x_3 + theta_lambda[4]*x_4)
+                + theta_lambda[3]*x_3 + theta_lambda[4]*x_4
+                + theta_lambda[5]*ifelse(m == 0 & t == 0, 1, 0))
 
 ## epsilon_lambda
 epsilon_lambda <- expand.grid(i = 1:N) %>% 
@@ -76,6 +78,34 @@ lambda <- mu_lambda %>%
   dplyr::left_join(epsilon_lambda, key = c("i")) %>% 
   dplyr::mutate(lambda = exp(mu_lambda + epsilon_lambda))
 
+```
+
+## Generate (Expectation of) Monitoring Score and Severity
+
+```{r cost model}
+
+##
+theta_score <- c(1, -0.5, 2, 1)
+sigma_score <- 1
+
+score <- lambda %>% 
+  dplyr::filter(t == 0, m == 1) %>% 
+  dplyr::mutate(mu_score = theta_score[1] + theta_score[2]*log(lambda)
+                + theta_score[3]*x_1 + theta_score[4]*x_2,
+                E_score = exp(mu_score + sigma_score^2 / 2)) %>% 
+  dplyr::select(i, m, t, mu_score, E_score)
+
+## Expectation of Out-of-Pocket
+policy_limit <- 1000
+l0 <- 500
+a_l <- 2.5
+
+oop <- lambda %>% 
+  dplyr::mutate(prob_C1 = lambda * exp(-lambda),
+                E_oop = prob_C1 * (l0^(a_l)/(a_l - 1))*policy_limit^(-a_l + 1)) %>% 
+  dplyr::select(i, m, t, E_oop)
+
+summary(oop)
 ```
 
 ## Generate Choice in $t = 0$
@@ -103,16 +133,55 @@ $$
 
 ```{r generate choice}
 
-price_par_t0_d1 <- c(2, 3, 1)
-price_par_t0_d2 <- c(2, 3, 1)
-price_par_t0_d3 <- c(1, 2, 3)
-price_par_t0_d4 <- c(3, 1, 2)
+price_par_t0_d1 <- c(2, 3, 1, -1)
+price_par_t0_d2 <- c(2, 3, 1, -1)
+price_par_t0_d3 <- c(1, 2, 3, -1)
+price_par_t0_d4 <- c(3, 1, 2, -1)
 
-price_par_t0 <- price_par_t0_d1 %>% 
-  rbind(price_par_t0_d2) %>% 
-  rbind(price_par_t0_d3) %>% 
-  rbind(price_par_t0_d4)
+price_gen_d <- function(choice_t0, D, price_par_t0){
+  output <- choice_t0 %>% 
+    dplyr::filter(d == D) %>% 
+    dplyr::mutate(price = 
+                    price_par_t0[1]*x_1 + 
+                    price_par_t0[2]*x_2 + 
+                    price_par_t0[3]*x_3 +
+                    price_par_t0[3]*m +
+                    rnorm(1, 10, 1)) %>% 
+    dplyr::select(i, d, t, m, f, price)
+}
 
+## Generate Price
+price_gen_t0 <- function(choice_t0,
+                         price_par_t0_d1, price_par_t0_d2,
+                         price_par_t0_d3, price_par_t0_d4){
+  
+  price <- price_gen_d(choice_t0, 1, price_par_t0_d1) %>% 
+    rbind(price_gen_d(choice_t0, 2, price_par_t0_d2)) %>% 
+    rbind(price_gen_d(choice_t0, 3, price_par_t0_d3)) %>% 
+    rbind(price_gen_d(choice_t0, 4, price_par_t0_d4))
+  
+  output <- choice_t0 %>% 
+    dplyr::left_join(price, by = c("i", "d", "t", "m", "f"))
+  
+  return(output) 
+}
+
+## Generate Prior Firm
+
+prior_firm <- expand.grid(i = 1:N) %>% 
+  tibble::as_tibble() %>% 
+  dplyr::mutate(prior_firm = sample(1:4, size = N, replace = T, prob = c(0, 0.4, 0.35, 0.25)))
+
+## Generate Renewal Price
+
+alpha_m0 <- c(10, 3, 2)
+alpha_m1 <- c(10, 3, 3, -0.1)
+beta <- 5
+
+## Generate Inertia
+
+eta_f <- c(5, 1, 2, -1)
+xi <- c(1, -2)
 
 choice_t0 <- expand.grid(i = 1:N, d = 1:D, t = 0) %>% 
   tibble::as_tibble() %>% 
@@ -121,8 +190,37 @@ choice_t0 <- expand.grid(i = 1:N, d = 1:D, t = 0) %>%
                   d <= 2 ~ 1,
                   d == 3 ~ 2,
                   d == 4 ~ 3)) %>% 
-  dplyr::left_join(lambda, by = c("i", "m", "t"))
-  
+  dplyr::left_join(lambda, by = c("i", "m", "t")) %>% 
+  dplyr::left_join(score, by = c("i", "m", "t")) %>% 
+  dplyr::left_join(oop, by = c("i", "m", "t")) %>% 
+  price_gen_t0(price_par_t0_d1, price_par_t0_d2, price_par_t0_d3, price_par_t0_d4) %>% 
+  dplyr::left_join(prior_firm, by = c("i")) %>% 
+  dplyr::mutate(inertia = eta_f[1] + eta_f[2]*x_1 + eta_f[3]*x_2 + eta_f[4]*x_3,
+                monitoring_disutility = xi[1] + xi[2]*log(lambda),
+                demand_friction = ifelse(d == prior_firm, 0, inertia) + 
+                  ifelse(d == 1, monitoring_disutility, 0)) %>% 
+  dplyr::mutate(R = ifelse(m == 0, 
+                           (alpha_m0[1] + alpha_m0[2]*x_1 + alpha_m0[3]*x_2) / beta,
+                           (alpha_m1[1] + alpha_m1[2]*x_1 + alpha_m1[3]*x_2 + alpha_m1[4]*E_score) / beta),
+                E_renewal_price = price * R) %>% 
+  dplyr::mutate(h = - price - demand_friction - E_oop - E_renewal_price)
+
+# draw idiosyncratic shocks
+e <- evd::rgev(dim(choice_t0)[1])
+
+choice_t0 <- cbind(choice_t0, e) %>% 
+  dplyr::mutate(u = h + e) %>% 
+  dplyr::group_by(i, t) %>% 
+  dplyr::mutate(choice = ifelse(u == max(u), 1, 0)) %>% 
+  dplyr::ungroup()
+
+summary(choice_t0)
+
+summarize_choice <- choice_t0 %>% 
+  dplyr::group_by(d) %>% 
+  dplyr::summarise(choice = mean(choice))
+
+summarize_choice
 ```
 
 ## Generate Realization of Cost in $t = 0$
