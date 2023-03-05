@@ -133,10 +133,10 @@ $$
 
 ```{r generate choice}
 
-price_par_t0_d1 <- c(2, 3, 1, -1)
-price_par_t0_d2 <- c(2, 3, 1, -1)
+price_par_t0_d1 <- c(2, 2, 1, -1)
+price_par_t0_d2 <- c(2, 2, 1, -1)
 price_par_t0_d3 <- c(1, 2, 3, -1)
-price_par_t0_d4 <- c(3, 1, 2, -1)
+price_par_t0_d4 <- c(3, 2, 2, -1)
 
 price_gen_d <- function(choice_t0, D, price_par_t0){
   output <- choice_t0 %>% 
@@ -146,7 +146,7 @@ price_gen_d <- function(choice_t0, D, price_par_t0){
                     price_par_t0[2]*x_2 + 
                     price_par_t0[3]*x_3 +
                     price_par_t0[3]*m +
-                    rnorm(1, 10, 1)) %>% 
+                    rnorm(N, 10, 1)) %>% 
     dplyr::select(i, d, t, m, f, price)
 }
 
@@ -180,8 +180,8 @@ beta <- 5
 
 ## Generate Inertia
 
-eta_f <- c(5, 1, 2, -1)
-xi <- c(1, -2)
+eta_f <- c(3, 1, 0.5, -1)
+xi <- c(1, -0.5)
 
 choice_t0 <- expand.grid(i = 1:N, d = 1:D, t = 0) %>% 
   tibble::as_tibble() %>% 
@@ -227,6 +227,31 @@ summarize_choice
 
 - Each Claim has a stochastic cost $l$, drawn from an independent Pareto distribution
 - The monitoring score $s$ is drawn according to a log-normal distribution with mean $\mu_{s, i}$ and precision $\sigma_{s}$
+
+```{r cost realization}
+cost_t0 <- choice_t0 %>% 
+  dplyr::filter(choice == 1) %>% 
+  dplyr::mutate(claims = rpois(N, lambda = lambda))
+
+## Severity
+max_claims <- max(cost_t0$claims)
+
+claims_mat <- matrix(rep(0, N * max_claims), nrow = N)
+severity <- matrix(l0*runif(N * max_claims)^(-1/a_l), nrow = N)
+
+colnames(severity) <- paste("sev_", 1:max_claims, sep = "")
+
+cost_t0 <- cbind(cost_t0, severity)
+
+## Monitoring Score
+cost_t0 <- cost_t0 %>% 
+  dplyr::mutate(score = rlnorm(N, mu_score, sigma_score),
+                score = ifelse(m == 1, score, 1),
+                log_score = log(score))
+
+summary(cost_t0)
+
+```
 
 # Estimation
 
