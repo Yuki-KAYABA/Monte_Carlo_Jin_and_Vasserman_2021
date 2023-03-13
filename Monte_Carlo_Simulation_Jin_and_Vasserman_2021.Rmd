@@ -80,9 +80,22 @@ lambda <- mu_lambda %>%
 
 ```
 
-## Generate (Expectation of) Monitoring Score and Severity
+## Generate (Expectation of) Monitoring Score and Out-of-Pocket
 
-Then, we generate expectation of monitoring score and severity, which is necessary for expectation of out-of-pocket, $e(C, y_{d})$ and renewal price multiplier $R_{idt}(C, s)$.
+- Then, we generate expectation of monitoring score and severity, which is necessary for expectation of out-of-pocket, $e(C, y_{d})$ and renewal price multiplier $R_{idt}(C, s)$.
+- Score $s$ follows log-normal distribution with an individual mean $\mu_{s, i}$ and precision $\sigma_{s}$
+- Assuming that $\mu_{s, i} = \theta_{s, 1} + \theta_{s, 2}\log(\lambda_{i}) + \theta_{s, 3}x_{1, i} + \theta_{s, 4}x_{2, i}$, the expectation of score is given by $\exp(\mu_{s, i} + \frac{\sigma_{s}^{2}}{2})$
+- Out-of-pocket (OOP), is that consumers have to pay when an accident occurs due to deductible and/or policy limit
+- We assume that every plan has only policy limit
+- In the paper, for simplicity, consumers only consider the possibility of one claim occurrence per term in expectation
+- Then, expectation of OOP is given by:
+
+$$
+\begin{align}
+E[e(C, y_{d})] &= \Pr(C = 1) \times \int_{y_{0}}^{\infty} (x - y_{0})a_{l} l_{0}^{a_{l}} x^{- a_{l} - 1}dx \\
+&=  \lambda \exp(-\lambda) \times \left\{ \frac{l_{0}^{a_{l}}}{a_{l} - 1} y_{0}^{-a_{l} + 1} \right\}
+\end{align}
+$$
 
 ```{r cost model}
 ## Generate expectations of score
@@ -227,8 +240,10 @@ summarize_choice
 
 ## Generate Realization of Cost in $t = 0$
 
-- Each Claim has a stochastic cost $l$, drawn from an independent Pareto distribution
+- Since consumer's choice is path-dependent, i.e. price in next period depends on claims and monitoring score, we need to generate realization of costs in $t = 0$
+- Claim occurs according to Poisson distribution with mean $\lambda$
 - The monitoring score $s$ is drawn according to a log-normal distribution with mean $\mu_{s, i}$ and precision $\sigma_{s}$
+- Note that we do not need to generate realization of severity since it does not affect choices in $t = 1$
 
 ```{r cost realization}
 ## Claims Count
