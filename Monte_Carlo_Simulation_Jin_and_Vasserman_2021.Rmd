@@ -32,7 +32,7 @@ First we generate data in the following procedure.
 ```{r generate lambda}
 rm(list = ls())
 
-N <- 1000
+N <- 10^3
 T <- 1
 D <- 4
 
@@ -75,16 +75,17 @@ epsilon_lambda <- expand.grid(i = 1:N) %>%
 
 ## lambda
 lambda <- mu_lambda %>% 
-  dplyr::left_join(epsilon_lambda, key = c("i")) %>% 
+  dplyr::left_join(epsilon_lambda, by = c("i")) %>% 
   dplyr::mutate(lambda = exp(mu_lambda + epsilon_lambda))
 
 ```
 
 ## Generate (Expectation of) Monitoring Score and Severity
 
-```{r cost model}
+Then, we generate expectation of monitoring score and severity, which is necessary for expectation of out-of-pocket, $e(C, y_{d})$ and renewal price multiplier $R_{idt}(C, s)$.
 
-##
+```{r cost model}
+## Generate expectations of score
 theta_score <- c(1, -0.5, 2, 1)
 sigma_score <- 1
 
@@ -131,7 +132,7 @@ $$
 
 - Thus, we start with generating each component of $h_{idt}$.
 
-```{r generate choice}
+```{r generate choice in t0}
 
 price_par_t0_d1 <- c(2, 2, 1, -1)
 price_par_t0_d2 <- c(2, 2, 1, -1)
@@ -168,15 +169,15 @@ price_gen_t0 <- function(choice_t0,
 
 ## Generate Prior Firm
 
-prior_firm <- expand.grid(i = 1:N) %>% 
+prior_firm_t0 <- expand.grid(i = 1:N) %>% 
   tibble::as_tibble() %>% 
   dplyr::mutate(prior_firm = sample(1:4, size = N, replace = T, prob = c(0, 0.4, 0.35, 0.25)))
 
 ## Generate Renewal Price
 
-alpha_m0 <- c(10, 3, 2)
-alpha_m1 <- c(10, 3, 3, -0.1)
-beta <- 5
+alpha_m0 <- c(15, 3, 2)
+alpha_m1 <- c(15, 3, 3, -0.1)
+beta <- 7.5
 
 ## Generate Inertia
 
@@ -194,22 +195,23 @@ choice_t0 <- expand.grid(i = 1:N, d = 1:D, t = 0) %>%
   dplyr::left_join(score, by = c("i", "m", "t")) %>% 
   dplyr::left_join(oop, by = c("i", "m", "t")) %>% 
   price_gen_t0(price_par_t0_d1, price_par_t0_d2, price_par_t0_d3, price_par_t0_d4) %>% 
-  dplyr::left_join(prior_firm, by = c("i")) %>% 
+  dplyr::left_join(prior_firm_t0, by = c("i")) %>% 
   dplyr::mutate(inertia = eta_f[1] + eta_f[2]*x_1 + eta_f[3]*x_2 + eta_f[4]*x_3,
                 monitoring_disutility = xi[1] + xi[2]*log(lambda),
                 demand_friction = ifelse(d == prior_firm, 0, inertia) + 
                   ifelse(d == 1, monitoring_disutility, 0)) %>% 
-  dplyr::mutate(R = ifelse(m == 0, 
+  dplyr::mutate(E_R_s = ifelse(m == 0, 
                            (alpha_m0[1] + alpha_m0[2]*x_1 + alpha_m0[3]*x_2) / beta,
                            (alpha_m1[1] + alpha_m1[2]*x_1 + alpha_m1[3]*x_2 + alpha_m1[4]*E_score) / beta),
-                E_renewal_price = price * R) %>% 
+                E_R_C = 0.95 * exp(-lambda) + 1.1 * (1 - exp(-lambda)),
+                E_renewal_price = price * E_R_s * E_R_C) %>% 
   dplyr::mutate(h = - price - demand_friction - E_oop - E_renewal_price)
 
 # draw idiosyncratic shocks
-e <- evd::rgev(dim(choice_t0)[1])
+e_t0 <- evd::rgev(dim(choice_t0)[1])
 
-choice_t0 <- cbind(choice_t0, e) %>% 
-  dplyr::mutate(u = h + e) %>% 
+choice_t0 <- cbind(choice_t0, e_t0) %>% 
+  dplyr::mutate(u = h + e_t0) %>% 
   dplyr::group_by(i, t) %>% 
   dplyr::mutate(choice = ifelse(u == max(u), 1, 0)) %>% 
   dplyr::ungroup()
@@ -218,7 +220,7 @@ summary(choice_t0)
 
 summarize_choice <- choice_t0 %>% 
   dplyr::group_by(d) %>% 
-  dplyr::summarise(choice = mean(choice))
+  dplyr::summarise(share = mean(choice))
 
 summarize_choice
 ```
@@ -229,27 +231,116 @@ summarize_choice
 - The monitoring score $s$ is drawn according to a log-normal distribution with mean $\mu_{s, i}$ and precision $\sigma_{s}$
 
 ```{r cost realization}
+## Claims Count
 cost_t0 <- choice_t0 %>% 
   dplyr::filter(choice == 1) %>% 
   dplyr::mutate(claims = rpois(N, lambda = lambda))
 
 ## Severity
-max_claims <- max(cost_t0$claims)
-
-claims_mat <- matrix(rep(0, N * max_claims), nrow = N)
-severity <- matrix(l0*runif(N * max_claims)^(-1/a_l), nrow = N)
-
-colnames(severity) <- paste("sev_", 1:max_claims, sep = "")
-
-cost_t0 <- cbind(cost_t0, severity)
+# max_claims <- max(cost_t0$claims)
+# 
+# claims_mat <- matrix(rep(0, N * max_claims), nrow = N)
+# severity <- matrix(l0*runif(N * max_claims)^(-1/a_l), nrow = N)
+# 
+# colnames(severity) <- paste("sev_", 1:max_claims, sep = "")
+# 
+# cost_t0 <- cbind(cost_t0, severity)
 
 ## Monitoring Score
 cost_t0 <- cost_t0 %>% 
   dplyr::mutate(score = rlnorm(N, mu_score, sigma_score),
                 score = ifelse(m == 1, score, 1),
-                log_score = log(score))
+                log_score = log(score)) %>% 
+  dplyr::select(i, claims, matches("sev."), score, log_score)
 
 summary(cost_t0)
+
+```
+
+## Generate Choice in $t = 1$
+
+```{r generate choice in t1}
+renewal_price_t1 <- choice_t0 %>% 
+  dplyr::filter(choice == 1)
+
+renewal_price_t1 <- choice_t0 %>% 
+  dplyr::filter(choice == 1) %>% 
+  dplyr::left_join(cost_t0, by = c("i")) %>% 
+  dplyr::mutate(gamma_alpha = ifelse(m == 0,
+                                     alpha_m0[1] + alpha_m0[2]*x_1 + alpha_m0[3]*x_2,
+                                     alpha_m1[1] + alpha_m1[2]*x_1 + alpha_m1[3]*x_2 + alpha_m1[4]*score)) %>% 
+  dplyr::select(i, gamma_alpha)
+
+## Prior Firm
+prior_firm_t1 <- choice_t0 %>% 
+  dplyr::filter(choice == 1) %>% 
+  dplyr::mutate(prior_choice = d * choice,
+                prior_firm = f * choice) %>% 
+  dplyr::select(i, prior_choice, prior_firm)
+
+### Prior Price
+prior_price_t1 <- choice_t0 %>% 
+  dplyr::left_join(prior_firm_t1, by = c("i")) %>% 
+  dplyr::mutate(prior_price = price,
+                flg = dplyr::case_when(prior_choice == 1 & d != 2 ~ 1,
+                                       prior_choice > 1 & d != 1 ~ 1,
+                                       TRUE ~ 0)) %>% 
+  dplyr::filter(flg == 1) %>% 
+  dplyr::select(i, f, prior_price) %>% 
+  dplyr::arrange(i)
+
+  
+  
+choice_t1 <- expand.grid(i = 1:N, d = 1:(D - 1), t = 1) %>% 
+  tibble::as_tibble() %>% 
+  dplyr::mutate(m = 0,
+                f = d) %>% 
+  dplyr::left_join(prior_firm_t1, by = c("i")) %>% 
+  dplyr::left_join(prior_price_t1, by = c("i", "f")) %>% 
+  dplyr::left_join(lambda, by = c("i", "m", "t")) %>% 
+  dplyr::left_join(oop, by = c("i", "m", "t")) %>% 
+  dplyr::left_join(renewal_price_t1, by = c("i")) %>% 
+  dplyr::left_join(cost_t0, by = c("i")) %>% 
+  dplyr::mutate(R_s = rgamma(N * (D - 1), gamma_alpha, beta),
+                R_C = ifelse(claims == 0, 0.95, 1.1),
+                price = prior_price * R_s * R_C) %>% 
+  dplyr::mutate(inertia = eta_f[1] + eta_f[2]*x_1 + eta_f[3]*x_2 + eta_f[4]*x_3,
+                demand_friction = ifelse(d == prior_firm, 0, inertia)) %>%   
+  dplyr::mutate(E_R_s = ifelse(m == 0, 
+                           (alpha_m0[1] + alpha_m0[2]*x_1 + alpha_m0[3]*x_2) / beta,
+                           (alpha_m1[1] + alpha_m1[2]*x_1 + alpha_m1[3]*x_2 + alpha_m1[4]*E_score) / beta),
+                E_R_C = 0.95 * exp(-lambda) + 1.1 * (1 - exp(-lambda)),
+                E_renewal_price = price * E_R_s * E_R_C) %>% 
+  dplyr::mutate(h = - price - demand_friction - E_oop - E_renewal_price) %>% 
+  dplyr::arrange(i)
+
+# draw idiosyncratic shocks
+e_t1 <- evd::rgev(dim(choice_t1)[1])
+
+choice_t1 <- cbind(choice_t1, e_t1) %>% 
+  dplyr::mutate(u = h + e_t1) %>% 
+  dplyr::group_by(i, t) %>% 
+  dplyr::mutate(choice = ifelse(u == max(u), 1, 0)) %>% 
+  dplyr::ungroup()
+
+summary(choice_t1)
+
+summarize_choice_t1 <- choice_t1 %>% 
+  dplyr::group_by(d) %>% 
+  dplyr::summarise(share = mean(choice))
+
+summarize_choice_t1
+```
+
+```{r merge}
+
+choice_t0 <- choice_t0 %>% 
+  dplyr::select(i, d, t, m, f, x_1, x_2, x_3, x_4, price, prior_firm, choice)
+choice_t1 <- choice_t1 %>% 
+  dplyr::select(i, d, t, m, f, x_1, x_2, x_3, x_4, price, prior_firm, choice)
+
+choice_data <- rbind(choice_t0, choice_t1) %>% 
+  dplyr::arrange(t, i, d)
 
 ```
 
