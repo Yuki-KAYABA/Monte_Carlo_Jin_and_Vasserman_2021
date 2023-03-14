@@ -171,20 +171,21 @@ $$
 
 ```{r generate choice in t0}
 
-price_par_t0_d1 <- c(2, 1, 3, -1)
-price_par_t0_d2 <- c(2, 1, 3, -1)
-price_par_t0_d3 <- c(2, 3, 1, -1)
-price_par_t0_d4 <- c(3, 1, 2, -1)
+price_par_t0_d1 <- c(15, 3, 2, 3, -2)
+price_par_t0_d2 <- c(15, 3, 2, 3, -2)
+price_par_t0_d3 <- c(15, 2, 3, 2, -2)
+price_par_t0_d4 <- c(15, 4, 4, 1, -2)
 
 price_gen_d <- function(choice_t0, D, price_par_t0){
   output <- choice_t0 %>% 
     dplyr::filter(d == D) %>% 
     dplyr::mutate(price = 
-                    price_par_t0[1]*x_1 + 
-                    price_par_t0[2]*x_2 + 
-                    price_par_t0[3]*x_3 +
-                    price_par_t0[3]*m +
-                    rnorm(N, 10, 1)) %>% 
+                    price_par_t0[1] +
+                    price_par_t0[2]*x_1 + 
+                    price_par_t0[3]*x_2 + 
+                    price_par_t0[4]*x_3 +
+                    price_par_t0[5]*m +
+                    rnorm(N, 1, 1)) %>% 
     dplyr::select(i, d, t, m, f, price)
 }
 
@@ -218,8 +219,8 @@ beta <- 30
 
 ## Generate Inertia
 
-eta_f <- c(3, 1, 0.5, -1)
-xi <- c(1, -0.5)
+eta_f <- c(5, 1, 2, 2)
+xi <- c(1, -2.5)
 
 choice_t0 <- expand.grid(i = 1:N, d = 1:D, t = 0) %>% 
   tibble::as_tibble() %>% 
@@ -260,6 +261,21 @@ summarize_choice <- choice_t0 %>%
   dplyr::summarise(share = mean(choice))
 
 summarize_choice
+```
+
+```{r visualize price}
+
+## Visualize Price in t = 0
+g_price_t0 <- choice_t0 %>% 
+  dplyr::mutate(plan = dplyr::case_when(d == 1 ~ "Firm1 Monitoring",
+                                        d == 2 ~ "Firm1 No Monitoring",
+                                        d == 3 ~ "Firm2",
+                                        d == 4 ~ "Firm3")) %>% 
+  ggplot(aes(x = price, fill = plan)) + 
+  geom_histogram(position = "identity", alpha = 0.6, binwidth = 0.25)
+
+plot(g_price_t0)
+
 ```
 
 ## Generate Realization of Cost in $t = 0$
