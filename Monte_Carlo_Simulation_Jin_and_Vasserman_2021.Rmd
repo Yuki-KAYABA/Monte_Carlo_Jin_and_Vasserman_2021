@@ -13,6 +13,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE, eval = TRUE, cache = FALSE)
 library(bookdown)
 library(magrittr)
+library(tidyverse)
 library(MASS)
 ```
 
@@ -32,7 +33,7 @@ First we generate data in the following procedure.
 ```{r generate lambda}
 rm(list = ls())
 
-N <- 10^3
+N <- 10^4
 T <- 1
 D <- 4
 
@@ -41,12 +42,12 @@ set.seed(1)
 
 ## True Parameters
 sigma_lambda <- 0.1
-theta_lambda <- c(1, 0.5, 1, 2, -0.5)
+theta_lambda <- c(-3, -0.5, 1, -1, 1, -0.5)
 
 ## Covariates
-mu_x_t0 <- rep(-1, 4)
+mu_x_t0 <- rep(0, 4)
 mu_x_t1 <- rep(0, 4)
-sigma_x <- diag(0.5, 4)
+sigma_x <- diag(0.25, 4)
 
 X_t0 <- mvrnorm(N, mu_x_t0, sigma_x)
 X_t1 <- 0.5*X_t0 + 0.5*mvrnorm(N, mu_x_t1, sigma_x)
@@ -64,9 +65,10 @@ X_lambda <- expand.grid(i = 1:N, m = 0:1, t = 0:1) %>%
 
 ## mu_lambda
 mu_lambda <- X_lambda %>% 
-  dplyr::mutate(mu_lambda = theta_lambda[1]*x_1 + theta_lambda[2]*x_2
-                + theta_lambda[3]*x_3 + theta_lambda[4]*x_4
-                + theta_lambda[5]*ifelse(m == 0 & t == 0, 1, 0))
+  dplyr::mutate(mu_lambda = theta_lambda[1]
+                + theta_lambda[2]*x_1 + theta_lambda[3]*x_2
+                + theta_lambda[4]*x_3 + theta_lambda[5]*x_4
+                + theta_lambda[6]*ifelse(m == 1 & t == 0, 1, 0))
 
 ## epsilon_lambda
 epsilon_lambda <- expand.grid(i = 1:N) %>% 
@@ -78,6 +80,13 @@ lambda <- mu_lambda %>%
   dplyr::left_join(epsilon_lambda, by = c("i")) %>% 
   dplyr::mutate(lambda = exp(mu_lambda + epsilon_lambda))
 
+## Visualize 
+g_lambda <- lambda %>% 
+  dplyr::mutate(monitoring = ifelse(m == 1, "Monitored", "Unmonitored")) %>% 
+  ggplot(aes(x = lambda, fill = monitoring)) + 
+  geom_histogram(position = "identity", alpha = 0.6, binwidth = 0.025)
+
+plot(g_lambda)
 ```
 
 ## Generate (Expectation of) Monitoring Score and Out-of-Pocket
@@ -97,10 +106,10 @@ E[e(C, y_{d})] &= \Pr(C = 1) \times \int_{y_{0}}^{\infty} (x - y_{0})a_{l} l_{0}
 \end{align}
 $$
 
-```{r cost model}
+```{r expectation of score}
 ## Generate expectations of score
-theta_score <- c(1, -0.5, 2, 1)
-sigma_score <- 1
+theta_score <- c(-3, -0.5, 2, 1)
+sigma_score <- 0.25
 
 score <- lambda %>% 
   dplyr::filter(t == 0, m == 1) %>% 
@@ -109,6 +118,15 @@ score <- lambda %>%
                 E_score = exp(mu_score + sigma_score^2 / 2)) %>% 
   dplyr::select(i, m, t, mu_score, E_score)
 
+## Visualize Score
+g_mu_score <- score %>% 
+  ggplot(aes(x = mu_score)) + 
+  geom_histogram(binwidth = 0.1)
+
+plot(g_mu_score)
+```
+
+```{r expectation of oop}
 ## Expectation of Out-of-Pocket
 policy_limit <- 1000
 l0 <- 500
@@ -119,7 +137,13 @@ oop <- lambda %>%
                 E_oop = prob_C1 * (l0^(a_l)/(a_l - 1))*policy_limit^(-a_l + 1)) %>% 
   dplyr::select(i, m, t, E_oop)
 
-summary(oop)
+## Visualize OOP
+g_oop <- oop %>% 
+  ggplot(aes(x = E_oop)) + 
+  geom_histogram(binwidth = 0.5)
+
+plot(g_oop)
+
 ```
 
 ## Generate Choice in $t = 0$
@@ -147,10 +171,10 @@ $$
 
 ```{r generate choice in t0}
 
-price_par_t0_d1 <- c(2, 2, 1, -1)
-price_par_t0_d2 <- c(2, 2, 1, -1)
-price_par_t0_d3 <- c(1, 2, 3, -1)
-price_par_t0_d4 <- c(3, 2, 2, -1)
+price_par_t0_d1 <- c(2, 1, 3, -1)
+price_par_t0_d2 <- c(2, 1, 3, -1)
+price_par_t0_d3 <- c(2, 3, 1, -1)
+price_par_t0_d4 <- c(3, 1, 2, -1)
 
 price_gen_d <- function(choice_t0, D, price_par_t0){
   output <- choice_t0 %>% 
@@ -188,9 +212,9 @@ prior_firm_t0 <- expand.grid(i = 1:N) %>%
 
 ## Generate Renewal Price
 
-alpha_m0 <- c(15, 3, 2)
-alpha_m1 <- c(15, 3, 3, -0.1)
-beta <- 7.5
+alpha_m0 <- c(20, 5, 3)
+alpha_m1 <- c(20, 5, 3, -0.5)
+beta <- 30
 
 ## Generate Inertia
 
@@ -243,7 +267,7 @@ summarize_choice
 - Since consumer's choice is path-dependent, i.e. price in next period depends on claims and monitoring score, we need to generate realization of costs in $t = 0$
 - Claim occurs according to Poisson distribution with mean $\lambda$
 - The monitoring score $s$ is drawn according to a log-normal distribution with mean $\mu_{s, i}$ and precision $\sigma_{s}$
-- Note that we do not need to generate realization of severity since it does not affect choices in $t = 1$
+- Note that we do not need to generate realization of severity since it does not affect consumer's choice in $t = 1$
 
 ```{r cost realization}
 ## Claims Count

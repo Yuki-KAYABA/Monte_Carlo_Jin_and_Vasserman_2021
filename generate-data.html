@@ -178,7 +178,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="generate-data.html#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
 <span id="cb1-2"><a href="generate-data.html#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="generate-data.html#cb1-3" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^</span><span class="dv">3</span></span>
+<span id="cb1-3"><a href="generate-data.html#cb1-3" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^</span><span class="dv">4</span></span>
 <span id="cb1-4"><a href="generate-data.html#cb1-4" aria-hidden="true" tabindex="-1"></a>T <span class="ot">&lt;-</span> <span class="dv">1</span></span>
 <span id="cb1-5"><a href="generate-data.html#cb1-5" aria-hidden="true" tabindex="-1"></a>D <span class="ot">&lt;-</span> <span class="dv">4</span></span>
 <span id="cb1-6"><a href="generate-data.html#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
@@ -187,12 +187,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-9"><a href="generate-data.html#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-10"><a href="generate-data.html#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## True Parameters</span></span>
 <span id="cb1-11"><a href="generate-data.html#cb1-11" aria-hidden="true" tabindex="-1"></a>sigma_lambda <span class="ot">&lt;-</span> <span class="fl">0.1</span></span>
-<span id="cb1-12"><a href="generate-data.html#cb1-12" aria-hidden="true" tabindex="-1"></a>theta_lambda <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="sc">-</span><span class="fl">0.5</span>)</span>
+<span id="cb1-12"><a href="generate-data.html#cb1-12" aria-hidden="true" tabindex="-1"></a>theta_lambda <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">3</span>, <span class="sc">-</span><span class="fl">0.5</span>, <span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="sc">-</span><span class="fl">0.5</span>)</span>
 <span id="cb1-13"><a href="generate-data.html#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-14"><a href="generate-data.html#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="do">## Covariates</span></span>
-<span id="cb1-15"><a href="generate-data.html#cb1-15" aria-hidden="true" tabindex="-1"></a>mu_x_t0 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">4</span>)</span>
+<span id="cb1-15"><a href="generate-data.html#cb1-15" aria-hidden="true" tabindex="-1"></a>mu_x_t0 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, <span class="dv">4</span>)</span>
 <span id="cb1-16"><a href="generate-data.html#cb1-16" aria-hidden="true" tabindex="-1"></a>mu_x_t1 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, <span class="dv">4</span>)</span>
-<span id="cb1-17"><a href="generate-data.html#cb1-17" aria-hidden="true" tabindex="-1"></a>sigma_x <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="fl">0.5</span>, <span class="dv">4</span>)</span>
+<span id="cb1-17"><a href="generate-data.html#cb1-17" aria-hidden="true" tabindex="-1"></a>sigma_x <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="fl">0.25</span>, <span class="dv">4</span>)</span>
 <span id="cb1-18"><a href="generate-data.html#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-19"><a href="generate-data.html#cb1-19" aria-hidden="true" tabindex="-1"></a>X_t0 <span class="ot">&lt;-</span> <span class="fu">mvrnorm</span>(N, mu_x_t0, sigma_x)</span>
 <span id="cb1-20"><a href="generate-data.html#cb1-20" aria-hidden="true" tabindex="-1"></a>X_t1 <span class="ot">&lt;-</span> <span class="fl">0.5</span><span class="sc">*</span>X_t0 <span class="sc">+</span> <span class="fl">0.5</span><span class="sc">*</span><span class="fu">mvrnorm</span>(N, mu_x_t1, sigma_x)</span>
@@ -210,19 +210,29 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-32"><a href="generate-data.html#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-33"><a href="generate-data.html#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="do">## mu_lambda</span></span>
 <span id="cb1-34"><a href="generate-data.html#cb1-34" aria-hidden="true" tabindex="-1"></a>mu_lambda <span class="ot">&lt;-</span> X_lambda <span class="sc">%&gt;%</span> </span>
-<span id="cb1-35"><a href="generate-data.html#cb1-35" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">mu_lambda =</span> theta_lambda[<span class="dv">1</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> theta_lambda[<span class="dv">2</span>]<span class="sc">*</span>x_2</span>
-<span id="cb1-36"><a href="generate-data.html#cb1-36" aria-hidden="true" tabindex="-1"></a>                <span class="sc">+</span> theta_lambda[<span class="dv">3</span>]<span class="sc">*</span>x_3 <span class="sc">+</span> theta_lambda[<span class="dv">4</span>]<span class="sc">*</span>x_4</span>
-<span id="cb1-37"><a href="generate-data.html#cb1-37" aria-hidden="true" tabindex="-1"></a>                <span class="sc">+</span> theta_lambda[<span class="dv">5</span>]<span class="sc">*</span><span class="fu">ifelse</span>(m <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> t <span class="sc">==</span> <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>))</span>
-<span id="cb1-38"><a href="generate-data.html#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-39"><a href="generate-data.html#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="do">## epsilon_lambda</span></span>
-<span id="cb1-40"><a href="generate-data.html#cb1-40" aria-hidden="true" tabindex="-1"></a>epsilon_lambda <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>N) <span class="sc">%&gt;%</span> </span>
-<span id="cb1-41"><a href="generate-data.html#cb1-41" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb1-42"><a href="generate-data.html#cb1-42" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">epsilon_lambda =</span> <span class="fu">rnorm</span>(N, <span class="dv">0</span>, sigma_lambda))</span>
-<span id="cb1-43"><a href="generate-data.html#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-44"><a href="generate-data.html#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="do">## lambda</span></span>
-<span id="cb1-45"><a href="generate-data.html#cb1-45" aria-hidden="true" tabindex="-1"></a>lambda <span class="ot">&lt;-</span> mu_lambda <span class="sc">%&gt;%</span> </span>
-<span id="cb1-46"><a href="generate-data.html#cb1-46" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(epsilon_lambda, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb1-47"><a href="generate-data.html#cb1-47" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">lambda =</span> <span class="fu">exp</span>(mu_lambda <span class="sc">+</span> epsilon_lambda))</span></code></pre></div>
+<span id="cb1-35"><a href="generate-data.html#cb1-35" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">mu_lambda =</span> theta_lambda[<span class="dv">1</span>]</span>
+<span id="cb1-36"><a href="generate-data.html#cb1-36" aria-hidden="true" tabindex="-1"></a>                <span class="sc">+</span> theta_lambda[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> theta_lambda[<span class="dv">3</span>]<span class="sc">*</span>x_2</span>
+<span id="cb1-37"><a href="generate-data.html#cb1-37" aria-hidden="true" tabindex="-1"></a>                <span class="sc">+</span> theta_lambda[<span class="dv">4</span>]<span class="sc">*</span>x_3 <span class="sc">+</span> theta_lambda[<span class="dv">5</span>]<span class="sc">*</span>x_4</span>
+<span id="cb1-38"><a href="generate-data.html#cb1-38" aria-hidden="true" tabindex="-1"></a>                <span class="sc">+</span> theta_lambda[<span class="dv">6</span>]<span class="sc">*</span><span class="fu">ifelse</span>(m <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> t <span class="sc">==</span> <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>))</span>
+<span id="cb1-39"><a href="generate-data.html#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-40"><a href="generate-data.html#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="do">## epsilon_lambda</span></span>
+<span id="cb1-41"><a href="generate-data.html#cb1-41" aria-hidden="true" tabindex="-1"></a>epsilon_lambda <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>N) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-42"><a href="generate-data.html#cb1-42" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb1-43"><a href="generate-data.html#cb1-43" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">epsilon_lambda =</span> <span class="fu">rnorm</span>(N, <span class="dv">0</span>, sigma_lambda))</span>
+<span id="cb1-44"><a href="generate-data.html#cb1-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-45"><a href="generate-data.html#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="do">## lambda</span></span>
+<span id="cb1-46"><a href="generate-data.html#cb1-46" aria-hidden="true" tabindex="-1"></a>lambda <span class="ot">&lt;-</span> mu_lambda <span class="sc">%&gt;%</span> </span>
+<span id="cb1-47"><a href="generate-data.html#cb1-47" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(epsilon_lambda, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-48"><a href="generate-data.html#cb1-48" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">lambda =</span> <span class="fu">exp</span>(mu_lambda <span class="sc">+</span> epsilon_lambda))</span>
+<span id="cb1-49"><a href="generate-data.html#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-50"><a href="generate-data.html#cb1-50" aria-hidden="true" tabindex="-1"></a><span class="do">## Visualize </span></span>
+<span id="cb1-51"><a href="generate-data.html#cb1-51" aria-hidden="true" tabindex="-1"></a>g_lambda <span class="ot">&lt;-</span> lambda <span class="sc">%&gt;%</span> </span>
+<span id="cb1-52"><a href="generate-data.html#cb1-52" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">monitoring =</span> <span class="fu">ifelse</span>(m <span class="sc">==</span> <span class="dv">1</span>, <span class="st">&quot;Monitored&quot;</span>, <span class="st">&quot;Unmonitored&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-53"><a href="generate-data.html#cb1-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> lambda, <span class="at">fill =</span> monitoring)) <span class="sc">+</span> </span>
+<span id="cb1-54"><a href="generate-data.html#cb1-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">position =</span> <span class="st">&quot;identity&quot;</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>, <span class="at">binwidth =</span> <span class="fl">0.025</span>)</span>
+<span id="cb1-55"><a href="generate-data.html#cb1-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-56"><a href="generate-data.html#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_lambda)</span></code></pre></div>
+<p><img src="Monte_Carlo_Simulation_Jin_and_Vasserman_2021_files/figure-html/generate%20lambda-1.png" width="672" /></p>
 </div>
 <div id="generate-expectation-of-monitoring-score-and-out-of-pocket" class="section level2 hasAnchor" number="1.2">
 <h2><span class="header-section-number">1.2</span> Generate (Expectation of) Monitoring Score and Out-of-Pocket<a href="generate-data.html#generate-expectation-of-monitoring-score-and-out-of-pocket" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -242,8 +252,8 @@ E[e(C, y_{d})] &amp;= \Pr(C = 1) \times \int_{y_{0}}^{\infty} (x - y_{0})a_{l} l
 \end{align}
 \]</span></p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="generate-data.html#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Generate expectations of score</span></span>
-<span id="cb2-2"><a href="generate-data.html#cb2-2" aria-hidden="true" tabindex="-1"></a>theta_score <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="sc">-</span><span class="fl">0.5</span>, <span class="dv">2</span>, <span class="dv">1</span>)</span>
-<span id="cb2-3"><a href="generate-data.html#cb2-3" aria-hidden="true" tabindex="-1"></a>sigma_score <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb2-2"><a href="generate-data.html#cb2-2" aria-hidden="true" tabindex="-1"></a>theta_score <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">3</span>, <span class="sc">-</span><span class="fl">0.5</span>, <span class="dv">2</span>, <span class="dv">1</span>)</span>
+<span id="cb2-3"><a href="generate-data.html#cb2-3" aria-hidden="true" tabindex="-1"></a>sigma_score <span class="ot">&lt;-</span> <span class="fl">0.25</span></span>
 <span id="cb2-4"><a href="generate-data.html#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-5"><a href="generate-data.html#cb2-5" aria-hidden="true" tabindex="-1"></a>score <span class="ot">&lt;-</span> lambda <span class="sc">%&gt;%</span> </span>
 <span id="cb2-6"><a href="generate-data.html#cb2-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(t <span class="sc">==</span> <span class="dv">0</span>, m <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
@@ -252,24 +262,30 @@ E[e(C, y_{d})] &amp;= \Pr(C = 1) \times \int_{y_{0}}^{\infty} (x - y_{0})a_{l} l
 <span id="cb2-9"><a href="generate-data.html#cb2-9" aria-hidden="true" tabindex="-1"></a>                <span class="at">E_score =</span> <span class="fu">exp</span>(mu_score <span class="sc">+</span> sigma_score<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="dv">2</span>)) <span class="sc">%&gt;%</span> </span>
 <span id="cb2-10"><a href="generate-data.html#cb2-10" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(i, m, t, mu_score, E_score)</span>
 <span id="cb2-11"><a href="generate-data.html#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="generate-data.html#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="do">## Expectation of Out-of-Pocket</span></span>
-<span id="cb2-13"><a href="generate-data.html#cb2-13" aria-hidden="true" tabindex="-1"></a>policy_limit <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
-<span id="cb2-14"><a href="generate-data.html#cb2-14" aria-hidden="true" tabindex="-1"></a>l0 <span class="ot">&lt;-</span> <span class="dv">500</span></span>
-<span id="cb2-15"><a href="generate-data.html#cb2-15" aria-hidden="true" tabindex="-1"></a>a_l <span class="ot">&lt;-</span> <span class="fl">2.5</span></span>
+<span id="cb2-12"><a href="generate-data.html#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="do">## Visualize Score</span></span>
+<span id="cb2-13"><a href="generate-data.html#cb2-13" aria-hidden="true" tabindex="-1"></a>g_mu_score <span class="ot">&lt;-</span> score <span class="sc">%&gt;%</span> </span>
+<span id="cb2-14"><a href="generate-data.html#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> mu_score)) <span class="sc">+</span> </span>
+<span id="cb2-15"><a href="generate-data.html#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="fl">0.1</span>)</span>
 <span id="cb2-16"><a href="generate-data.html#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-17"><a href="generate-data.html#cb2-17" aria-hidden="true" tabindex="-1"></a>oop <span class="ot">&lt;-</span> lambda <span class="sc">%&gt;%</span> </span>
-<span id="cb2-18"><a href="generate-data.html#cb2-18" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">prob_C1 =</span> lambda <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span>lambda),</span>
-<span id="cb2-19"><a href="generate-data.html#cb2-19" aria-hidden="true" tabindex="-1"></a>                <span class="at">E_oop =</span> prob_C1 <span class="sc">*</span> (l0<span class="sc">^</span>(a_l)<span class="sc">/</span>(a_l <span class="sc">-</span> <span class="dv">1</span>))<span class="sc">*</span>policy_limit<span class="sc">^</span>(<span class="sc">-</span>a_l <span class="sc">+</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb2-20"><a href="generate-data.html#cb2-20" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(i, m, t, E_oop)</span>
-<span id="cb2-21"><a href="generate-data.html#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-22"><a href="generate-data.html#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(oop)</span></code></pre></div>
-<pre><code>##        i                m             t           E_oop        
-##  Min.   :   1.0   Min.   :0.0   Min.   :0.0   Min.   : 0.0000  
-##  1st Qu.: 250.8   1st Qu.:0.0   1st Qu.:0.0   1st Qu.: 0.9783  
-##  Median : 500.5   Median :0.5   Median :0.5   Median : 4.3489  
-##  Mean   : 500.5   Mean   :0.5   Mean   :0.5   Mean   : 9.0879  
-##  3rd Qu.: 750.2   3rd Qu.:1.0   3rd Qu.:1.0   3rd Qu.:13.4783  
-##  Max.   :1000.0   Max.   :1.0   Max.   :1.0   Max.   :43.3550</code></pre>
+<span id="cb2-17"><a href="generate-data.html#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_mu_score)</span></code></pre></div>
+<p><img src="Monte_Carlo_Simulation_Jin_and_Vasserman_2021_files/figure-html/expectation%20of%20score-1.png" width="672" /></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="generate-data.html#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Expectation of Out-of-Pocket</span></span>
+<span id="cb3-2"><a href="generate-data.html#cb3-2" aria-hidden="true" tabindex="-1"></a>policy_limit <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb3-3"><a href="generate-data.html#cb3-3" aria-hidden="true" tabindex="-1"></a>l0 <span class="ot">&lt;-</span> <span class="dv">500</span></span>
+<span id="cb3-4"><a href="generate-data.html#cb3-4" aria-hidden="true" tabindex="-1"></a>a_l <span class="ot">&lt;-</span> <span class="fl">2.5</span></span>
+<span id="cb3-5"><a href="generate-data.html#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="generate-data.html#cb3-6" aria-hidden="true" tabindex="-1"></a>oop <span class="ot">&lt;-</span> lambda <span class="sc">%&gt;%</span> </span>
+<span id="cb3-7"><a href="generate-data.html#cb3-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">prob_C1 =</span> lambda <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span>lambda),</span>
+<span id="cb3-8"><a href="generate-data.html#cb3-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">E_oop =</span> prob_C1 <span class="sc">*</span> (l0<span class="sc">^</span>(a_l)<span class="sc">/</span>(a_l <span class="sc">-</span> <span class="dv">1</span>))<span class="sc">*</span>policy_limit<span class="sc">^</span>(<span class="sc">-</span>a_l <span class="sc">+</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-9"><a href="generate-data.html#cb3-9" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(i, m, t, E_oop)</span>
+<span id="cb3-10"><a href="generate-data.html#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="generate-data.html#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="do">## Visualize OOP</span></span>
+<span id="cb3-12"><a href="generate-data.html#cb3-12" aria-hidden="true" tabindex="-1"></a>g_oop <span class="ot">&lt;-</span> oop <span class="sc">%&gt;%</span> </span>
+<span id="cb3-13"><a href="generate-data.html#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> E_oop)) <span class="sc">+</span> </span>
+<span id="cb3-14"><a href="generate-data.html#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="fl">0.5</span>)</span>
+<span id="cb3-15"><a href="generate-data.html#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="generate-data.html#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_oop)</span></code></pre></div>
+<p><img src="Monte_Carlo_Simulation_Jin_and_Vasserman_2021_files/figure-html/expectation%20of%20oop-1.png" width="672" /></p>
 </div>
 <div id="generate-choice-in-t-0" class="section level2 hasAnchor" number="1.3">
 <h2><span class="header-section-number">1.3</span> Generate Choice in <span class="math inline">\(t = 0\)</span><a href="generate-data.html#generate-choice-in-t-0" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -295,10 +311,10 @@ d_{it} &amp;= \mathop{\rm argmax}\limits_{d \in D_{it}} \left\{ v_{idt} + \varep
 <ul>
 <li>Thus, we start with generating each component of <span class="math inline">\(h_{idt}\)</span>.</li>
 </ul>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="generate-data.html#cb4-1" aria-hidden="true" tabindex="-1"></a>price_par_t0_d1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>)</span>
-<span id="cb4-2"><a href="generate-data.html#cb4-2" aria-hidden="true" tabindex="-1"></a>price_par_t0_d2 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>)</span>
-<span id="cb4-3"><a href="generate-data.html#cb4-3" aria-hidden="true" tabindex="-1"></a>price_par_t0_d3 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="sc">-</span><span class="dv">1</span>)</span>
-<span id="cb4-4"><a href="generate-data.html#cb4-4" aria-hidden="true" tabindex="-1"></a>price_par_t0_d4 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="sc">-</span><span class="dv">1</span>)</span>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="generate-data.html#cb4-1" aria-hidden="true" tabindex="-1"></a>price_par_t0_d1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="sc">-</span><span class="dv">1</span>)</span>
+<span id="cb4-2"><a href="generate-data.html#cb4-2" aria-hidden="true" tabindex="-1"></a>price_par_t0_d2 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="sc">-</span><span class="dv">1</span>)</span>
+<span id="cb4-3"><a href="generate-data.html#cb4-3" aria-hidden="true" tabindex="-1"></a>price_par_t0_d3 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>)</span>
+<span id="cb4-4"><a href="generate-data.html#cb4-4" aria-hidden="true" tabindex="-1"></a>price_par_t0_d4 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="sc">-</span><span class="dv">1</span>)</span>
 <span id="cb4-5"><a href="generate-data.html#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-6"><a href="generate-data.html#cb4-6" aria-hidden="true" tabindex="-1"></a>price_gen_d <span class="ot">&lt;-</span> <span class="cf">function</span>(choice_t0, D, price_par_t0){</span>
 <span id="cb4-7"><a href="generate-data.html#cb4-7" aria-hidden="true" tabindex="-1"></a>  output <span class="ot">&lt;-</span> choice_t0 <span class="sc">%&gt;%</span> </span>
@@ -336,9 +352,9 @@ d_{it} &amp;= \mathop{\rm argmax}\limits_{d \in D_{it}} \left\{ v_{idt} + \varep
 <span id="cb4-39"><a href="generate-data.html#cb4-39" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-40"><a href="generate-data.html#cb4-40" aria-hidden="true" tabindex="-1"></a><span class="do">## Generate Renewal Price</span></span>
 <span id="cb4-41"><a href="generate-data.html#cb4-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-42"><a href="generate-data.html#cb4-42" aria-hidden="true" tabindex="-1"></a>alpha_m0 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">15</span>, <span class="dv">3</span>, <span class="dv">2</span>)</span>
-<span id="cb4-43"><a href="generate-data.html#cb4-43" aria-hidden="true" tabindex="-1"></a>alpha_m1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">15</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="sc">-</span><span class="fl">0.1</span>)</span>
-<span id="cb4-44"><a href="generate-data.html#cb4-44" aria-hidden="true" tabindex="-1"></a>beta <span class="ot">&lt;-</span> <span class="fl">7.5</span></span>
+<span id="cb4-42"><a href="generate-data.html#cb4-42" aria-hidden="true" tabindex="-1"></a>alpha_m0 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">5</span>, <span class="dv">3</span>)</span>
+<span id="cb4-43"><a href="generate-data.html#cb4-43" aria-hidden="true" tabindex="-1"></a>alpha_m1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">5</span>, <span class="dv">3</span>, <span class="sc">-</span><span class="fl">0.5</span>)</span>
+<span id="cb4-44"><a href="generate-data.html#cb4-44" aria-hidden="true" tabindex="-1"></a>beta <span class="ot">&lt;-</span> <span class="dv">30</span></span>
 <span id="cb4-45"><a href="generate-data.html#cb4-45" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-46"><a href="generate-data.html#cb4-46" aria-hidden="true" tabindex="-1"></a><span class="do">## Generate Inertia</span></span>
 <span id="cb4-47"><a href="generate-data.html#cb4-47" aria-hidden="true" tabindex="-1"></a></span>
@@ -378,61 +394,61 @@ d_{it} &amp;= \mathop{\rm argmax}\limits_{d \in D_{it}} \left\{ v_{idt} + \varep
 <span id="cb4-81"><a href="generate-data.html#cb4-81" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">ungroup</span>()</span>
 <span id="cb4-82"><a href="generate-data.html#cb4-82" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-83"><a href="generate-data.html#cb4-83" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(choice_t0)</span></code></pre></div>
-<pre><code>##        i                d              t           m              f       
-##  Min.   :   1.0   Min.   :1.00   Min.   :0   Min.   :0.00   Min.   :1.00  
-##  1st Qu.: 250.8   1st Qu.:1.75   1st Qu.:0   1st Qu.:0.00   1st Qu.:1.00  
-##  Median : 500.5   Median :2.50   Median :0   Median :0.00   Median :1.50  
-##  Mean   : 500.5   Mean   :2.50   Mean   :0   Mean   :0.25   Mean   :1.75  
-##  3rd Qu.: 750.2   3rd Qu.:3.25   3rd Qu.:0   3rd Qu.:0.25   3rd Qu.:2.25  
-##  Max.   :1000.0   Max.   :4.00   Max.   :0   Max.   :1.00   Max.   :3.00  
+<pre><code>##        i               d              t           m              f       
+##  Min.   :    1   Min.   :1.00   Min.   :0   Min.   :0.00   Min.   :1.00  
+##  1st Qu.: 2501   1st Qu.:1.75   1st Qu.:0   1st Qu.:0.00   1st Qu.:1.00  
+##  Median : 5000   Median :2.50   Median :0   Median :0.00   Median :1.50  
+##  Mean   : 5000   Mean   :2.50   Mean   :0   Mean   :0.25   Mean   :1.75  
+##  3rd Qu.: 7500   3rd Qu.:3.25   3rd Qu.:0   3rd Qu.:0.25   3rd Qu.:2.25  
+##  Max.   :10000   Max.   :4.00   Max.   :0   Max.   :1.00   Max.   :3.00  
+##                                                                          
+##       x_1                 x_2                 x_3           
+##  Min.   :-1.912593   Min.   :-1.819522   Min.   :-2.151391  
+##  1st Qu.:-0.346953   1st Qu.:-0.338214   1st Qu.:-0.341967  
+##  Median : 0.005293   Median : 0.011644   Median :-0.009529  
+##  Mean   :-0.002773   Mean   : 0.003777   Mean   :-0.002095  
+##  3rd Qu.: 0.329070   3rd Qu.: 0.340565   3rd Qu.: 0.330698  
+##  Max.   : 1.904948   Max.   : 1.825388   Max.   : 1.863980  
+##                                                             
+##       x_4              mu_lambda       epsilon_lambda           lambda        
+##  Min.   :-1.835650   Min.   :-6.5734   Min.   :-0.3604587   Min.   :0.001553  
+##  1st Qu.:-0.336697   1st Qu.:-3.7525   1st Qu.:-0.0684224   1st Qu.:0.023316  
+##  Median :-0.007964   Median :-3.0988   Median : 0.0000225   Median :0.044963  
+##  Mean   :-0.003269   Mean   :-3.1210   Mean   :-0.0007373   Mean   :0.067406  
+##  3rd Qu.: 0.338830   3rd Qu.:-2.4858   3rd Qu.: 0.0658190   3rd Qu.:0.083714  
+##  Max.   : 1.905138   Max.   : 0.4656   Max.   : 0.3724271   Max.   :1.944098  
+##                                                                               
+##     mu_score         E_score           E_oop             price       
+##  Min.   :-5.586   Min.   : 0.004   Min.   : 0.1827   Min.   : 2.551  
+##  1st Qu.:-2.063   1st Qu.: 0.131   1st Qu.: 2.6845   1st Qu.: 9.021  
+##  Median :-1.238   Median : 0.299   Median : 5.0660   Median :10.646  
+##  Mean   :-1.253   Mean   : 0.598   Mean   : 6.9047   Mean   :10.750  
+##  3rd Qu.:-0.448   3rd Qu.: 0.659   3rd Qu.: 9.0735   3rd Qu.:12.396  
+##  Max.   : 3.002   Max.   :20.758   Max.   :43.3299   Max.   :21.247  
+##  NA&#39;s   :30000    NA&#39;s   :30000                                      
+##    prior_firm       inertia        monitoring_disutility demand_friction  
+##  Min.   :2.000   Min.   :0.05468   Min.   :0.6676        Min.   :0.00000  
+##  1st Qu.:2.000   1st Qu.:2.49196   1st Qu.:2.2402        1st Qu.:0.04101  
+##  Median :3.000   Median :3.00679   Median :2.5510        Median :3.00674  
+##  Mean   :2.873   Mean   :3.00121   Mean   :2.5609        Mean   :2.93800  
+##  3rd Qu.:4.000   3rd Qu.:3.50264   3rd Qu.:2.8793        3rd Qu.:4.51384  
+##  Max.   :4.000   Max.   :5.77753   Max.   :4.2339        Max.   :8.51835  
 ##                                                                           
-##       x_1               x_2               x_3               x_4         
-##  Min.   :-3.2684   Min.   :-3.5029   Min.   :-3.3004   Min.   :-3.1270  
-##  1st Qu.:-1.4790   1st Qu.:-1.4481   1st Qu.:-1.4877   1st Qu.:-1.4931  
-##  Median :-0.9893   Median :-1.0039   Median :-1.0244   Median :-1.0250  
-##  Mean   :-0.9882   Mean   :-0.9892   Mean   :-1.0115   Mean   :-1.0082  
-##  3rd Qu.:-0.4881   3rd Qu.:-0.4943   3rd Qu.:-0.4786   3rd Qu.:-0.5132  
-##  Max.   : 1.1669   Max.   : 1.0238   Max.   : 1.5736   Max.   : 1.6943  
-##                                                                         
-##    mu_lambda       epsilon_lambda          lambda             mu_score      
-##  Min.   :-10.670   Min.   :-0.345050   Min.   : 0.000020   Min.   :-4.2706  
-##  1st Qu.: -6.132   1st Qu.:-0.063649   1st Qu.: 0.002157   1st Qu.:-0.6969  
-##  Median : -4.773   Median :-0.002297   Median : 0.008355   Median : 0.2722  
-##  Mean   : -4.886   Mean   :-0.002135   Mean   : 0.053792   Mean   : 0.2909  
-##  3rd Qu.: -3.666   3rd Qu.: 0.063117   3rd Qu.: 0.025513   3rd Qu.: 1.2647  
-##  Max.   :  3.070   Max.   : 0.337691   Max.   :20.216609   Max.   : 4.5389  
-##                                                            NA&#39;s   :3000     
-##     E_score             E_oop             price          prior_firm   
-##  Min.   :  0.0230   Min.   : 0.0000   Min.   :-9.374   Min.   :2.000  
-##  1st Qu.:  0.8213   1st Qu.: 0.2517   1st Qu.: 2.582   1st Qu.:2.000  
-##  Median :  2.1645   Median : 0.9756   Median : 4.693   Median :3.000  
-##  Mean   :  6.0200   Mean   : 3.1612   Mean   : 4.511   Mean   :2.869  
-##  3rd Qu.:  5.8398   3rd Qu.: 2.9187   3rd Qu.: 6.597   3rd Qu.:4.000  
-##  Max.   :154.3044   Max.   :43.3542   Max.   :14.106   Max.   :4.000  
-##  NA&#39;s   :3000                                                         
-##     inertia        monitoring_disutility demand_friction       E_R_s       
-##  Min.   :-0.9337   Min.   :-0.5033       Min.   :-0.9337   Min.   :-0.351  
-##  1st Qu.: 1.8157   1st Qu.: 2.8343       1st Qu.: 0.0000   1st Qu.: 1.054  
-##  Median : 2.5130   Median : 3.3925       Median : 2.5005   Median : 1.297  
-##  Mean   : 2.5287   Mean   : 3.4439       Mean   : 2.7107   Mean   : 1.288  
-##  3rd Qu.: 3.2786   3rd Qu.: 4.0694       3rd Qu.: 4.1679   3rd Qu.: 1.550  
-##  Max.   : 5.6239   Max.   : 6.4221       Max.   :10.0380   Max.   : 2.451  
-##                                                                            
-##      E_R_C        E_renewal_price        h                e_t0        
-##  Min.   :0.9500   Min.   :-5.123   Min.   :-82.771   Min.   :-2.0234  
-##  1st Qu.:0.9503   1st Qu.: 2.586   1st Qu.:-22.581   1st Qu.:-0.3232  
-##  Median :0.9512   Median : 5.588   Median :-14.909   Median : 0.3533  
-##  Mean   :0.9549   Mean   : 6.186   Mean   :-16.569   Mean   : 0.5664  
-##  3rd Qu.:0.9538   3rd Qu.: 9.206   3rd Qu.: -8.382   3rd Qu.: 1.2218  
-##  Max.   :1.1000   Max.   :32.913   Max.   : 11.718   Max.   : 7.5079  
+##      E_R_s            E_R_C        E_renewal_price         h          
+##  Min.   :0.3461   Min.   :0.9502   Min.   : 0.8956   Min.   :-72.242  
+##  1st Qu.:0.6007   1st Qu.:0.9535   1st Qu.: 5.3624   1st Qu.:-31.982  
+##  Median :0.6656   Median :0.9566   Median : 6.8024   Median :-26.928  
+##  Mean   :0.6641   Mean   :0.9594   Mean   : 6.9606   Mean   :-27.554  
+##  3rd Qu.:0.7285   3rd Qu.:0.9620   3rd Qu.: 8.3893   3rd Qu.:-22.237  
+##  Max.   :1.0168   Max.   :1.0785   Max.   :16.7539   Max.   : -5.586  
 ##                                                                       
-##        u               choice    
-##  Min.   :-84.322   Min.   :0.00  
-##  1st Qu.:-22.004   1st Qu.:0.00  
-##  Median :-14.403   Median :0.00  
-##  Mean   :-16.002   Mean   :0.25  
-##  3rd Qu.: -7.799   3rd Qu.:0.25  
-##  Max.   : 13.781   Max.   :1.00  
+##       e_t0               u               choice    
+##  Min.   :-2.3294   Min.   :-72.403   Min.   :0.00  
+##  1st Qu.:-0.3282   1st Qu.:-31.500   1st Qu.:0.00  
+##  Median : 0.3742   Median :-26.347   Median :0.00  
+##  Mean   : 0.5804   Mean   :-26.973   Mean   :0.25  
+##  3rd Qu.: 1.2504   3rd Qu.:-21.626   3rd Qu.:0.25  
+##  Max.   :11.7200   Max.   : -3.971   Max.   :1.00  
 ## </code></pre>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="generate-data.html#cb6-1" aria-hidden="true" tabindex="-1"></a>summarize_choice <span class="ot">&lt;-</span> choice_t0 <span class="sc">%&gt;%</span> </span>
 <span id="cb6-2"><a href="generate-data.html#cb6-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(d) <span class="sc">%&gt;%</span> </span>
@@ -442,10 +458,10 @@ d_{it} &amp;= \mathop{\rm argmax}\limits_{d \in D_{it}} \left\{ v_{idt} + \varep
 <pre><code>## # A tibble: 4 × 2
 ##       d share
 ##   &lt;int&gt; &lt;dbl&gt;
-## 1     1 0.006
-## 2     2 0.107
-## 3     3 0.325
-## 4     4 0.562</code></pre>
+## 1     1 0.026
+## 2     2 0.329
+## 3     3 0.367
+## 4     4 0.278</code></pre>
 </div>
 <div id="generate-realization-of-cost-in-t-0" class="section level2 hasAnchor" number="1.4">
 <h2><span class="header-section-number">1.4</span> Generate Realization of Cost in <span class="math inline">\(t = 0\)</span><a href="generate-data.html#generate-realization-of-cost-in-t-0" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -453,7 +469,7 @@ d_{it} &amp;= \mathop{\rm argmax}\limits_{d \in D_{it}} \left\{ v_{idt} + \varep
 <li>Since consumer’s choice is path-dependent, i.e. price in next period depends on claims and monitoring score, we need to generate realization of costs in <span class="math inline">\(t = 0\)</span></li>
 <li>Claim occurs according to Poisson distribution with mean <span class="math inline">\(\lambda\)</span></li>
 <li>The monitoring score <span class="math inline">\(s\)</span> is drawn according to a log-normal distribution with mean <span class="math inline">\(\mu_{s, i}\)</span> and precision <span class="math inline">\(\sigma_{s}\)</span></li>
-<li>Note that we do not need to generate realization of severity since it does not affect choices in <span class="math inline">\(t = 1\)</span></li>
+<li>Note that we do not need to generate realization of severity since it does not affect consumer’s choice in <span class="math inline">\(t = 1\)</span></li>
 </ul>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="generate-data.html#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Claims Count</span></span>
 <span id="cb8-2"><a href="generate-data.html#cb8-2" aria-hidden="true" tabindex="-1"></a>cost_t0 <span class="ot">&lt;-</span> choice_t0 <span class="sc">%&gt;%</span> </span>
@@ -478,13 +494,13 @@ d_{it} &amp;= \mathop{\rm argmax}\limits_{d \in D_{it}} \left\{ v_{idt} + \varep
 <span id="cb8-21"><a href="generate-data.html#cb8-21" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(i, claims, <span class="fu">matches</span>(<span class="st">&quot;sev.&quot;</span>), score, log_score)</span></code></pre></div>
 <pre><code>## Warning in rlnorm(N, mu_score, sigma_score): NAs produced</code></pre>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="generate-data.html#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(cost_t0)</span></code></pre></div>
-<pre><code>##        i              claims          score            log_score        
-##  Min.   :   1.0   Min.   : 0.00   Min.   : 0.02794   Min.   :-3.577610  
-##  1st Qu.: 250.8   1st Qu.: 0.00   1st Qu.: 1.00000   1st Qu.: 0.000000  
-##  Median : 500.5   Median : 0.00   Median : 1.00000   Median : 0.000000  
-##  Mean   : 500.5   Mean   : 0.06   Mean   : 1.03091   Mean   : 0.002915  
-##  3rd Qu.: 750.2   3rd Qu.: 0.00   3rd Qu.: 1.00000   3rd Qu.: 0.000000  
-##  Max.   :1000.0   Max.   :17.00   Max.   :25.09185   Max.   : 3.222543</code></pre>
+<pre><code>##        i             claims           score             log_score       
+##  Min.   :    1   Min.   :0.0000   Min.   : 0.004679   Min.   :-5.36471  
+##  1st Qu.: 2501   1st Qu.:0.0000   1st Qu.: 1.000000   1st Qu.: 0.00000  
+##  Median : 5000   Median :0.0000   Median : 1.000000   Median : 0.00000  
+##  Mean   : 5000   Mean   :0.0805   Mean   : 0.984608   Mean   :-0.05191  
+##  3rd Qu.: 7500   3rd Qu.:0.0000   3rd Qu.: 1.000000   3rd Qu.: 0.00000  
+##  Max.   :10000   Max.   :3.0000   Max.   :23.575490   Max.   : 3.16021</code></pre>
 </div>
 <div id="generate-choice-in-t-1" class="section level2 hasAnchor" number="1.5">
 <h2><span class="header-section-number">1.5</span> Generate Choice in <span class="math inline">\(t = 1\)</span><a href="generate-data.html#generate-choice-in-t-1" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -552,62 +568,62 @@ d_{it} &amp;= \mathop{\rm argmax}\limits_{d \in D_{it}} \left\{ v_{idt} + \varep
 <span id="cb12-62"><a href="generate-data.html#cb12-62" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">ungroup</span>()</span>
 <span id="cb12-63"><a href="generate-data.html#cb12-63" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-64"><a href="generate-data.html#cb12-64" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(choice_t1)</span></code></pre></div>
-<pre><code>##        i                d           t           m           f    
-##  Min.   :   1.0   Min.   :1   Min.   :1   Min.   :0   Min.   :1  
-##  1st Qu.: 250.8   1st Qu.:1   1st Qu.:1   1st Qu.:0   1st Qu.:1  
-##  Median : 500.5   Median :2   Median :1   Median :0   Median :2  
-##  Mean   : 500.5   Mean   :2   Mean   :1   Mean   :0   Mean   :2  
-##  3rd Qu.: 750.2   3rd Qu.:3   3rd Qu.:1   3rd Qu.:0   3rd Qu.:3  
-##  Max.   :1000.0   Max.   :3   Max.   :1   Max.   :0   Max.   :3  
-##   prior_choice     prior_firm     prior_price          x_1         
-##  Min.   :1.000   Min.   :1.000   Min.   :-9.374   Min.   :-2.1709  
-##  1st Qu.:3.000   1st Qu.:2.000   1st Qu.: 2.052   1st Qu.:-0.8484  
-##  Median :4.000   Median :3.000   Median : 4.132   Median :-0.4999  
-##  Mean   :3.443   Mean   :2.449   Mean   : 4.003   Mean   :-0.4956  
-##  3rd Qu.:4.000   3rd Qu.:3.000   3rd Qu.: 6.070   3rd Qu.:-0.1304  
-##  Max.   :4.000   Max.   :3.000   Max.   :14.106   Max.   : 1.3273  
-##       x_2               x_3               x_4            mu_lambda     
-##  Min.   :-2.2023   Min.   :-2.0745   Min.   :-1.9356   Min.   :-5.876  
-##  1st Qu.:-0.8381   1st Qu.:-0.8790   1st Qu.:-0.8335   1st Qu.:-3.081  
-##  Median :-0.5124   Median :-0.4956   Median :-0.4950   Median :-2.234  
-##  Mean   :-0.5019   Mean   :-0.5099   Mean   :-0.5112   Mean   :-2.279  
-##  3rd Qu.:-0.1631   3rd Qu.:-0.1585   3rd Qu.:-0.1813   3rd Qu.:-1.414  
-##  Max.   : 0.8444   Max.   : 1.0983   Max.   : 0.9837   Max.   : 1.859  
-##  epsilon_lambda          lambda             E_oop          gamma_alpha     
-##  Min.   :-0.345050   Min.   :0.002863   Min.   : 0.3365   Min.   : 0.3424  
-##  1st Qu.:-0.063649   1st Qu.:0.046594   1st Qu.: 5.2094   1st Qu.: 8.2527  
-##  Median :-0.002297   Median :0.106364   Median :11.2452   Median :10.0170  
-##  Mean   :-0.002135   Mean   :0.215714   Mean   :14.6921   Mean   :10.0476  
-##  3rd Qu.: 0.063117   3rd Qu.:0.243904   3rd Qu.:22.3511   3rd Qu.:11.9099  
-##  Max.   : 0.337691   Max.   :6.020396   Max.   :43.3550   Max.   :18.3800  
-##      claims          score            log_score              R_s         
-##  Min.   : 0.00   Min.   : 0.02794   Min.   :-3.577610   Min.   :0.01132  
-##  1st Qu.: 0.00   1st Qu.: 1.00000   1st Qu.: 0.000000   1st Qu.:0.96030  
-##  Median : 0.00   Median : 1.00000   Median : 0.000000   Median :1.29622  
-##  Mean   : 0.06   Mean   : 1.03091   Mean   : 0.002915   Mean   :1.34521  
-##  3rd Qu.: 0.00   3rd Qu.: 1.00000   3rd Qu.: 0.000000   3rd Qu.:1.67065  
-##  Max.   :17.00   Max.   :25.09185   Max.   : 3.222543   Max.   :3.78086  
-##       R_C             price           inertia       demand_friction
-##  Min.   :0.9500   Min.   :-5.887   Min.   :0.3964   Min.   :0.000  
-##  1st Qu.:0.9500   1st Qu.: 1.933   1st Qu.:2.2478   1st Qu.:0.000  
-##  Median :0.9500   Median : 4.861   Median :2.7662   Median :2.248  
-##  Mean   :0.9554   Mean   : 5.863   Mean   :2.7634   Mean   :1.842  
-##  3rd Qu.:0.9500   3rd Qu.: 8.733   3rd Qu.:3.3028   3rd Qu.:3.037  
-##  Max.   :1.1000   Max.   :34.579   Max.   :5.3863   Max.   :5.386  
-##      E_R_s            E_R_C        E_renewal_price        h           
-##  Min.   :0.8096   Min.   :0.9504   Min.   :-7.791   Min.   :-137.354  
-##  1st Qu.:1.5103   1st Qu.:0.9568   1st Qu.: 2.873   1st Qu.: -46.101  
-##  Median :1.6705   Median :0.9651   Median : 7.889   Median : -29.170  
-##  Mean   :1.6679   Mean   :0.9739   Mean   :10.268   Mean   : -32.666  
-##  3rd Qu.:1.8344   3rd Qu.:0.9825   3rd Qu.:14.961   3rd Qu.: -15.127  
-##  Max.   :2.4157   Max.   :1.0996   Max.   :68.217   Max.   :   9.146  
-##       e_t1               u               choice      
-##  Min.   :-2.4496   Min.   :-138.37   Min.   :0.0000  
-##  1st Qu.:-0.3499   1st Qu.: -45.59   1st Qu.:0.0000  
-##  Median : 0.3728   Median : -28.66   Median :0.0000  
-##  Mean   : 0.5721   Mean   : -32.09   Mean   :0.3333  
-##  3rd Qu.: 1.2521   3rd Qu.: -14.51   3rd Qu.:1.0000  
-##  Max.   : 8.1761   Max.   :  11.49   Max.   :1.0000</code></pre>
+<pre><code>##        i               d           t           m           f    
+##  Min.   :    1   Min.   :1   Min.   :1   Min.   :0   Min.   :1  
+##  1st Qu.: 2501   1st Qu.:1   1st Qu.:1   1st Qu.:0   1st Qu.:1  
+##  Median : 5000   Median :2   Median :1   Median :0   Median :2  
+##  Mean   : 5000   Mean   :2   Mean   :1   Mean   :0   Mean   :2  
+##  3rd Qu.: 7500   3rd Qu.:3   3rd Qu.:1   3rd Qu.:0   3rd Qu.:3  
+##  Max.   :10000   Max.   :3   Max.   :1   Max.   :0   Max.   :3  
+##   prior_choice     prior_firm     prior_price          x_1            
+##  Min.   :1.000   Min.   :1.000   Min.   : 2.551   Min.   :-1.2615187  
+##  1st Qu.:2.000   1st Qu.:1.000   1st Qu.: 8.598   1st Qu.:-0.2409614  
+##  Median :3.000   Median :2.000   Median :10.013   Median : 0.0006268  
+##  Mean   :2.897   Mean   :1.923   Mean   :10.022   Mean   : 0.0018862  
+##  3rd Qu.:4.000   3rd Qu.:3.000   3rd Qu.:11.437   3rd Qu.: 0.2421137  
+##  Max.   :4.000   Max.   :3.000   Max.   :19.396   Max.   : 1.4046029  
+##       x_2                  x_3                 x_4              mu_lambda      
+##  Min.   :-1.3127992   Min.   :-1.288153   Min.   :-1.590862   Min.   :-5.4399  
+##  1st Qu.:-0.2357313   1st Qu.:-0.239088   1st Qu.:-0.243743   1st Qu.:-3.4303  
+##  Median : 0.0037508   Median :-0.009828   Median :-0.004579   Median :-2.9996  
+##  Mean   :-0.0003483   Mean   :-0.003551   Mean   :-0.002505   Mean   :-3.0002  
+##  3rd Qu.: 0.2415281   3rd Qu.: 0.234424   3rd Qu.: 0.245489   3rd Qu.:-2.5594  
+##  Max.   : 1.2061448   Max.   : 1.447554   Max.   : 1.525128   Max.   :-0.2269  
+##  epsilon_lambda           lambda             E_oop          gamma_alpha   
+##  Min.   :-0.3604587   Min.   :0.004345   Min.   : 0.5099   Min.   :10.39  
+##  1st Qu.:-0.0684224   1st Qu.:0.032259   1st Qu.: 3.6811   1st Qu.:18.04  
+##  Median : 0.0000225   Median :0.050038   Median : 5.6092   Median :20.02  
+##  Mean   :-0.0007373   Mean   :0.061501   Mean   : 6.6128   Mean   :19.99  
+##  3rd Qu.: 0.0658190   3rd Qu.:0.077320   3rd Qu.: 8.4342   3rd Qu.:21.96  
+##  Max.   : 0.3724271   Max.   :0.822770   Max.   :42.5881   Max.   :29.48  
+##      claims           score             log_score             R_s        
+##  Min.   :0.0000   Min.   : 0.004679   Min.   :-5.36471   Min.   :0.1069  
+##  1st Qu.:0.0000   1st Qu.: 1.000000   1st Qu.: 0.00000   1st Qu.:0.5408  
+##  Median :0.0000   Median : 1.000000   Median : 0.00000   Median :0.6545  
+##  Mean   :0.0805   Mean   : 0.984608   Mean   :-0.05191   Mean   :0.6665  
+##  3rd Qu.:0.0000   3rd Qu.: 1.000000   3rd Qu.: 0.00000   3rd Qu.:0.7778  
+##  Max.   :3.0000   Max.   :23.575490   Max.   : 3.16021   Max.   :1.5389  
+##       R_C             price            inertia       demand_friction
+##  Min.   :0.9500   Min.   : 0.5753   Min.   :0.9854   Min.   :0.000  
+##  1st Qu.:0.9500   1st Qu.: 4.6890   1st Qu.:2.6460   1st Qu.:0.000  
+##  Median :0.9500   Median : 6.2393   Median :3.0075   Median :2.646  
+##  Mean   :0.9613   Mean   : 6.5473   Mean   :3.0053   Mean   :2.004  
+##  3rd Qu.:0.9500   3rd Qu.: 8.0450   3rd Qu.:3.3556   3rd Qu.:3.177  
+##  Max.   :1.1000   Max.   :21.6310   Max.   :5.0965   Max.   :5.096  
+##      E_R_s            E_R_C        E_renewal_price         h          
+##  Min.   :0.4243   Min.   :0.9507   Min.   : 0.2941   Min.   :-58.278  
+##  1st Qu.:0.6195   1st Qu.:0.9548   1st Qu.: 2.8613   1st Qu.:-23.189  
+##  Median :0.6670   Median :0.9573   Median : 3.9693   Median :-18.694  
+##  Mean   :0.6669   Mean   :0.9588   Mean   : 4.2705   Mean   :-19.434  
+##  3rd Qu.:0.7127   3rd Qu.:0.9612   3rd Qu.: 5.3315   3rd Qu.:-14.822  
+##  Max.   :0.9091   Max.   :1.0341   Max.   :17.4520   Max.   : -3.039  
+##       e_t1               u                choice      
+##  Min.   :-2.2450   Min.   :-58.0746   Min.   :0.0000  
+##  1st Qu.:-0.3384   1st Qu.:-22.7079   1st Qu.:0.0000  
+##  Median : 0.3539   Median :-18.1567   Median :0.0000  
+##  Mean   : 0.5645   Mean   :-18.8697   Mean   :0.3333  
+##  3rd Qu.: 1.2259   3rd Qu.:-14.1596   3rd Qu.:1.0000  
+##  Max.   : 9.9041   Max.   : -0.1557   Max.   :1.0000</code></pre>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="generate-data.html#cb14-1" aria-hidden="true" tabindex="-1"></a>summarize_choice_t1 <span class="ot">&lt;-</span> choice_t1 <span class="sc">%&gt;%</span> </span>
 <span id="cb14-2"><a href="generate-data.html#cb14-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(d) <span class="sc">%&gt;%</span> </span>
 <span id="cb14-3"><a href="generate-data.html#cb14-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarise</span>(<span class="at">share =</span> <span class="fu">mean</span>(choice))</span>
@@ -616,9 +632,9 @@ d_{it} &amp;= \mathop{\rm argmax}\limits_{d \in D_{it}} \left\{ v_{idt} + \varep
 <pre><code>## # A tibble: 3 × 2
 ##       d share
 ##   &lt;int&gt; &lt;dbl&gt;
-## 1     1 0.113
-## 2     2 0.321
-## 3     3 0.566</code></pre>
+## 1     1 0.341
+## 2     2 0.362
+## 3     3 0.297</code></pre>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="generate-data.html#cb16-1" aria-hidden="true" tabindex="-1"></a>choice_t0 <span class="ot">&lt;-</span> choice_t0 <span class="sc">%&gt;%</span> </span>
 <span id="cb16-2"><a href="generate-data.html#cb16-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(i, d, t, m, f, x_1, x_2, x_3, x_4, price, prior_firm, choice)</span>
 <span id="cb16-3"><a href="generate-data.html#cb16-3" aria-hidden="true" tabindex="-1"></a>choice_t1 <span class="ot">&lt;-</span> choice_t1 <span class="sc">%&gt;%</span> </span>
