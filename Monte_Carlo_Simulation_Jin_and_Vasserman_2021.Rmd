@@ -19,6 +19,10 @@ library(MASS)
 
 # Generate Data
 
+## メモ
+- $v_{idt} = \mathbb{E}[h_{idt}] -\frac{\gamma}{2}\mathbb{E}[h_{idt}^{2}]$の第2項は無視している
+- gamma_alphaチェック要
+
 First we generate data in the following procedure.
 
 1. Generate $\lambda_{imt}$. $\lambda_{imt}$ is one of the most significant variables that represents consumer's risk (observable for consumers but not econometrician)
@@ -214,8 +218,8 @@ prior_firm_t0 <- expand.grid(i = 1:N) %>%
 ## Generate Renewal Price
 
 alpha_m0 <- c(20, 5, 3)
-alpha_m1 <- c(20, 5, 3, -0.5)
-beta <- 30
+alpha_m1 <- c(20, 5, 3, 10)
+beta <- 20
 
 ## Generate Inertia
 
@@ -315,7 +319,7 @@ cost_t0 <- cost_t0 %>%
 - The following figure shows realized monitoring scores (in logarithm) for opt-in drivers
 
 ```{r visualize realized score}
-## Visualize Price in t = 0
+## Visualize realized score
 g_realized_score <- cost_t0 %>%
   dplyr::filter(score != 1) %>% 
   ggplot(aes(x = log_score)) + 
@@ -328,7 +332,7 @@ plot(g_realized_score)
 ## Generate Choice in $t = 1$
 
 ```{r generate choice in t1}
-## Prior Firm
+## Prior Choice and Firm
 prior_firm_t1 <- choice_t0 %>% 
   dplyr::filter(choice == 1) %>% 
   dplyr::mutate(prior_choice = d * choice,
@@ -346,16 +350,7 @@ prior_price_t1 <- choice_t0 %>%
   dplyr::select(i, f, prior_price) %>% 
   dplyr::arrange(i)
 
-## Renewal price
-renewal_price_t1 <- choice_t0 %>% 
-  dplyr::filter(choice == 1) %>% 
-  dplyr::left_join(cost_t0, by = c("i")) %>% 
-  dplyr::mutate(gamma_alpha = ifelse(m == 0,
-                                     alpha_m0[1] + alpha_m0[2]*x_1 + alpha_m0[3]*x_2,
-                                     alpha_m1[1] + alpha_m1[2]*x_1 + alpha_m1[3]*x_2 + alpha_m1[4]*score)) %>% 
-  dplyr::select(i, gamma_alpha)
-  
-  
+## Choice in t = 1
 choice_t1 <- expand.grid(i = 1:N, d = 1:(D - 1), t = 1) %>% 
   tibble::as_tibble() %>% 
   dplyr::mutate(m = 0,
@@ -364,10 +359,12 @@ choice_t1 <- expand.grid(i = 1:N, d = 1:(D - 1), t = 1) %>%
   dplyr::left_join(prior_price_t1, by = c("i", "f")) %>% 
   dplyr::left_join(lambda, by = c("i", "m", "t")) %>% 
   dplyr::left_join(oop, by = c("i", "m", "t")) %>% 
-  dplyr::left_join(renewal_price_t1, by = c("i")) %>% 
   dplyr::left_join(cost_t0, by = c("i")) %>% 
+  dplyr::mutate(gamma_alpha = ifelse(m == 0,
+                                     alpha_m0[1] + alpha_m0[2]*x_1 + alpha_m0[3]*x_2,
+                                     alpha_m1[1] + alpha_m1[2]*x_1 + alpha_m1[3]*x_2 + alpha_m1[4]*score)) %>% 
   dplyr::mutate(R_s = rgamma(N * (D - 1), gamma_alpha, beta),
-                R_C = ifelse(claims == 0, 0.95, 1.1),
+                R_C = ifelse(claims == 0, 0.98, 1.2),
                 price = prior_price * R_s * R_C) %>% 
   dplyr::mutate(inertia = eta_f[1] + eta_f[2]*x_1 + eta_f[3]*x_2 + eta_f[4]*x_3,
                 demand_friction = ifelse(d == prior_firm, 0, inertia)) %>%   
@@ -396,15 +393,32 @@ summarize_choice_t1 <- choice_t1 %>%
 
 summarize_choice_t1
 ```
+```{r visualize price in period 1}
+## Visualize Price in t = 1
+g_price_t1 <- choice_t1 %>% 
+  dplyr::mutate(plan = dplyr::case_when(d == 1 ~ "Firm1",
+                                        d == 2 ~ "Firm2",
+                                        d == 3 ~ "Firm3"),
+                prior_plan = dplyr::case_when(prior_choice == 1 ~ "Firm1 Monitoring",
+                                              prior_choice == 2 ~ "Firm1 No Monitoring",
+                                              prior_choice == 3 ~ "Firm2",
+                                              prior_choice == 4 ~ "Firm3")) %>% 
+  ggplot(aes(x = price, fill = prior_plan)) + 
+  geom_histogram(position = "identity", alpha = 0.6, binwidth = 0.25)
+
+plot(g_price_t1)
+
+```
+
 
 ```{r merge}
 
-choice_t0 <- choice_t0 %>% 
+df_t0 <- choice_t0 %>% 
   dplyr::select(i, d, t, m, f, x_1, x_2, x_3, x_4, price, prior_firm, choice)
-choice_t1 <- choice_t1 %>% 
+df_t1 <- choice_t1 %>% 
   dplyr::select(i, d, t, m, f, x_1, x_2, x_3, x_4, price, prior_firm, choice)
 
-choice_data <- rbind(choice_t0, choice_t1) %>% 
+df <- rbind(df_t0, df_t1) %>% 
   dplyr::arrange(t, i, d)
 
 ```
