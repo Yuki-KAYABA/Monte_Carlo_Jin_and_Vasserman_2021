@@ -84,23 +84,30 @@ lambda <- mu_lambda %>%
   dplyr::left_join(epsilon_lambda, by = c("i")) %>% 
   dplyr::mutate(lambda = exp(mu_lambda + epsilon_lambda))
 
+```
+
+- The distribution of generated $\lambda$ is as follows
+
+```{r visualize lambda}
 ## Visualize 
 g_lambda <- lambda %>% 
-  dplyr::mutate(monitoring = ifelse(m == 1, "Monitored", "Unmonitored")) %>% 
-  ggplot(aes(x = lambda, fill = monitoring)) + 
-  geom_histogram(position = "identity", alpha = 0.6, binwidth = 0.01)
+  ggplot(aes(x = lambda)) + 
+  geom_histogram(binwidth = 0.01)
 
 plot(g_lambda)
+```
 
-## Visualize 
+- We also check opt-in drivers tend to have lower risk
+
+```{r visualize lambda and monitoring opt-in}
+## Visualize lambda and monitoring opt-in
 g_lambda_monitoring <- lambda %>% 
   dplyr::mutate(monitoring = ifelse(m == 1, "Monitored", "Unmonitored")) %>% 
   ggplot(aes(x = monitoring, y = lambda)) + 
   geom_boxplot() + 
-  scale_y_continuous(limits=c(0,0.1))
+  scale_y_continuous(limits=c(0, 0.1))
 
 plot(g_lambda_monitoring)
-
 ```
 
 ## Generate (Expectation of) Monitoring Score and Out-of-Pocket
@@ -498,3 +505,42 @@ d_{it} &= \mathop{\rm argmax}\limits_{d \in D_{it}} \left\{ v_{idt} + \varepsilo
 \end{align}
 $$
 
+
+```{r function gen_lambda}
+cost_par <- rep(0, 7)
+cost_par[1:6] <- theta_lambda
+cost_par[7] <- sigma_lambda
+
+## Generate Lambda
+
+gen_lambda <- function(df, cost_par, R){
+  # Parameters
+  theta_lambda <- cost_par[1:6]
+  sigma_lambda <- cost_par[7]
+  
+  # Generate mu_lambda
+  output <- df %>% 
+    dplyr::mutate(mu_lambda = theta_lambda[1]
+                  + theta_lambda[2]*x_1 + theta_lambda[3]*x_2
+                  + theta_lambda[4]*x_3 + theta_lambda[5]*x_4
+                  + theta_lambda[6]*ifelse(m == 1 & t == 0, 1, 0))
+  
+  # Generate epsilon_lambda (draw R times)
+  epsilon_lambda <- matrix(rnorm(N * R, 0, sigma_lambda), nrow = N)
+  colnames(epsilon_lambda) <- c(paste("lambda", 1:R, sep = "_"))
+  
+  epsilon_lambda <- data.frame(expand_grid(i = 1:N), epsilon_lambda) %>% 
+    tibble::as_tibble()
+
+  ## lambda
+  output <- output %>%
+    dplyr::left_join(epsilon_lambda, by = c("i")) %>%
+    dplyr::mutate_at(.vars = vars(starts_with("lambda")),
+                     .funs = ~ exp(mu_lambda + .))
+ 
+  return(output)
+}
+
+tmp <- gen_lambda(df, cost_par, 50)
+
+```
