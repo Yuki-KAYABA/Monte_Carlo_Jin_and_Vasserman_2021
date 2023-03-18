@@ -10,7 +10,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval = TRUE, cache = FALSE)
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE, cache = FALSE)
 library(bookdown)
 library(magrittr)
 library(tidyverse)
@@ -505,22 +505,30 @@ d_{it} &= \mathop{\rm argmax}\limits_{d \in D_{it}} \left\{ v_{idt} + \varepsilo
 \end{align}
 $$
 
+## Fuctions
+
+- To estimate the choice model, we write the following functions:
+  - `gen_lambda` is a function that draws unobserved consumer risk $\lambda$. In this function, we draw $\lambda$ for $R$ times
+  - `gen_choice_probability` is a function that calculates choice probability that a consumer chooses each plan for each draw of $\lambda$
+  - `SLL` is a function that calculates the simulated log-likelihood of consumer's choice. We maximize this fucntion to get the estimates of choice model parameters
+- Note that when optimizing an objective function, it is important to keep the realizations of the shocks the same across the evaluations of the objective function. If the realization of the shocks differ across the objective function evaluations, the optimization algorithm will not converge because it cannot distinguish the change in the value of the objective function due to the difference in the parameters and the difference in the realized shocks
+- To avoid this problem, we generate $\lambda$ outside the optimization algorithm
+
 
 ```{r function gen_lambda}
-cost_par <- rep(0, 7)
-cost_par[1:6] <- theta_lambda
-cost_par[7] <- sigma_lambda
-cost_par[8:11] <- theta_score
-cost_par[12] <- sigma_score
-cost_par[13] <- l0
-cost_par[14] <- a_l
 
-theta <- rep(0, 6)
-theta[1:4] <- eta_f
-theta[5:6] <- xi
-theta[7:9] <- alpha_m0
-theta[10:13] <- alpha_m1
-theta[14] <- beta
+# cost_par[1:6] <- theta_lambda
+# cost_par[7] <- sigma_lambda
+# cost_par[8:11] <- theta_score
+# cost_par[12] <- sigma_score
+# cost_par[13] <- l0
+# cost_par[14] <- a_l
+# 
+# theta[1:4] <- eta_f
+# theta[5:6] <- xi
+# theta[7:9] <- alpha_m0
+# theta[10:13] <- alpha_m1
+# theta[14] <- beta
 
 ## Generate Lambda
 
@@ -555,7 +563,7 @@ gen_lambda <- function(df, cost_par, R){
 
 # Generate Choice Probability
 
-gen_choice_probability <- function(df, theta, cost_par, R){
+gen_choice_probability <- function(df, theta, cost_par, lambda){
   # Parameters
   eta_f <- theta[1:4]
   xi <- theta[5:6]
@@ -569,8 +577,8 @@ gen_choice_probability <- function(df, theta, cost_par, R){
   l0 <- cost_par[13]
   a_l <- cost_par[14]
   
-  # Generate lambda
-  lambda <- gen_lambda(df, cost_par, R)
+  ## Lambda
+  lambda <- lambda
   
   # Price
   price <- df$price * matrix(rep(1, dim(df)[1] * R), nrow = dim(df)[1])
@@ -579,13 +587,6 @@ gen_choice_probability <- function(df, theta, cost_par, R){
   price <- data.frame(price) %>% 
     tibble::as_tibble()  
   
-  # Generate epsilon_lambda (draw R times)
-  epsilon_lambda <- matrix(rnorm(N * R, 0, sigma_lambda), nrow = N)
-  colnames(epsilon_lambda) <- c(paste("lambda", 1:R, sep = "_"))
-  
-  epsilon_lambda <- data.frame(expand_grid(i = 1:N), epsilon_lambda) %>% 
-    tibble::as_tibble()  
-    
   # Generate Demand Friction
   demand_friction <- lambda %>% 
     dplyr::mutate_at(vars(starts_with("lambda")),
@@ -662,10 +663,56 @@ gen_choice_probability <- function(df, theta, cost_par, R){
   return(output)
 }
 
-tmp <- gen_lambda(df, cost_par, 50)
-tmp3 <- gen_choice_probability(df, theta, cost_par, 50)
+## Simulated Log-likelihood
 
-# tmp2 <- gen_choice_probability(df, theta, cost_par, 50)
+SLL <- function(df, theta, cost_par, lambda){
+  SLL <- gen_choice_probability(df, theta, cost_par, lambda) %>% 
+    dplyr::mutate_at(vars(starts_with("choice_probability")),
+                     funs(choice * log(.))) %>% 
+    dplyr::summarise_at(vars(starts_with("choice_probability")),
+                        funs(sum(.)))
+  
+  output <- as.matrix(SLL) %>% 
+    apply(1, mean)
+  
+  output <- (-1) * output
+  
+  # print(output)
+  
+  return(output)
+}
 
+```
+
+## Optimization
+
+```{r optimization}
+# Generate lambda
+R <- 50
+lambda <- gen_lambda(df, cost_par, R)
+
+## Initial Value
+x0 <- rep(1, length(theta))
+
+## Optimization
+res <- optim(par = x0,
+             fn = SLL, 
+             method = "Nelder-Mead",
+             df = df, 
+             cost_par = cost_par, 
+             lambda = lambda)
+  
+theta_est <- res$par
+
+```
+
+## Estimation Results
+
+```{r estimation results}
+
+table <- cbind(theta, theta_est)
+colnames(table) <- c("true", "estimates")
+
+table
 
 ```
