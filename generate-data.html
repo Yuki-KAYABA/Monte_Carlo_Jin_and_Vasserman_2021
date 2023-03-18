@@ -139,6 +139,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="1.4" data-path="generate-data.html"><a href="generate-data.html#generate-choice-in-t-0"><i class="fa fa-check"></i><b>1.4</b> Generate Choice in <span class="math inline">\(t = 0\)</span></a></li>
 <li class="chapter" data-level="1.5" data-path="generate-data.html"><a href="generate-data.html#generate-realization-of-cost-in-t-0"><i class="fa fa-check"></i><b>1.5</b> Generate Realization of Cost in <span class="math inline">\(t = 0\)</span></a></li>
 <li class="chapter" data-level="1.6" data-path="generate-data.html"><a href="generate-data.html#generate-choice-in-t-1"><i class="fa fa-check"></i><b>1.6</b> Generate Choice in <span class="math inline">\(t = 1\)</span></a></li>
+<li class="chapter" data-level="1.7" data-path="generate-data.html"><a href="generate-data.html#merge-choice-data"><i class="fa fa-check"></i><b>1.7</b> Merge Choice Data</a></li>
 </ul></li>
 <li class="chapter" data-level="2" data-path="estimation.html"><a href="estimation.html"><i class="fa fa-check"></i><b>2</b> Estimation</a></li>
 </ul>
@@ -237,10 +238,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-51"><a href="generate-data.html#cb1-51" aria-hidden="true" tabindex="-1"></a>g_lambda <span class="ot">&lt;-</span> lambda <span class="sc">%&gt;%</span> </span>
 <span id="cb1-52"><a href="generate-data.html#cb1-52" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">monitoring =</span> <span class="fu">ifelse</span>(m <span class="sc">==</span> <span class="dv">1</span>, <span class="st">&quot;Monitored&quot;</span>, <span class="st">&quot;Unmonitored&quot;</span>)) <span class="sc">%&gt;%</span> </span>
 <span id="cb1-53"><a href="generate-data.html#cb1-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> lambda, <span class="at">fill =</span> monitoring)) <span class="sc">+</span> </span>
-<span id="cb1-54"><a href="generate-data.html#cb1-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">position =</span> <span class="st">&quot;identity&quot;</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>, <span class="at">binwidth =</span> <span class="fl">0.025</span>)</span>
+<span id="cb1-54"><a href="generate-data.html#cb1-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">position =</span> <span class="st">&quot;identity&quot;</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>, <span class="at">binwidth =</span> <span class="fl">0.01</span>)</span>
 <span id="cb1-55"><a href="generate-data.html#cb1-55" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-56"><a href="generate-data.html#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_lambda)</span></code></pre></div>
 <p><img src="Monte_Carlo_Simulation_Jin_and_Vasserman_2021_files/figure-html/generate%20lambda-1.png" width="672" /></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="generate-data.html#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Visualize </span></span>
+<span id="cb2-2"><a href="generate-data.html#cb2-2" aria-hidden="true" tabindex="-1"></a>g_lambda_monitoring <span class="ot">&lt;-</span> lambda <span class="sc">%&gt;%</span> </span>
+<span id="cb2-3"><a href="generate-data.html#cb2-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">monitoring =</span> <span class="fu">ifelse</span>(m <span class="sc">==</span> <span class="dv">1</span>, <span class="st">&quot;Monitored&quot;</span>, <span class="st">&quot;Unmonitored&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-4"><a href="generate-data.html#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> monitoring, <span class="at">y =</span> lambda)) <span class="sc">+</span> </span>
+<span id="cb2-5"><a href="generate-data.html#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span> </span>
+<span id="cb2-6"><a href="generate-data.html#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="fl">0.1</span>))</span>
+<span id="cb2-7"><a href="generate-data.html#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="generate-data.html#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_lambda_monitoring)</span></code></pre></div>
+<pre><code>## Warning: Removed 6032 rows containing non-finite values (stat_boxplot).</code></pre>
+<p><img src="Monte_Carlo_Simulation_Jin_and_Vasserman_2021_files/figure-html/generate%20lambda-2.png" width="672" /></p>
 </div>
 <div id="generate-expectation-of-monitoring-score-and-out-of-pocket" class="section level2 hasAnchor" number="1.3">
 <h2><span class="header-section-number">1.3</span> Generate (Expectation of) Monitoring Score and Out-of-Pocket<a href="generate-data.html#generate-expectation-of-monitoring-score-and-out-of-pocket" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -259,40 +270,40 @@ E[e(C, y_{d})] &amp;= \Pr(C = 1) \times \int_{y_{0}}^{\infty} (x - y_{0})a_{l} l
 &amp;=  \lambda \exp(-\lambda) \times \left\{ \frac{l_{0}^{a_{l}}}{a_{l} - 1} y_{0}^{-a_{l} + 1} \right\}
 \end{align}
 \]</span></p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="generate-data.html#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Generate expectations of score</span></span>
-<span id="cb2-2"><a href="generate-data.html#cb2-2" aria-hidden="true" tabindex="-1"></a>theta_score <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">3</span>, <span class="sc">-</span><span class="fl">0.5</span>, <span class="dv">2</span>, <span class="dv">1</span>)</span>
-<span id="cb2-3"><a href="generate-data.html#cb2-3" aria-hidden="true" tabindex="-1"></a>sigma_score <span class="ot">&lt;-</span> <span class="fl">0.25</span></span>
-<span id="cb2-4"><a href="generate-data.html#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="generate-data.html#cb2-5" aria-hidden="true" tabindex="-1"></a>score <span class="ot">&lt;-</span> lambda <span class="sc">%&gt;%</span> </span>
-<span id="cb2-6"><a href="generate-data.html#cb2-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(t <span class="sc">==</span> <span class="dv">0</span>, m <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb2-7"><a href="generate-data.html#cb2-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">mu_score =</span> theta_score[<span class="dv">1</span>] <span class="sc">+</span> theta_score[<span class="dv">2</span>]<span class="sc">*</span><span class="fu">log</span>(lambda)</span>
-<span id="cb2-8"><a href="generate-data.html#cb2-8" aria-hidden="true" tabindex="-1"></a>                <span class="sc">+</span> theta_score[<span class="dv">3</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> theta_score[<span class="dv">4</span>]<span class="sc">*</span>x_2,</span>
-<span id="cb2-9"><a href="generate-data.html#cb2-9" aria-hidden="true" tabindex="-1"></a>                <span class="at">E_score =</span> <span class="fu">exp</span>(mu_score <span class="sc">+</span> sigma_score<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="dv">2</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb2-10"><a href="generate-data.html#cb2-10" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(i, m, t, mu_score, E_score)</span>
-<span id="cb2-11"><a href="generate-data.html#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="generate-data.html#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="do">## Visualize Score</span></span>
-<span id="cb2-13"><a href="generate-data.html#cb2-13" aria-hidden="true" tabindex="-1"></a>g_mu_score <span class="ot">&lt;-</span> score <span class="sc">%&gt;%</span> </span>
-<span id="cb2-14"><a href="generate-data.html#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> mu_score)) <span class="sc">+</span> </span>
-<span id="cb2-15"><a href="generate-data.html#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="fl">0.1</span>)</span>
-<span id="cb2-16"><a href="generate-data.html#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-17"><a href="generate-data.html#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_mu_score)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="generate-data.html#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Generate expectations of score</span></span>
+<span id="cb4-2"><a href="generate-data.html#cb4-2" aria-hidden="true" tabindex="-1"></a>theta_score <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">3</span>, <span class="sc">-</span><span class="fl">0.5</span>, <span class="dv">2</span>, <span class="dv">1</span>)</span>
+<span id="cb4-3"><a href="generate-data.html#cb4-3" aria-hidden="true" tabindex="-1"></a>sigma_score <span class="ot">&lt;-</span> <span class="fl">0.25</span></span>
+<span id="cb4-4"><a href="generate-data.html#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="generate-data.html#cb4-5" aria-hidden="true" tabindex="-1"></a>score <span class="ot">&lt;-</span> lambda <span class="sc">%&gt;%</span> </span>
+<span id="cb4-6"><a href="generate-data.html#cb4-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(t <span class="sc">==</span> <span class="dv">0</span>, m <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-7"><a href="generate-data.html#cb4-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">mu_score =</span> theta_score[<span class="dv">1</span>] <span class="sc">+</span> theta_score[<span class="dv">2</span>]<span class="sc">*</span><span class="fu">log</span>(lambda)</span>
+<span id="cb4-8"><a href="generate-data.html#cb4-8" aria-hidden="true" tabindex="-1"></a>                <span class="sc">+</span> theta_score[<span class="dv">3</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> theta_score[<span class="dv">4</span>]<span class="sc">*</span>x_2,</span>
+<span id="cb4-9"><a href="generate-data.html#cb4-9" aria-hidden="true" tabindex="-1"></a>                <span class="at">E_score =</span> <span class="fu">exp</span>(mu_score <span class="sc">+</span> sigma_score<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="dv">2</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-10"><a href="generate-data.html#cb4-10" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(i, m, t, mu_score, E_score)</span>
+<span id="cb4-11"><a href="generate-data.html#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="generate-data.html#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="do">## Visualize Score</span></span>
+<span id="cb4-13"><a href="generate-data.html#cb4-13" aria-hidden="true" tabindex="-1"></a>g_mu_score <span class="ot">&lt;-</span> score <span class="sc">%&gt;%</span> </span>
+<span id="cb4-14"><a href="generate-data.html#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> mu_score)) <span class="sc">+</span> </span>
+<span id="cb4-15"><a href="generate-data.html#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="fl">0.1</span>)</span>
+<span id="cb4-16"><a href="generate-data.html#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="generate-data.html#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_mu_score)</span></code></pre></div>
 <p><img src="Monte_Carlo_Simulation_Jin_and_Vasserman_2021_files/figure-html/expectation%20of%20score-1.png" width="672" /></p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="generate-data.html#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Expectation of Out-of-Pocket</span></span>
-<span id="cb3-2"><a href="generate-data.html#cb3-2" aria-hidden="true" tabindex="-1"></a>policy_limit <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
-<span id="cb3-3"><a href="generate-data.html#cb3-3" aria-hidden="true" tabindex="-1"></a>l0 <span class="ot">&lt;-</span> <span class="dv">500</span></span>
-<span id="cb3-4"><a href="generate-data.html#cb3-4" aria-hidden="true" tabindex="-1"></a>a_l <span class="ot">&lt;-</span> <span class="fl">2.5</span></span>
-<span id="cb3-5"><a href="generate-data.html#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="generate-data.html#cb3-6" aria-hidden="true" tabindex="-1"></a>oop <span class="ot">&lt;-</span> lambda <span class="sc">%&gt;%</span> </span>
-<span id="cb3-7"><a href="generate-data.html#cb3-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">prob_C1 =</span> lambda <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span>lambda),</span>
-<span id="cb3-8"><a href="generate-data.html#cb3-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">E_oop =</span> prob_C1 <span class="sc">*</span> (l0<span class="sc">^</span>(a_l)<span class="sc">/</span>(a_l <span class="sc">-</span> <span class="dv">1</span>))<span class="sc">*</span>policy_limit<span class="sc">^</span>(<span class="sc">-</span>a_l <span class="sc">+</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb3-9"><a href="generate-data.html#cb3-9" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(i, m, t, E_oop)</span>
-<span id="cb3-10"><a href="generate-data.html#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="generate-data.html#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="do">## Visualize OOP</span></span>
-<span id="cb3-12"><a href="generate-data.html#cb3-12" aria-hidden="true" tabindex="-1"></a>g_oop <span class="ot">&lt;-</span> oop <span class="sc">%&gt;%</span> </span>
-<span id="cb3-13"><a href="generate-data.html#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> E_oop)) <span class="sc">+</span> </span>
-<span id="cb3-14"><a href="generate-data.html#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="fl">0.5</span>)</span>
-<span id="cb3-15"><a href="generate-data.html#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-16"><a href="generate-data.html#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_oop)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="generate-data.html#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Expectation of Out-of-Pocket</span></span>
+<span id="cb5-2"><a href="generate-data.html#cb5-2" aria-hidden="true" tabindex="-1"></a>policy_limit <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb5-3"><a href="generate-data.html#cb5-3" aria-hidden="true" tabindex="-1"></a>l0 <span class="ot">&lt;-</span> <span class="dv">500</span></span>
+<span id="cb5-4"><a href="generate-data.html#cb5-4" aria-hidden="true" tabindex="-1"></a>a_l <span class="ot">&lt;-</span> <span class="fl">2.5</span></span>
+<span id="cb5-5"><a href="generate-data.html#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="generate-data.html#cb5-6" aria-hidden="true" tabindex="-1"></a>oop <span class="ot">&lt;-</span> lambda <span class="sc">%&gt;%</span> </span>
+<span id="cb5-7"><a href="generate-data.html#cb5-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">prob_C1 =</span> lambda <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span>lambda),</span>
+<span id="cb5-8"><a href="generate-data.html#cb5-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">E_oop =</span> prob_C1 <span class="sc">*</span> (l0<span class="sc">^</span>(a_l)<span class="sc">/</span>(a_l <span class="sc">-</span> <span class="dv">1</span>))<span class="sc">*</span>policy_limit<span class="sc">^</span>(<span class="sc">-</span>a_l <span class="sc">+</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-9"><a href="generate-data.html#cb5-9" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(i, m, t, E_oop)</span>
+<span id="cb5-10"><a href="generate-data.html#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="generate-data.html#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="do">## Visualize OOP</span></span>
+<span id="cb5-12"><a href="generate-data.html#cb5-12" aria-hidden="true" tabindex="-1"></a>g_oop <span class="ot">&lt;-</span> oop <span class="sc">%&gt;%</span> </span>
+<span id="cb5-13"><a href="generate-data.html#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> E_oop)) <span class="sc">+</span> </span>
+<span id="cb5-14"><a href="generate-data.html#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="fl">0.5</span>)</span>
+<span id="cb5-15"><a href="generate-data.html#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="generate-data.html#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_oop)</span></code></pre></div>
 <p><img src="Monte_Carlo_Simulation_Jin_and_Vasserman_2021_files/figure-html/expectation%20of%20oop-1.png" width="672" /></p>
 </div>
 <div id="generate-choice-in-t-0" class="section level2 hasAnchor" number="1.4">
@@ -319,90 +330,90 @@ d_{it} &amp;= \mathop{\rm argmax}\limits_{d \in D_{it}} \left\{ v_{idt} + \varep
 <ul>
 <li>Thus, we start with generating each component of <span class="math inline">\(h_{idt}\)</span>.</li>
 </ul>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="generate-data.html#cb4-1" aria-hidden="true" tabindex="-1"></a>price_par_t0_d1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">15</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="sc">-</span><span class="dv">2</span>)</span>
-<span id="cb4-2"><a href="generate-data.html#cb4-2" aria-hidden="true" tabindex="-1"></a>price_par_t0_d2 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">15</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="sc">-</span><span class="dv">2</span>)</span>
-<span id="cb4-3"><a href="generate-data.html#cb4-3" aria-hidden="true" tabindex="-1"></a>price_par_t0_d3 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">15</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="sc">-</span><span class="dv">2</span>)</span>
-<span id="cb4-4"><a href="generate-data.html#cb4-4" aria-hidden="true" tabindex="-1"></a>price_par_t0_d4 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">15</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">1</span>, <span class="sc">-</span><span class="dv">2</span>)</span>
-<span id="cb4-5"><a href="generate-data.html#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="generate-data.html#cb4-6" aria-hidden="true" tabindex="-1"></a>price_gen_d <span class="ot">&lt;-</span> <span class="cf">function</span>(choice_t0, D, price_par_t0){</span>
-<span id="cb4-7"><a href="generate-data.html#cb4-7" aria-hidden="true" tabindex="-1"></a>  output <span class="ot">&lt;-</span> choice_t0 <span class="sc">%&gt;%</span> </span>
-<span id="cb4-8"><a href="generate-data.html#cb4-8" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(d <span class="sc">==</span> D) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-9"><a href="generate-data.html#cb4-9" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">price =</span> </span>
-<span id="cb4-10"><a href="generate-data.html#cb4-10" aria-hidden="true" tabindex="-1"></a>                    price_par_t0[<span class="dv">1</span>] <span class="sc">+</span></span>
-<span id="cb4-11"><a href="generate-data.html#cb4-11" aria-hidden="true" tabindex="-1"></a>                    price_par_t0[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> </span>
-<span id="cb4-12"><a href="generate-data.html#cb4-12" aria-hidden="true" tabindex="-1"></a>                    price_par_t0[<span class="dv">3</span>]<span class="sc">*</span>x_2 <span class="sc">+</span> </span>
-<span id="cb4-13"><a href="generate-data.html#cb4-13" aria-hidden="true" tabindex="-1"></a>                    price_par_t0[<span class="dv">4</span>]<span class="sc">*</span>x_3 <span class="sc">+</span></span>
-<span id="cb4-14"><a href="generate-data.html#cb4-14" aria-hidden="true" tabindex="-1"></a>                    price_par_t0[<span class="dv">5</span>]<span class="sc">*</span>m <span class="sc">+</span></span>
-<span id="cb4-15"><a href="generate-data.html#cb4-15" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">rnorm</span>(N, <span class="dv">1</span>, <span class="dv">1</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-16"><a href="generate-data.html#cb4-16" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(i, d, t, m, f, price)</span>
-<span id="cb4-17"><a href="generate-data.html#cb4-17" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb4-18"><a href="generate-data.html#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-19"><a href="generate-data.html#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="do">## Generate Price</span></span>
-<span id="cb4-20"><a href="generate-data.html#cb4-20" aria-hidden="true" tabindex="-1"></a>price_gen_t0 <span class="ot">&lt;-</span> <span class="cf">function</span>(choice_t0,</span>
-<span id="cb4-21"><a href="generate-data.html#cb4-21" aria-hidden="true" tabindex="-1"></a>                         price_par_t0_d1, price_par_t0_d2,</span>
-<span id="cb4-22"><a href="generate-data.html#cb4-22" aria-hidden="true" tabindex="-1"></a>                         price_par_t0_d3, price_par_t0_d4){</span>
-<span id="cb4-23"><a href="generate-data.html#cb4-23" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-24"><a href="generate-data.html#cb4-24" aria-hidden="true" tabindex="-1"></a>  price <span class="ot">&lt;-</span> <span class="fu">price_gen_d</span>(choice_t0, <span class="dv">1</span>, price_par_t0_d1) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-25"><a href="generate-data.html#cb4-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rbind</span>(<span class="fu">price_gen_d</span>(choice_t0, <span class="dv">2</span>, price_par_t0_d2)) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-26"><a href="generate-data.html#cb4-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rbind</span>(<span class="fu">price_gen_d</span>(choice_t0, <span class="dv">3</span>, price_par_t0_d3)) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-27"><a href="generate-data.html#cb4-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rbind</span>(<span class="fu">price_gen_d</span>(choice_t0, <span class="dv">4</span>, price_par_t0_d4))</span>
-<span id="cb4-28"><a href="generate-data.html#cb4-28" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-29"><a href="generate-data.html#cb4-29" aria-hidden="true" tabindex="-1"></a>  output <span class="ot">&lt;-</span> choice_t0 <span class="sc">%&gt;%</span> </span>
-<span id="cb4-30"><a href="generate-data.html#cb4-30" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">left_join</span>(price, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>, <span class="st">&quot;d&quot;</span>, <span class="st">&quot;t&quot;</span>, <span class="st">&quot;m&quot;</span>, <span class="st">&quot;f&quot;</span>))</span>
-<span id="cb4-31"><a href="generate-data.html#cb4-31" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-32"><a href="generate-data.html#cb4-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(output) </span>
-<span id="cb4-33"><a href="generate-data.html#cb4-33" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb4-34"><a href="generate-data.html#cb4-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-35"><a href="generate-data.html#cb4-35" aria-hidden="true" tabindex="-1"></a><span class="do">## Generate Prior Firm</span></span>
-<span id="cb4-36"><a href="generate-data.html#cb4-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-37"><a href="generate-data.html#cb4-37" aria-hidden="true" tabindex="-1"></a>prior_firm_t0 <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>N) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-38"><a href="generate-data.html#cb4-38" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb4-39"><a href="generate-data.html#cb4-39" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">prior_firm =</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">size =</span> N, <span class="at">replace =</span> T, <span class="at">prob =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.4</span>, <span class="fl">0.35</span>, <span class="fl">0.25</span>)))</span>
-<span id="cb4-40"><a href="generate-data.html#cb4-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-41"><a href="generate-data.html#cb4-41" aria-hidden="true" tabindex="-1"></a><span class="do">## Generate Renewal Price</span></span>
-<span id="cb4-42"><a href="generate-data.html#cb4-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-43"><a href="generate-data.html#cb4-43" aria-hidden="true" tabindex="-1"></a>alpha_m0 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">5</span>, <span class="dv">3</span>)</span>
-<span id="cb4-44"><a href="generate-data.html#cb4-44" aria-hidden="true" tabindex="-1"></a>alpha_m1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">5</span>, <span class="dv">3</span>, <span class="dv">10</span>)</span>
-<span id="cb4-45"><a href="generate-data.html#cb4-45" aria-hidden="true" tabindex="-1"></a>beta <span class="ot">&lt;-</span> <span class="dv">20</span></span>
-<span id="cb4-46"><a href="generate-data.html#cb4-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-47"><a href="generate-data.html#cb4-47" aria-hidden="true" tabindex="-1"></a><span class="do">## Generate Inertia</span></span>
-<span id="cb4-48"><a href="generate-data.html#cb4-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-49"><a href="generate-data.html#cb4-49" aria-hidden="true" tabindex="-1"></a>eta_f <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>)</span>
-<span id="cb4-50"><a href="generate-data.html#cb4-50" aria-hidden="true" tabindex="-1"></a>xi <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="sc">-</span><span class="fl">2.5</span>)</span>
-<span id="cb4-51"><a href="generate-data.html#cb4-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-52"><a href="generate-data.html#cb4-52" aria-hidden="true" tabindex="-1"></a>choice_t0 <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>N, <span class="at">d =</span> <span class="dv">1</span><span class="sc">:</span>D, <span class="at">t =</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-53"><a href="generate-data.html#cb4-53" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb4-54"><a href="generate-data.html#cb4-54" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">m =</span> <span class="fu">ifelse</span>(d <span class="sc">==</span> <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>),</span>
-<span id="cb4-55"><a href="generate-data.html#cb4-55" aria-hidden="true" tabindex="-1"></a>                <span class="at">f =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(</span>
-<span id="cb4-56"><a href="generate-data.html#cb4-56" aria-hidden="true" tabindex="-1"></a>                  d <span class="sc">&lt;=</span> <span class="dv">2</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
-<span id="cb4-57"><a href="generate-data.html#cb4-57" aria-hidden="true" tabindex="-1"></a>                  d <span class="sc">==</span> <span class="dv">3</span> <span class="sc">~</span> <span class="dv">2</span>,</span>
-<span id="cb4-58"><a href="generate-data.html#cb4-58" aria-hidden="true" tabindex="-1"></a>                  d <span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="dv">3</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-59"><a href="generate-data.html#cb4-59" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(lambda, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>, <span class="st">&quot;m&quot;</span>, <span class="st">&quot;t&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-60"><a href="generate-data.html#cb4-60" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(score, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>, <span class="st">&quot;m&quot;</span>, <span class="st">&quot;t&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-61"><a href="generate-data.html#cb4-61" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(oop, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>, <span class="st">&quot;m&quot;</span>, <span class="st">&quot;t&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-62"><a href="generate-data.html#cb4-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">price_gen_t0</span>(price_par_t0_d1, price_par_t0_d2, price_par_t0_d3, price_par_t0_d4) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-63"><a href="generate-data.html#cb4-63" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(prior_firm_t0, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-64"><a href="generate-data.html#cb4-64" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">inertia =</span> eta_f[<span class="dv">1</span>] <span class="sc">+</span> eta_f[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> eta_f[<span class="dv">3</span>]<span class="sc">*</span>x_2 <span class="sc">+</span> eta_f[<span class="dv">4</span>]<span class="sc">*</span>x_3,</span>
-<span id="cb4-65"><a href="generate-data.html#cb4-65" aria-hidden="true" tabindex="-1"></a>                <span class="at">monitoring_disutility =</span> xi[<span class="dv">1</span>] <span class="sc">+</span> xi[<span class="dv">2</span>]<span class="sc">*</span><span class="fu">log</span>(lambda),</span>
-<span id="cb4-66"><a href="generate-data.html#cb4-66" aria-hidden="true" tabindex="-1"></a>                <span class="at">demand_friction =</span> <span class="fu">ifelse</span>(d <span class="sc">==</span> prior_firm, <span class="dv">0</span>, inertia) <span class="sc">+</span> </span>
-<span id="cb4-67"><a href="generate-data.html#cb4-67" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">ifelse</span>(d <span class="sc">==</span> <span class="dv">1</span>, monitoring_disutility, <span class="dv">0</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-68"><a href="generate-data.html#cb4-68" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">E_R_s =</span> <span class="fu">ifelse</span>(m <span class="sc">==</span> <span class="dv">0</span>, </span>
-<span id="cb4-69"><a href="generate-data.html#cb4-69" aria-hidden="true" tabindex="-1"></a>                           (alpha_m0[<span class="dv">1</span>] <span class="sc">+</span> alpha_m0[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> alpha_m0[<span class="dv">3</span>]<span class="sc">*</span>x_2) <span class="sc">/</span> beta,</span>
-<span id="cb4-70"><a href="generate-data.html#cb4-70" aria-hidden="true" tabindex="-1"></a>                           (alpha_m1[<span class="dv">1</span>] <span class="sc">+</span> alpha_m1[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> alpha_m1[<span class="dv">3</span>]<span class="sc">*</span>x_2 <span class="sc">+</span> alpha_m1[<span class="dv">4</span>]<span class="sc">*</span>E_score) <span class="sc">/</span> beta),</span>
-<span id="cb4-71"><a href="generate-data.html#cb4-71" aria-hidden="true" tabindex="-1"></a>                <span class="at">E_R_C =</span> <span class="fl">0.95</span> <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span>lambda) <span class="sc">+</span> <span class="fl">1.1</span> <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span>lambda)),</span>
-<span id="cb4-72"><a href="generate-data.html#cb4-72" aria-hidden="true" tabindex="-1"></a>                <span class="at">E_renewal_price =</span> price <span class="sc">*</span> E_R_s <span class="sc">*</span> E_R_C) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-73"><a href="generate-data.html#cb4-73" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">h =</span> <span class="sc">-</span> price <span class="sc">-</span> demand_friction <span class="sc">-</span> E_oop <span class="sc">-</span> E_renewal_price)</span>
-<span id="cb4-74"><a href="generate-data.html#cb4-74" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-75"><a href="generate-data.html#cb4-75" aria-hidden="true" tabindex="-1"></a><span class="co"># draw idiosyncratic shocks</span></span>
-<span id="cb4-76"><a href="generate-data.html#cb4-76" aria-hidden="true" tabindex="-1"></a>e_t0 <span class="ot">&lt;-</span> evd<span class="sc">::</span><span class="fu">rgev</span>(<span class="fu">dim</span>(choice_t0)[<span class="dv">1</span>])</span>
-<span id="cb4-77"><a href="generate-data.html#cb4-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-78"><a href="generate-data.html#cb4-78" aria-hidden="true" tabindex="-1"></a>choice_t0 <span class="ot">&lt;-</span> <span class="fu">cbind</span>(choice_t0, e_t0) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-79"><a href="generate-data.html#cb4-79" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">u =</span> h <span class="sc">+</span> e_t0) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-80"><a href="generate-data.html#cb4-80" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(i, t) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-81"><a href="generate-data.html#cb4-81" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">choice =</span> <span class="fu">ifelse</span>(u <span class="sc">==</span> <span class="fu">max</span>(u), <span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-82"><a href="generate-data.html#cb4-82" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">ungroup</span>()</span>
-<span id="cb4-83"><a href="generate-data.html#cb4-83" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-84"><a href="generate-data.html#cb4-84" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(choice_t0)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="generate-data.html#cb6-1" aria-hidden="true" tabindex="-1"></a>price_par_t0_d1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">15</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="sc">-</span><span class="dv">2</span>)</span>
+<span id="cb6-2"><a href="generate-data.html#cb6-2" aria-hidden="true" tabindex="-1"></a>price_par_t0_d2 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">15</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="sc">-</span><span class="dv">2</span>)</span>
+<span id="cb6-3"><a href="generate-data.html#cb6-3" aria-hidden="true" tabindex="-1"></a>price_par_t0_d3 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">15</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="sc">-</span><span class="dv">2</span>)</span>
+<span id="cb6-4"><a href="generate-data.html#cb6-4" aria-hidden="true" tabindex="-1"></a>price_par_t0_d4 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">15</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">1</span>, <span class="sc">-</span><span class="dv">2</span>)</span>
+<span id="cb6-5"><a href="generate-data.html#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="generate-data.html#cb6-6" aria-hidden="true" tabindex="-1"></a>price_gen_d <span class="ot">&lt;-</span> <span class="cf">function</span>(choice_t0, D, price_par_t0){</span>
+<span id="cb6-7"><a href="generate-data.html#cb6-7" aria-hidden="true" tabindex="-1"></a>  output <span class="ot">&lt;-</span> choice_t0 <span class="sc">%&gt;%</span> </span>
+<span id="cb6-8"><a href="generate-data.html#cb6-8" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(d <span class="sc">==</span> D) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-9"><a href="generate-data.html#cb6-9" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">price =</span> </span>
+<span id="cb6-10"><a href="generate-data.html#cb6-10" aria-hidden="true" tabindex="-1"></a>                    price_par_t0[<span class="dv">1</span>] <span class="sc">+</span></span>
+<span id="cb6-11"><a href="generate-data.html#cb6-11" aria-hidden="true" tabindex="-1"></a>                    price_par_t0[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> </span>
+<span id="cb6-12"><a href="generate-data.html#cb6-12" aria-hidden="true" tabindex="-1"></a>                    price_par_t0[<span class="dv">3</span>]<span class="sc">*</span>x_2 <span class="sc">+</span> </span>
+<span id="cb6-13"><a href="generate-data.html#cb6-13" aria-hidden="true" tabindex="-1"></a>                    price_par_t0[<span class="dv">4</span>]<span class="sc">*</span>x_3 <span class="sc">+</span></span>
+<span id="cb6-14"><a href="generate-data.html#cb6-14" aria-hidden="true" tabindex="-1"></a>                    price_par_t0[<span class="dv">5</span>]<span class="sc">*</span>m <span class="sc">+</span></span>
+<span id="cb6-15"><a href="generate-data.html#cb6-15" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">rnorm</span>(N, <span class="dv">1</span>, <span class="dv">1</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-16"><a href="generate-data.html#cb6-16" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(i, d, t, m, f, price)</span>
+<span id="cb6-17"><a href="generate-data.html#cb6-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-18"><a href="generate-data.html#cb6-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-19"><a href="generate-data.html#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="do">## Generate Price</span></span>
+<span id="cb6-20"><a href="generate-data.html#cb6-20" aria-hidden="true" tabindex="-1"></a>price_gen_t0 <span class="ot">&lt;-</span> <span class="cf">function</span>(choice_t0,</span>
+<span id="cb6-21"><a href="generate-data.html#cb6-21" aria-hidden="true" tabindex="-1"></a>                         price_par_t0_d1, price_par_t0_d2,</span>
+<span id="cb6-22"><a href="generate-data.html#cb6-22" aria-hidden="true" tabindex="-1"></a>                         price_par_t0_d3, price_par_t0_d4){</span>
+<span id="cb6-23"><a href="generate-data.html#cb6-23" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-24"><a href="generate-data.html#cb6-24" aria-hidden="true" tabindex="-1"></a>  price <span class="ot">&lt;-</span> <span class="fu">price_gen_d</span>(choice_t0, <span class="dv">1</span>, price_par_t0_d1) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-25"><a href="generate-data.html#cb6-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rbind</span>(<span class="fu">price_gen_d</span>(choice_t0, <span class="dv">2</span>, price_par_t0_d2)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-26"><a href="generate-data.html#cb6-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rbind</span>(<span class="fu">price_gen_d</span>(choice_t0, <span class="dv">3</span>, price_par_t0_d3)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-27"><a href="generate-data.html#cb6-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rbind</span>(<span class="fu">price_gen_d</span>(choice_t0, <span class="dv">4</span>, price_par_t0_d4))</span>
+<span id="cb6-28"><a href="generate-data.html#cb6-28" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-29"><a href="generate-data.html#cb6-29" aria-hidden="true" tabindex="-1"></a>  output <span class="ot">&lt;-</span> choice_t0 <span class="sc">%&gt;%</span> </span>
+<span id="cb6-30"><a href="generate-data.html#cb6-30" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">left_join</span>(price, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>, <span class="st">&quot;d&quot;</span>, <span class="st">&quot;t&quot;</span>, <span class="st">&quot;m&quot;</span>, <span class="st">&quot;f&quot;</span>))</span>
+<span id="cb6-31"><a href="generate-data.html#cb6-31" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-32"><a href="generate-data.html#cb6-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(output) </span>
+<span id="cb6-33"><a href="generate-data.html#cb6-33" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-34"><a href="generate-data.html#cb6-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-35"><a href="generate-data.html#cb6-35" aria-hidden="true" tabindex="-1"></a><span class="do">## Generate Prior Firm</span></span>
+<span id="cb6-36"><a href="generate-data.html#cb6-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-37"><a href="generate-data.html#cb6-37" aria-hidden="true" tabindex="-1"></a>prior_firm_t0 <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>N) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-38"><a href="generate-data.html#cb6-38" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb6-39"><a href="generate-data.html#cb6-39" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">prior_firm =</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">size =</span> N, <span class="at">replace =</span> T, <span class="at">prob =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.4</span>, <span class="fl">0.35</span>, <span class="fl">0.25</span>)))</span>
+<span id="cb6-40"><a href="generate-data.html#cb6-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-41"><a href="generate-data.html#cb6-41" aria-hidden="true" tabindex="-1"></a><span class="do">## Generate Renewal Price</span></span>
+<span id="cb6-42"><a href="generate-data.html#cb6-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-43"><a href="generate-data.html#cb6-43" aria-hidden="true" tabindex="-1"></a>alpha_m0 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">5</span>, <span class="dv">3</span>)</span>
+<span id="cb6-44"><a href="generate-data.html#cb6-44" aria-hidden="true" tabindex="-1"></a>alpha_m1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">5</span>, <span class="dv">3</span>, <span class="sc">-</span><span class="dv">2</span>)</span>
+<span id="cb6-45"><a href="generate-data.html#cb6-45" aria-hidden="true" tabindex="-1"></a>beta <span class="ot">&lt;-</span> <span class="dv">20</span></span>
+<span id="cb6-46"><a href="generate-data.html#cb6-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-47"><a href="generate-data.html#cb6-47" aria-hidden="true" tabindex="-1"></a><span class="do">## Generate Inertia</span></span>
+<span id="cb6-48"><a href="generate-data.html#cb6-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-49"><a href="generate-data.html#cb6-49" aria-hidden="true" tabindex="-1"></a>eta_f <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>)</span>
+<span id="cb6-50"><a href="generate-data.html#cb6-50" aria-hidden="true" tabindex="-1"></a>xi <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="sc">-</span><span class="fl">2.5</span>)</span>
+<span id="cb6-51"><a href="generate-data.html#cb6-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-52"><a href="generate-data.html#cb6-52" aria-hidden="true" tabindex="-1"></a>choice_t0 <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>N, <span class="at">d =</span> <span class="dv">1</span><span class="sc">:</span>D, <span class="at">t =</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-53"><a href="generate-data.html#cb6-53" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb6-54"><a href="generate-data.html#cb6-54" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">m =</span> <span class="fu">ifelse</span>(d <span class="sc">==</span> <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb6-55"><a href="generate-data.html#cb6-55" aria-hidden="true" tabindex="-1"></a>                <span class="at">f =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(</span>
+<span id="cb6-56"><a href="generate-data.html#cb6-56" aria-hidden="true" tabindex="-1"></a>                  d <span class="sc">&lt;=</span> <span class="dv">2</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb6-57"><a href="generate-data.html#cb6-57" aria-hidden="true" tabindex="-1"></a>                  d <span class="sc">==</span> <span class="dv">3</span> <span class="sc">~</span> <span class="dv">2</span>,</span>
+<span id="cb6-58"><a href="generate-data.html#cb6-58" aria-hidden="true" tabindex="-1"></a>                  d <span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="dv">3</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-59"><a href="generate-data.html#cb6-59" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(lambda, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>, <span class="st">&quot;m&quot;</span>, <span class="st">&quot;t&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-60"><a href="generate-data.html#cb6-60" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(score, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>, <span class="st">&quot;m&quot;</span>, <span class="st">&quot;t&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-61"><a href="generate-data.html#cb6-61" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(oop, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>, <span class="st">&quot;m&quot;</span>, <span class="st">&quot;t&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-62"><a href="generate-data.html#cb6-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">price_gen_t0</span>(price_par_t0_d1, price_par_t0_d2, price_par_t0_d3, price_par_t0_d4) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-63"><a href="generate-data.html#cb6-63" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(prior_firm_t0, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-64"><a href="generate-data.html#cb6-64" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">inertia =</span> eta_f[<span class="dv">1</span>] <span class="sc">+</span> eta_f[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> eta_f[<span class="dv">3</span>]<span class="sc">*</span>x_2 <span class="sc">+</span> eta_f[<span class="dv">4</span>]<span class="sc">*</span>x_3,</span>
+<span id="cb6-65"><a href="generate-data.html#cb6-65" aria-hidden="true" tabindex="-1"></a>                <span class="at">monitoring_disutility =</span> xi[<span class="dv">1</span>] <span class="sc">+</span> xi[<span class="dv">2</span>]<span class="sc">*</span><span class="fu">log</span>(lambda),</span>
+<span id="cb6-66"><a href="generate-data.html#cb6-66" aria-hidden="true" tabindex="-1"></a>                <span class="at">demand_friction =</span> <span class="fu">ifelse</span>(d <span class="sc">==</span> prior_firm, <span class="dv">0</span>, inertia) <span class="sc">+</span> </span>
+<span id="cb6-67"><a href="generate-data.html#cb6-67" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">ifelse</span>(d <span class="sc">==</span> <span class="dv">1</span>, monitoring_disutility, <span class="dv">0</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-68"><a href="generate-data.html#cb6-68" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">E_R_s =</span> <span class="fu">ifelse</span>(m <span class="sc">==</span> <span class="dv">0</span>, </span>
+<span id="cb6-69"><a href="generate-data.html#cb6-69" aria-hidden="true" tabindex="-1"></a>                           (alpha_m0[<span class="dv">1</span>] <span class="sc">+</span> alpha_m0[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> alpha_m0[<span class="dv">3</span>]<span class="sc">*</span>x_2) <span class="sc">/</span> beta,</span>
+<span id="cb6-70"><a href="generate-data.html#cb6-70" aria-hidden="true" tabindex="-1"></a>                           (alpha_m1[<span class="dv">1</span>] <span class="sc">+</span> alpha_m1[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> alpha_m1[<span class="dv">3</span>]<span class="sc">*</span>x_2 <span class="sc">+</span> alpha_m1[<span class="dv">4</span>]<span class="sc">*</span>E_score) <span class="sc">/</span> beta),</span>
+<span id="cb6-71"><a href="generate-data.html#cb6-71" aria-hidden="true" tabindex="-1"></a>                <span class="at">E_R_C =</span> <span class="fl">0.98</span> <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span>lambda) <span class="sc">+</span> <span class="fl">1.2</span> <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span>lambda)),</span>
+<span id="cb6-72"><a href="generate-data.html#cb6-72" aria-hidden="true" tabindex="-1"></a>                <span class="at">E_renewal_price =</span> price <span class="sc">*</span> E_R_s <span class="sc">*</span> E_R_C) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-73"><a href="generate-data.html#cb6-73" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">h =</span> <span class="sc">-</span> price <span class="sc">-</span> demand_friction <span class="sc">-</span> E_oop <span class="sc">-</span> E_renewal_price)</span>
+<span id="cb6-74"><a href="generate-data.html#cb6-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-75"><a href="generate-data.html#cb6-75" aria-hidden="true" tabindex="-1"></a><span class="co"># draw idiosyncratic shocks</span></span>
+<span id="cb6-76"><a href="generate-data.html#cb6-76" aria-hidden="true" tabindex="-1"></a>e_t0 <span class="ot">&lt;-</span> evd<span class="sc">::</span><span class="fu">rgev</span>(<span class="fu">dim</span>(choice_t0)[<span class="dv">1</span>])</span>
+<span id="cb6-77"><a href="generate-data.html#cb6-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-78"><a href="generate-data.html#cb6-78" aria-hidden="true" tabindex="-1"></a>choice_t0 <span class="ot">&lt;-</span> <span class="fu">cbind</span>(choice_t0, e_t0) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-79"><a href="generate-data.html#cb6-79" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">u =</span> h <span class="sc">+</span> e_t0) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-80"><a href="generate-data.html#cb6-80" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(i, t) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-81"><a href="generate-data.html#cb6-81" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">choice =</span> <span class="fu">ifelse</span>(u <span class="sc">==</span> <span class="fu">max</span>(u), <span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-82"><a href="generate-data.html#cb6-82" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">ungroup</span>()</span>
+<span id="cb6-83"><a href="generate-data.html#cb6-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-84"><a href="generate-data.html#cb6-84" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(choice_t0)</span></code></pre></div>
 <pre><code>##        i               d              t           m              f       
 ##  Min.   :    1   Min.   :1.00   Min.   :0   Min.   :0.00   Min.   :1.00  
 ##  1st Qu.: 2501   1st Qu.:1.75   1st Qu.:0   1st Qu.:0.00   1st Qu.:1.00  
@@ -444,48 +455,61 @@ d_{it} &amp;= \mathop{\rm argmax}\limits_{d \in D_{it}} \left\{ v_{idt} + \varep
 ##  Max.   :4.000   Max.   :10.4807   Max.   :17.169        Max.   :25.7454  
 ##                                                                           
 ##      E_R_s             E_R_C        E_renewal_price        h          
-##  Min.   : 0.5193   Min.   :0.9502   Min.   :  2.23   Min.   :-284.30  
-##  1st Qu.: 0.9131   1st Qu.:0.9535   1st Qu.: 12.30   1st Qu.: -51.16  
-##  Median : 1.0234   Median :0.9566   Median : 15.33   Median : -43.46  
-##  Mean   : 1.0746   Mean   :0.9594   Mean   : 16.30   Mean   : -44.89  
-##  3rd Qu.: 1.1431   3rd Qu.:0.9620   3rd Qu.: 18.82   3rd Qu.: -36.68  
-##  Max.   :11.8529   Max.   :1.0785   Max.   :241.00   Max.   : -10.61  
+##  Min.   :-0.6019   Min.   :0.9803   Min.   :-12.63   Min.   :-108.84  
+##  1st Qu.: 0.8946   1st Qu.:0.9851   1st Qu.: 12.27   1st Qu.: -50.23  
+##  Median : 0.9843   Median :0.9897   Median : 15.07   Median : -43.49  
+##  Mean   : 0.9849   Mean   :0.9938   Mean   : 15.45   Mean   : -44.04  
+##  3rd Qu.: 1.0746   3rd Qu.:0.9977   3rd Qu.: 18.17   3rd Qu.: -37.04  
+##  Max.   : 1.5251   Max.   :1.1685   Max.   : 41.34   Max.   : -10.68  
 ##                                                                       
 ##       e_t0               u                choice    
-##  Min.   :-2.3294   Min.   :-284.364   Min.   :0.00  
-##  1st Qu.:-0.3282   1st Qu.: -50.637   1st Qu.:0.00  
-##  Median : 0.3742   Median : -42.892   Median :0.00  
-##  Mean   : 0.5804   Mean   : -44.314   Mean   :0.25  
-##  3rd Qu.: 1.2504   3rd Qu.: -36.098   3rd Qu.:0.25  
-##  Max.   :11.7200   Max.   :  -9.806   Max.   :1.00  
+##  Min.   :-2.3294   Min.   :-106.993   Min.   :0.00  
+##  1st Qu.:-0.3282   1st Qu.: -49.681   1st Qu.:0.00  
+##  Median : 0.3742   Median : -42.920   Median :0.00  
+##  Mean   : 0.5804   Mean   : -43.463   Mean   :0.25  
+##  3rd Qu.: 1.2504   3rd Qu.: -36.441   3rd Qu.:0.25  
+##  Max.   :11.7200   Max.   :  -9.881   Max.   :1.00  
 ## </code></pre>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="generate-data.html#cb6-1" aria-hidden="true" tabindex="-1"></a>summarize_choice <span class="ot">&lt;-</span> choice_t0 <span class="sc">%&gt;%</span> </span>
-<span id="cb6-2"><a href="generate-data.html#cb6-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(d) <span class="sc">%&gt;%</span> </span>
-<span id="cb6-3"><a href="generate-data.html#cb6-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarise</span>(<span class="at">share =</span> <span class="fu">mean</span>(choice))</span>
-<span id="cb6-4"><a href="generate-data.html#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-5"><a href="generate-data.html#cb6-5" aria-hidden="true" tabindex="-1"></a>summarize_choice</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="generate-data.html#cb8-1" aria-hidden="true" tabindex="-1"></a>summarize_choice <span class="ot">&lt;-</span> choice_t0 <span class="sc">%&gt;%</span> </span>
+<span id="cb8-2"><a href="generate-data.html#cb8-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(d) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-3"><a href="generate-data.html#cb8-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarise</span>(<span class="at">share =</span> <span class="fu">mean</span>(choice))</span>
+<span id="cb8-4"><a href="generate-data.html#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="generate-data.html#cb8-5" aria-hidden="true" tabindex="-1"></a>summarize_choice</span></code></pre></div>
 <pre><code>## # A tibble: 4 × 2
 ##       d share
 ##   &lt;int&gt; &lt;dbl&gt;
-## 1     1 0.073
-## 2     2 0.317
-## 3     3 0.310
-## 4     4 0.300</code></pre>
+## 1     1 0.125
+## 2     2 0.293
+## 3     3 0.292
+## 4     4 0.290</code></pre>
 <ul>
 <li>The figure shows generated prices of each plan.</li>
 <li>Monitoring plan provided by firm 1 is slightly lower than other plans, representing the opt-in discount</li>
 </ul>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="generate-data.html#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Visualize Price in t = 0</span></span>
-<span id="cb8-2"><a href="generate-data.html#cb8-2" aria-hidden="true" tabindex="-1"></a>g_price_t0 <span class="ot">&lt;-</span> choice_t0 <span class="sc">%&gt;%</span> </span>
-<span id="cb8-3"><a href="generate-data.html#cb8-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">plan =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(d <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">&quot;Firm1 Monitoring&quot;</span>,</span>
-<span id="cb8-4"><a href="generate-data.html#cb8-4" aria-hidden="true" tabindex="-1"></a>                                        d <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="st">&quot;Firm1 No Monitoring&quot;</span>,</span>
-<span id="cb8-5"><a href="generate-data.html#cb8-5" aria-hidden="true" tabindex="-1"></a>                                        d <span class="sc">==</span> <span class="dv">3</span> <span class="sc">~</span> <span class="st">&quot;Firm2&quot;</span>,</span>
-<span id="cb8-6"><a href="generate-data.html#cb8-6" aria-hidden="true" tabindex="-1"></a>                                        d <span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="st">&quot;Firm3&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb8-7"><a href="generate-data.html#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> price, <span class="at">fill =</span> plan)) <span class="sc">+</span> </span>
-<span id="cb8-8"><a href="generate-data.html#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">position =</span> <span class="st">&quot;identity&quot;</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>, <span class="at">binwidth =</span> <span class="fl">0.25</span>)</span>
-<span id="cb8-9"><a href="generate-data.html#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-10"><a href="generate-data.html#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_price_t0)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="generate-data.html#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Visualize Price in t = 0</span></span>
+<span id="cb10-2"><a href="generate-data.html#cb10-2" aria-hidden="true" tabindex="-1"></a>g_price_t0 <span class="ot">&lt;-</span> choice_t0 <span class="sc">%&gt;%</span> </span>
+<span id="cb10-3"><a href="generate-data.html#cb10-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">plan =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(d <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">&quot;Firm1 Monitoring&quot;</span>,</span>
+<span id="cb10-4"><a href="generate-data.html#cb10-4" aria-hidden="true" tabindex="-1"></a>                                        d <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="st">&quot;Firm1 No Monitoring&quot;</span>,</span>
+<span id="cb10-5"><a href="generate-data.html#cb10-5" aria-hidden="true" tabindex="-1"></a>                                        d <span class="sc">==</span> <span class="dv">3</span> <span class="sc">~</span> <span class="st">&quot;Firm2&quot;</span>,</span>
+<span id="cb10-6"><a href="generate-data.html#cb10-6" aria-hidden="true" tabindex="-1"></a>                                        d <span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="st">&quot;Firm3&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-7"><a href="generate-data.html#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> price, <span class="at">fill =</span> plan)) <span class="sc">+</span> </span>
+<span id="cb10-8"><a href="generate-data.html#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">position =</span> <span class="st">&quot;identity&quot;</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>, <span class="at">binwidth =</span> <span class="fl">0.25</span>)</span>
+<span id="cb10-9"><a href="generate-data.html#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="generate-data.html#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_price_t0)</span></code></pre></div>
 <p><img src="Monte_Carlo_Simulation_Jin_and_Vasserman_2021_files/figure-html/visualize%20price-1.png" width="672" /></p>
+<ul>
+<li>The following figure shows the expectation of <span class="math inline">\(R_{idt}(s)\)</span>, which implies that monitored consumers tend to have smaller expected renewal prices, incentivizing them to opt-in</li>
+</ul>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="generate-data.html#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Visualize E_R_s in t = 0</span></span>
+<span id="cb11-2"><a href="generate-data.html#cb11-2" aria-hidden="true" tabindex="-1"></a>g_E_R_s_t0 <span class="ot">&lt;-</span> choice_t0 <span class="sc">%&gt;%</span> </span>
+<span id="cb11-3"><a href="generate-data.html#cb11-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(f <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-4"><a href="generate-data.html#cb11-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">plan =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(m <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">&quot;Monitoring&quot;</span>,</span>
+<span id="cb11-5"><a href="generate-data.html#cb11-5" aria-hidden="true" tabindex="-1"></a>                                        m <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">&quot;No Monitoring&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-6"><a href="generate-data.html#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> E_R_s, <span class="at">fill =</span> plan)) <span class="sc">+</span> </span>
+<span id="cb11-7"><a href="generate-data.html#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">position =</span> <span class="st">&quot;identity&quot;</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>, <span class="at">binwidth =</span> <span class="fl">0.01</span>)</span>
+<span id="cb11-8"><a href="generate-data.html#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="generate-data.html#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_E_R_s_t0)</span></code></pre></div>
+<p><img src="Monte_Carlo_Simulation_Jin_and_Vasserman_2021_files/figure-html/visualize%20E_R_s-1.png" width="672" /></p>
 </div>
 <div id="generate-realization-of-cost-in-t-0" class="section level2 hasAnchor" number="1.5">
 <h2><span class="header-section-number">1.5</span> Generate Realization of Cost in <span class="math inline">\(t = 0\)</span><a href="generate-data.html#generate-realization-of-cost-in-t-0" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -495,96 +519,103 @@ d_{it} &amp;= \mathop{\rm argmax}\limits_{d \in D_{it}} \left\{ v_{idt} + \varep
 <li>The monitoring score <span class="math inline">\(s\)</span> is drawn according to a log-normal distribution with mean <span class="math inline">\(\mu_{s, i}\)</span> and precision <span class="math inline">\(\sigma_{s}\)</span></li>
 <li>Note that we do not need to generate realization of severity since it does not affect consumer’s choice in <span class="math inline">\(t = 1\)</span></li>
 </ul>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="generate-data.html#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Claims Count</span></span>
-<span id="cb9-2"><a href="generate-data.html#cb9-2" aria-hidden="true" tabindex="-1"></a>cost_t0 <span class="ot">&lt;-</span> choice_t0 <span class="sc">%&gt;%</span> </span>
-<span id="cb9-3"><a href="generate-data.html#cb9-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(choice <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-4"><a href="generate-data.html#cb9-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">claims =</span> <span class="fu">rpois</span>(N, <span class="at">lambda =</span> lambda))</span>
-<span id="cb9-5"><a href="generate-data.html#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-6"><a href="generate-data.html#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="do">## Severity</span></span>
-<span id="cb9-7"><a href="generate-data.html#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># max_claims &lt;- max(cost_t0$claims)</span></span>
-<span id="cb9-8"><a href="generate-data.html#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb9-9"><a href="generate-data.html#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co"># claims_mat &lt;- matrix(rep(0, N * max_claims), nrow = N)</span></span>
-<span id="cb9-10"><a href="generate-data.html#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co"># severity &lt;- matrix(l0*runif(N * max_claims)^(-1/a_l), nrow = N)</span></span>
-<span id="cb9-11"><a href="generate-data.html#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb9-12"><a href="generate-data.html#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co"># colnames(severity) &lt;- paste(&quot;sev_&quot;, 1:max_claims, sep = &quot;&quot;)</span></span>
-<span id="cb9-13"><a href="generate-data.html#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb9-14"><a href="generate-data.html#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="co"># cost_t0 &lt;- cbind(cost_t0, severity)</span></span>
-<span id="cb9-15"><a href="generate-data.html#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-16"><a href="generate-data.html#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="do">## Monitoring Score</span></span>
-<span id="cb9-17"><a href="generate-data.html#cb9-17" aria-hidden="true" tabindex="-1"></a>cost_t0 <span class="ot">&lt;-</span> cost_t0 <span class="sc">%&gt;%</span> </span>
-<span id="cb9-18"><a href="generate-data.html#cb9-18" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">score =</span> <span class="fu">rlnorm</span>(N, mu_score, sigma_score),</span>
-<span id="cb9-19"><a href="generate-data.html#cb9-19" aria-hidden="true" tabindex="-1"></a>                <span class="at">score =</span> <span class="fu">ifelse</span>(m <span class="sc">==</span> <span class="dv">1</span>, score, <span class="dv">1</span>),</span>
-<span id="cb9-20"><a href="generate-data.html#cb9-20" aria-hidden="true" tabindex="-1"></a>                <span class="at">log_score =</span> <span class="fu">log</span>(score)) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-21"><a href="generate-data.html#cb9-21" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(i, claims, <span class="fu">matches</span>(<span class="st">&quot;sev.&quot;</span>), score, log_score)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="generate-data.html#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Claims Count</span></span>
+<span id="cb12-2"><a href="generate-data.html#cb12-2" aria-hidden="true" tabindex="-1"></a>cost_t0 <span class="ot">&lt;-</span> choice_t0 <span class="sc">%&gt;%</span> </span>
+<span id="cb12-3"><a href="generate-data.html#cb12-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(choice <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb12-4"><a href="generate-data.html#cb12-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">claims =</span> <span class="fu">rpois</span>(N, <span class="at">lambda =</span> lambda))</span>
+<span id="cb12-5"><a href="generate-data.html#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="generate-data.html#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="do">## Severity</span></span>
+<span id="cb12-7"><a href="generate-data.html#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># max_claims &lt;- max(cost_t0$claims)</span></span>
+<span id="cb12-8"><a href="generate-data.html#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb12-9"><a href="generate-data.html#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co"># claims_mat &lt;- matrix(rep(0, N * max_claims), nrow = N)</span></span>
+<span id="cb12-10"><a href="generate-data.html#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co"># severity &lt;- matrix(l0*runif(N * max_claims)^(-1/a_l), nrow = N)</span></span>
+<span id="cb12-11"><a href="generate-data.html#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb12-12"><a href="generate-data.html#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co"># colnames(severity) &lt;- paste(&quot;sev_&quot;, 1:max_claims, sep = &quot;&quot;)</span></span>
+<span id="cb12-13"><a href="generate-data.html#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb12-14"><a href="generate-data.html#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co"># cost_t0 &lt;- cbind(cost_t0, severity)</span></span>
+<span id="cb12-15"><a href="generate-data.html#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="generate-data.html#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="do">## Monitoring Score</span></span>
+<span id="cb12-17"><a href="generate-data.html#cb12-17" aria-hidden="true" tabindex="-1"></a>cost_t0 <span class="ot">&lt;-</span> cost_t0 <span class="sc">%&gt;%</span> </span>
+<span id="cb12-18"><a href="generate-data.html#cb12-18" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">score =</span> <span class="fu">rlnorm</span>(N, mu_score, sigma_score),</span>
+<span id="cb12-19"><a href="generate-data.html#cb12-19" aria-hidden="true" tabindex="-1"></a>                <span class="at">score =</span> <span class="fu">ifelse</span>(m <span class="sc">==</span> <span class="dv">1</span>, score, <span class="dv">1</span>),</span>
+<span id="cb12-20"><a href="generate-data.html#cb12-20" aria-hidden="true" tabindex="-1"></a>                <span class="at">log_score =</span> <span class="fu">log</span>(score)) <span class="sc">%&gt;%</span> </span>
+<span id="cb12-21"><a href="generate-data.html#cb12-21" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(i, claims, <span class="fu">matches</span>(<span class="st">&quot;sev.&quot;</span>), score, log_score)</span></code></pre></div>
 <pre><code>## Warning in rlnorm(N, mu_score, sigma_score): NAs produced</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="generate-data.html#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Visualize realized claims count</span></span>
+<span id="cb14-2"><a href="generate-data.html#cb14-2" aria-hidden="true" tabindex="-1"></a>g_realized_claims_count <span class="ot">&lt;-</span> cost_t0 <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="generate-data.html#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> claims)) <span class="sc">+</span> </span>
+<span id="cb14-4"><a href="generate-data.html#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="fl">0.5</span>)</span>
+<span id="cb14-5"><a href="generate-data.html#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="generate-data.html#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_realized_claims_count)</span></code></pre></div>
+<p><img src="Monte_Carlo_Simulation_Jin_and_Vasserman_2021_files/figure-html/visualize%20realized%20claims%20count-1.png" width="672" /></p>
 <ul>
 <li>The following figure shows realized monitoring scores (in logarithm) for opt-in drivers</li>
 </ul>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="generate-data.html#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Visualize realized score</span></span>
-<span id="cb11-2"><a href="generate-data.html#cb11-2" aria-hidden="true" tabindex="-1"></a>g_realized_score <span class="ot">&lt;-</span> cost_t0 <span class="sc">%&gt;%</span></span>
-<span id="cb11-3"><a href="generate-data.html#cb11-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(score <span class="sc">!=</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb11-4"><a href="generate-data.html#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> log_score)) <span class="sc">+</span> </span>
-<span id="cb11-5"><a href="generate-data.html#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="fl">0.1</span>)</span>
-<span id="cb11-6"><a href="generate-data.html#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-7"><a href="generate-data.html#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_realized_score)</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="generate-data.html#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Visualize realized score</span></span>
+<span id="cb15-2"><a href="generate-data.html#cb15-2" aria-hidden="true" tabindex="-1"></a>g_realized_score <span class="ot">&lt;-</span> cost_t0 <span class="sc">%&gt;%</span></span>
+<span id="cb15-3"><a href="generate-data.html#cb15-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(score <span class="sc">!=</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-4"><a href="generate-data.html#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> log_score)) <span class="sc">+</span> </span>
+<span id="cb15-5"><a href="generate-data.html#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="fl">0.1</span>)</span>
+<span id="cb15-6"><a href="generate-data.html#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="generate-data.html#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_realized_score)</span></code></pre></div>
 <p><img src="Monte_Carlo_Simulation_Jin_and_Vasserman_2021_files/figure-html/visualize%20realized%20score-1.png" width="672" /></p>
 </div>
 <div id="generate-choice-in-t-1" class="section level2 hasAnchor" number="1.6">
 <h2><span class="header-section-number">1.6</span> Generate Choice in <span class="math inline">\(t = 1\)</span><a href="generate-data.html#generate-choice-in-t-1" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="generate-data.html#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Prior Choice and Firm</span></span>
-<span id="cb12-2"><a href="generate-data.html#cb12-2" aria-hidden="true" tabindex="-1"></a>prior_firm_t1 <span class="ot">&lt;-</span> choice_t0 <span class="sc">%&gt;%</span> </span>
-<span id="cb12-3"><a href="generate-data.html#cb12-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(choice <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-4"><a href="generate-data.html#cb12-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">prior_choice =</span> d <span class="sc">*</span> choice,</span>
-<span id="cb12-5"><a href="generate-data.html#cb12-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">prior_firm =</span> f <span class="sc">*</span> choice) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-6"><a href="generate-data.html#cb12-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(i, prior_choice, prior_firm)</span>
-<span id="cb12-7"><a href="generate-data.html#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-8"><a href="generate-data.html#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="do">### Prior Price</span></span>
-<span id="cb12-9"><a href="generate-data.html#cb12-9" aria-hidden="true" tabindex="-1"></a>prior_price_t1 <span class="ot">&lt;-</span> choice_t0 <span class="sc">%&gt;%</span> </span>
-<span id="cb12-10"><a href="generate-data.html#cb12-10" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(prior_firm_t1, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-11"><a href="generate-data.html#cb12-11" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">prior_price =</span> price,</span>
-<span id="cb12-12"><a href="generate-data.html#cb12-12" aria-hidden="true" tabindex="-1"></a>                <span class="at">flg =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(prior_choice <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> d <span class="sc">!=</span> <span class="dv">2</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
-<span id="cb12-13"><a href="generate-data.html#cb12-13" aria-hidden="true" tabindex="-1"></a>                                       prior_choice <span class="sc">&gt;</span> <span class="dv">1</span> <span class="sc">&amp;</span> d <span class="sc">!=</span> <span class="dv">1</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
-<span id="cb12-14"><a href="generate-data.html#cb12-14" aria-hidden="true" tabindex="-1"></a>                                       <span class="cn">TRUE</span> <span class="sc">~</span> <span class="dv">0</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-15"><a href="generate-data.html#cb12-15" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(flg <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-16"><a href="generate-data.html#cb12-16" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(i, f, prior_price) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-17"><a href="generate-data.html#cb12-17" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">arrange</span>(i)</span>
-<span id="cb12-18"><a href="generate-data.html#cb12-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-19"><a href="generate-data.html#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="do">## Choice in t = 1</span></span>
-<span id="cb12-20"><a href="generate-data.html#cb12-20" aria-hidden="true" tabindex="-1"></a>choice_t1 <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>N, <span class="at">d =</span> <span class="dv">1</span><span class="sc">:</span>(D <span class="sc">-</span> <span class="dv">1</span>), <span class="at">t =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-21"><a href="generate-data.html#cb12-21" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb12-22"><a href="generate-data.html#cb12-22" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">m =</span> <span class="dv">0</span>,</span>
-<span id="cb12-23"><a href="generate-data.html#cb12-23" aria-hidden="true" tabindex="-1"></a>                <span class="at">f =</span> d) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-24"><a href="generate-data.html#cb12-24" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(prior_firm_t1, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-25"><a href="generate-data.html#cb12-25" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(prior_price_t1, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>, <span class="st">&quot;f&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-26"><a href="generate-data.html#cb12-26" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(lambda, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>, <span class="st">&quot;m&quot;</span>, <span class="st">&quot;t&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-27"><a href="generate-data.html#cb12-27" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(oop, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>, <span class="st">&quot;m&quot;</span>, <span class="st">&quot;t&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-28"><a href="generate-data.html#cb12-28" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(cost_t0, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-29"><a href="generate-data.html#cb12-29" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">gamma_alpha =</span> <span class="fu">ifelse</span>(m <span class="sc">==</span> <span class="dv">0</span>,</span>
-<span id="cb12-30"><a href="generate-data.html#cb12-30" aria-hidden="true" tabindex="-1"></a>                                     alpha_m0[<span class="dv">1</span>] <span class="sc">+</span> alpha_m0[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> alpha_m0[<span class="dv">3</span>]<span class="sc">*</span>x_2,</span>
-<span id="cb12-31"><a href="generate-data.html#cb12-31" aria-hidden="true" tabindex="-1"></a>                                     alpha_m1[<span class="dv">1</span>] <span class="sc">+</span> alpha_m1[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> alpha_m1[<span class="dv">3</span>]<span class="sc">*</span>x_2 <span class="sc">+</span> alpha_m1[<span class="dv">4</span>]<span class="sc">*</span>score)) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-32"><a href="generate-data.html#cb12-32" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">R_s =</span> <span class="fu">rgamma</span>(N <span class="sc">*</span> (D <span class="sc">-</span> <span class="dv">1</span>), gamma_alpha, beta),</span>
-<span id="cb12-33"><a href="generate-data.html#cb12-33" aria-hidden="true" tabindex="-1"></a>                <span class="at">R_C =</span> <span class="fu">ifelse</span>(claims <span class="sc">==</span> <span class="dv">0</span>, <span class="fl">0.98</span>, <span class="fl">1.2</span>),</span>
-<span id="cb12-34"><a href="generate-data.html#cb12-34" aria-hidden="true" tabindex="-1"></a>                <span class="at">price =</span> prior_price <span class="sc">*</span> R_s <span class="sc">*</span> R_C) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-35"><a href="generate-data.html#cb12-35" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">inertia =</span> eta_f[<span class="dv">1</span>] <span class="sc">+</span> eta_f[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> eta_f[<span class="dv">3</span>]<span class="sc">*</span>x_2 <span class="sc">+</span> eta_f[<span class="dv">4</span>]<span class="sc">*</span>x_3,</span>
-<span id="cb12-36"><a href="generate-data.html#cb12-36" aria-hidden="true" tabindex="-1"></a>                <span class="at">demand_friction =</span> <span class="fu">ifelse</span>(d <span class="sc">==</span> prior_firm, <span class="dv">0</span>, inertia)) <span class="sc">%&gt;%</span>   </span>
-<span id="cb12-37"><a href="generate-data.html#cb12-37" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">E_R_s =</span> <span class="fu">ifelse</span>(m <span class="sc">==</span> <span class="dv">0</span>, </span>
-<span id="cb12-38"><a href="generate-data.html#cb12-38" aria-hidden="true" tabindex="-1"></a>                           (alpha_m0[<span class="dv">1</span>] <span class="sc">+</span> alpha_m0[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> alpha_m0[<span class="dv">3</span>]<span class="sc">*</span>x_2) <span class="sc">/</span> beta,</span>
-<span id="cb12-39"><a href="generate-data.html#cb12-39" aria-hidden="true" tabindex="-1"></a>                           (alpha_m1[<span class="dv">1</span>] <span class="sc">+</span> alpha_m1[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> alpha_m1[<span class="dv">3</span>]<span class="sc">*</span>x_2 <span class="sc">+</span> alpha_m1[<span class="dv">4</span>]<span class="sc">*</span>E_score) <span class="sc">/</span> beta),</span>
-<span id="cb12-40"><a href="generate-data.html#cb12-40" aria-hidden="true" tabindex="-1"></a>                <span class="at">E_R_C =</span> <span class="fl">0.95</span> <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span>lambda) <span class="sc">+</span> <span class="fl">1.1</span> <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span>lambda)),</span>
-<span id="cb12-41"><a href="generate-data.html#cb12-41" aria-hidden="true" tabindex="-1"></a>                <span class="at">E_renewal_price =</span> price <span class="sc">*</span> E_R_s <span class="sc">*</span> E_R_C) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-42"><a href="generate-data.html#cb12-42" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">h =</span> <span class="sc">-</span> price <span class="sc">-</span> demand_friction <span class="sc">-</span> E_oop <span class="sc">-</span> E_renewal_price) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-43"><a href="generate-data.html#cb12-43" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">arrange</span>(i)</span>
-<span id="cb12-44"><a href="generate-data.html#cb12-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-45"><a href="generate-data.html#cb12-45" aria-hidden="true" tabindex="-1"></a><span class="co"># draw idiosyncratic shocks</span></span>
-<span id="cb12-46"><a href="generate-data.html#cb12-46" aria-hidden="true" tabindex="-1"></a>e_t1 <span class="ot">&lt;-</span> evd<span class="sc">::</span><span class="fu">rgev</span>(<span class="fu">dim</span>(choice_t1)[<span class="dv">1</span>])</span>
-<span id="cb12-47"><a href="generate-data.html#cb12-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-48"><a href="generate-data.html#cb12-48" aria-hidden="true" tabindex="-1"></a>choice_t1 <span class="ot">&lt;-</span> <span class="fu">cbind</span>(choice_t1, e_t1) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-49"><a href="generate-data.html#cb12-49" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">u =</span> h <span class="sc">+</span> e_t1) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-50"><a href="generate-data.html#cb12-50" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(i, t) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-51"><a href="generate-data.html#cb12-51" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">choice =</span> <span class="fu">ifelse</span>(u <span class="sc">==</span> <span class="fu">max</span>(u), <span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-52"><a href="generate-data.html#cb12-52" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">ungroup</span>()</span>
-<span id="cb12-53"><a href="generate-data.html#cb12-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-54"><a href="generate-data.html#cb12-54" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(choice_t1)</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="generate-data.html#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Prior Choice and Firm</span></span>
+<span id="cb16-2"><a href="generate-data.html#cb16-2" aria-hidden="true" tabindex="-1"></a>prior_firm_t1 <span class="ot">&lt;-</span> choice_t0 <span class="sc">%&gt;%</span> </span>
+<span id="cb16-3"><a href="generate-data.html#cb16-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(choice <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-4"><a href="generate-data.html#cb16-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">prior_choice =</span> d <span class="sc">*</span> choice,</span>
+<span id="cb16-5"><a href="generate-data.html#cb16-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">prior_firm =</span> f <span class="sc">*</span> choice) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-6"><a href="generate-data.html#cb16-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(i, prior_choice, prior_firm)</span>
+<span id="cb16-7"><a href="generate-data.html#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="generate-data.html#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="do">### Prior Price</span></span>
+<span id="cb16-9"><a href="generate-data.html#cb16-9" aria-hidden="true" tabindex="-1"></a>prior_price_t1 <span class="ot">&lt;-</span> choice_t0 <span class="sc">%&gt;%</span> </span>
+<span id="cb16-10"><a href="generate-data.html#cb16-10" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(prior_firm_t1, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-11"><a href="generate-data.html#cb16-11" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">prior_price =</span> price,</span>
+<span id="cb16-12"><a href="generate-data.html#cb16-12" aria-hidden="true" tabindex="-1"></a>                <span class="at">flg =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(prior_choice <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> d <span class="sc">!=</span> <span class="dv">2</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb16-13"><a href="generate-data.html#cb16-13" aria-hidden="true" tabindex="-1"></a>                                       prior_choice <span class="sc">&gt;</span> <span class="dv">1</span> <span class="sc">&amp;</span> d <span class="sc">!=</span> <span class="dv">1</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb16-14"><a href="generate-data.html#cb16-14" aria-hidden="true" tabindex="-1"></a>                                       <span class="cn">TRUE</span> <span class="sc">~</span> <span class="dv">0</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-15"><a href="generate-data.html#cb16-15" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(flg <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-16"><a href="generate-data.html#cb16-16" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(i, f, prior_price) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-17"><a href="generate-data.html#cb16-17" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">arrange</span>(i)</span>
+<span id="cb16-18"><a href="generate-data.html#cb16-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-19"><a href="generate-data.html#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="do">## Choice in t = 1</span></span>
+<span id="cb16-20"><a href="generate-data.html#cb16-20" aria-hidden="true" tabindex="-1"></a>choice_t1 <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>N, <span class="at">d =</span> <span class="dv">1</span><span class="sc">:</span>(D <span class="sc">-</span> <span class="dv">1</span>), <span class="at">t =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-21"><a href="generate-data.html#cb16-21" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb16-22"><a href="generate-data.html#cb16-22" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">m =</span> <span class="dv">0</span>,</span>
+<span id="cb16-23"><a href="generate-data.html#cb16-23" aria-hidden="true" tabindex="-1"></a>                <span class="at">f =</span> d) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-24"><a href="generate-data.html#cb16-24" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(prior_firm_t1, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-25"><a href="generate-data.html#cb16-25" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(prior_price_t1, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>, <span class="st">&quot;f&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-26"><a href="generate-data.html#cb16-26" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(lambda, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>, <span class="st">&quot;m&quot;</span>, <span class="st">&quot;t&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-27"><a href="generate-data.html#cb16-27" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(oop, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>, <span class="st">&quot;m&quot;</span>, <span class="st">&quot;t&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-28"><a href="generate-data.html#cb16-28" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(cost_t0, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-29"><a href="generate-data.html#cb16-29" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">gamma_alpha =</span> <span class="fu">ifelse</span>(m <span class="sc">==</span> <span class="dv">0</span>,</span>
+<span id="cb16-30"><a href="generate-data.html#cb16-30" aria-hidden="true" tabindex="-1"></a>                                     alpha_m0[<span class="dv">1</span>] <span class="sc">+</span> alpha_m0[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> alpha_m0[<span class="dv">3</span>]<span class="sc">*</span>x_2,</span>
+<span id="cb16-31"><a href="generate-data.html#cb16-31" aria-hidden="true" tabindex="-1"></a>                                     alpha_m1[<span class="dv">1</span>] <span class="sc">+</span> alpha_m1[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> alpha_m1[<span class="dv">3</span>]<span class="sc">*</span>x_2 <span class="sc">+</span> alpha_m1[<span class="dv">4</span>]<span class="sc">*</span>score)) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-32"><a href="generate-data.html#cb16-32" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">R_s =</span> <span class="fu">rgamma</span>(N <span class="sc">*</span> (D <span class="sc">-</span> <span class="dv">1</span>), gamma_alpha, beta),</span>
+<span id="cb16-33"><a href="generate-data.html#cb16-33" aria-hidden="true" tabindex="-1"></a>                <span class="at">R_C =</span> <span class="fu">ifelse</span>(claims <span class="sc">==</span> <span class="dv">0</span>, <span class="fl">0.98</span>, <span class="fl">1.2</span>),</span>
+<span id="cb16-34"><a href="generate-data.html#cb16-34" aria-hidden="true" tabindex="-1"></a>                <span class="at">price =</span> prior_price <span class="sc">*</span> R_s <span class="sc">*</span> R_C) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-35"><a href="generate-data.html#cb16-35" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">inertia =</span> eta_f[<span class="dv">1</span>] <span class="sc">+</span> eta_f[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> eta_f[<span class="dv">3</span>]<span class="sc">*</span>x_2 <span class="sc">+</span> eta_f[<span class="dv">4</span>]<span class="sc">*</span>x_3,</span>
+<span id="cb16-36"><a href="generate-data.html#cb16-36" aria-hidden="true" tabindex="-1"></a>                <span class="at">demand_friction =</span> <span class="fu">ifelse</span>(d <span class="sc">==</span> prior_firm, <span class="dv">0</span>, inertia)) <span class="sc">%&gt;%</span>   </span>
+<span id="cb16-37"><a href="generate-data.html#cb16-37" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">E_R_s =</span> <span class="fu">ifelse</span>(m <span class="sc">==</span> <span class="dv">0</span>, </span>
+<span id="cb16-38"><a href="generate-data.html#cb16-38" aria-hidden="true" tabindex="-1"></a>                           (alpha_m0[<span class="dv">1</span>] <span class="sc">+</span> alpha_m0[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> alpha_m0[<span class="dv">3</span>]<span class="sc">*</span>x_2) <span class="sc">/</span> beta,</span>
+<span id="cb16-39"><a href="generate-data.html#cb16-39" aria-hidden="true" tabindex="-1"></a>                           (alpha_m1[<span class="dv">1</span>] <span class="sc">+</span> alpha_m1[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> alpha_m1[<span class="dv">3</span>]<span class="sc">*</span>x_2 <span class="sc">+</span> alpha_m1[<span class="dv">4</span>]<span class="sc">*</span>E_score) <span class="sc">/</span> beta),</span>
+<span id="cb16-40"><a href="generate-data.html#cb16-40" aria-hidden="true" tabindex="-1"></a>                <span class="at">E_R_C =</span> <span class="fl">0.98</span> <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span>lambda) <span class="sc">+</span> <span class="fl">1.2</span> <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span>lambda)),</span>
+<span id="cb16-41"><a href="generate-data.html#cb16-41" aria-hidden="true" tabindex="-1"></a>                <span class="at">E_renewal_price =</span> price <span class="sc">*</span> E_R_s <span class="sc">*</span> E_R_C) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-42"><a href="generate-data.html#cb16-42" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">h =</span> <span class="sc">-</span> price <span class="sc">-</span> demand_friction <span class="sc">-</span> E_oop <span class="sc">-</span> E_renewal_price) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-43"><a href="generate-data.html#cb16-43" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">arrange</span>(i)</span>
+<span id="cb16-44"><a href="generate-data.html#cb16-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-45"><a href="generate-data.html#cb16-45" aria-hidden="true" tabindex="-1"></a><span class="co"># draw idiosyncratic shocks</span></span>
+<span id="cb16-46"><a href="generate-data.html#cb16-46" aria-hidden="true" tabindex="-1"></a>e_t1 <span class="ot">&lt;-</span> evd<span class="sc">::</span><span class="fu">rgev</span>(<span class="fu">dim</span>(choice_t1)[<span class="dv">1</span>])</span>
+<span id="cb16-47"><a href="generate-data.html#cb16-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-48"><a href="generate-data.html#cb16-48" aria-hidden="true" tabindex="-1"></a>choice_t1 <span class="ot">&lt;-</span> <span class="fu">cbind</span>(choice_t1, e_t1) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-49"><a href="generate-data.html#cb16-49" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">u =</span> h <span class="sc">+</span> e_t1) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-50"><a href="generate-data.html#cb16-50" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(i, t) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-51"><a href="generate-data.html#cb16-51" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">choice =</span> <span class="fu">ifelse</span>(u <span class="sc">==</span> <span class="fu">max</span>(u), <span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-52"><a href="generate-data.html#cb16-52" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">ungroup</span>()</span>
+<span id="cb16-53"><a href="generate-data.html#cb16-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-54"><a href="generate-data.html#cb16-54" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(choice_t1)</span></code></pre></div>
 <pre><code>##        i               d           t           m           f    
 ##  Min.   :    1   Min.   :1   Min.   :1   Min.   :0   Min.   :1  
 ##  1st Qu.: 2501   1st Qu.:1   1st Qu.:1   1st Qu.:0   1st Qu.:1  
@@ -592,13 +623,13 @@ d_{it} &amp;= \mathop{\rm argmax}\limits_{d \in D_{it}} \left\{ v_{idt} + \varep
 ##  Mean   : 5000   Mean   :2   Mean   :1   Mean   :0   Mean   :2  
 ##  3rd Qu.: 7500   3rd Qu.:3   3rd Qu.:1   3rd Qu.:0   3rd Qu.:3  
 ##  Max.   :10000   Max.   :3   Max.   :1   Max.   :0   Max.   :3  
-##   prior_choice     prior_firm    prior_price          x_1            
-##  Min.   :1.000   Min.   :1.00   Min.   : 4.043   Min.   :-1.2615187  
-##  1st Qu.:2.000   1st Qu.:1.00   1st Qu.:14.181   1st Qu.:-0.2409614  
-##  Median :3.000   Median :2.00   Median :15.959   Median : 0.0006268  
-##  Mean   :2.837   Mean   :1.91   Mean   :15.946   Mean   : 0.0018862  
-##  3rd Qu.:4.000   3rd Qu.:3.00   3rd Qu.:17.748   3rd Qu.: 0.2421137  
-##  Max.   :4.000   Max.   :3.00   Max.   :28.191   Max.   : 1.4046029  
+##   prior_choice     prior_firm     prior_price          x_1            
+##  Min.   :1.000   Min.   :1.000   Min.   : 4.043   Min.   :-1.2615187  
+##  1st Qu.:2.000   1st Qu.:1.000   1st Qu.:14.117   1st Qu.:-0.2409614  
+##  Median :3.000   Median :2.000   Median :15.910   Median : 0.0006268  
+##  Mean   :2.747   Mean   :1.872   Mean   :15.898   Mean   : 0.0018862  
+##  3rd Qu.:4.000   3rd Qu.:3.000   3rd Qu.:17.711   3rd Qu.: 0.2421137  
+##  Max.   :4.000   Max.   :3.000   Max.   :28.191   Max.   : 1.4046029  
 ##       x_2                  x_3                 x_4              mu_lambda      
 ##  Min.   :-1.3127992   Min.   :-1.288153   Min.   :-1.590862   Min.   :-5.4399  
 ##  1st Qu.:-0.2357313   1st Qu.:-0.239088   1st Qu.:-0.243743   1st Qu.:-3.4303  
@@ -606,73 +637,90 @@ d_{it} &amp;= \mathop{\rm argmax}\limits_{d \in D_{it}} \left\{ v_{idt} + \varep
 ##  Mean   :-0.0003483   Mean   :-0.003551   Mean   :-0.002505   Mean   :-3.0002  
 ##  3rd Qu.: 0.2415281   3rd Qu.: 0.234424   3rd Qu.: 0.245489   3rd Qu.:-2.5594  
 ##  Max.   : 1.2061448   Max.   : 1.447554   Max.   : 1.525128   Max.   :-0.2269  
-##  epsilon_lambda           lambda             E_oop             claims      
-##  Min.   :-0.3604587   Min.   :0.004345   Min.   : 0.5099   Min.   :0.0000  
-##  1st Qu.:-0.0684224   1st Qu.:0.032259   1st Qu.: 3.6811   1st Qu.:0.0000  
-##  Median : 0.0000225   Median :0.050038   Median : 5.6092   Median :0.0000  
-##  Mean   :-0.0007373   Mean   :0.061501   Mean   : 6.6128   Mean   :0.0735  
-##  3rd Qu.: 0.0658190   3rd Qu.:0.077320   3rd Qu.: 8.4342   3rd Qu.:0.0000  
-##  Max.   : 0.3724271   Max.   :0.822770   Max.   :42.5881   Max.   :4.0000  
-##      score            log_score         gamma_alpha         R_s        
-##  Min.   :0.004136   Min.   :-5.48796   Min.   :12.73   Min.   :0.2815  
-##  1st Qu.:1.000000   1st Qu.: 0.00000   1st Qu.:18.58   1st Qu.:0.8243  
-##  Median :1.000000   Median : 0.00000   Median :20.01   Median :0.9812  
-##  Mean   :0.937258   Mean   :-0.17536   Mean   :20.01   Mean   :1.0006  
-##  3rd Qu.:1.000000   3rd Qu.: 0.00000   3rd Qu.:21.38   3rd Qu.:1.1570  
-##  Max.   :1.001481   Max.   : 0.00148   Max.   :27.27   Max.   :2.4718  
-##       R_C            price           inertia       demand_friction
-##  Min.   :0.980   Min.   : 2.297   Min.   :0.5882   Min.   :0.000  
-##  1st Qu.:0.980   1st Qu.:12.155   1st Qu.:4.2755   1st Qu.:0.000  
-##  Median :0.980   Median :15.394   Median :4.9965   Median :4.275  
-##  Mean   :0.995   Mean   :16.020   Mean   :4.9941   Mean   :3.329  
-##  3rd Qu.:0.980   3rd Qu.:19.190   3rd Qu.:5.7001   3rd Qu.:5.329  
-##  Max.   :1.200   Max.   :59.961   Max.   :8.9843   Max.   :8.984  
-##      E_R_s            E_R_C        E_renewal_price       h           
-##  Min.   :0.6365   Min.   :0.9507   Min.   : 1.47   Min.   :-141.135  
-##  1st Qu.:0.9292   1st Qu.:0.9548   1st Qu.:11.08   1st Qu.: -49.410  
-##  Median :1.0005   Median :0.9573   Median :14.70   Median : -40.108  
-##  Mean   :1.0004   Mean   :0.9588   Mean   :15.67   Mean   : -41.632  
-##  3rd Qu.:1.0691   3rd Qu.:0.9612   3rd Qu.:19.22   3rd Qu.: -32.128  
-##  Max.   :1.3636   Max.   :1.0341   Max.   :66.71   Max.   :  -7.361  
+##  epsilon_lambda           lambda             E_oop             claims     
+##  Min.   :-0.3604587   Min.   :0.004345   Min.   : 0.5099   Min.   :0.000  
+##  1st Qu.:-0.0684224   1st Qu.:0.032259   1st Qu.: 3.6811   1st Qu.:0.000  
+##  Median : 0.0000225   Median :0.050038   Median : 5.6092   Median :0.000  
+##  Mean   :-0.0007373   Mean   :0.061501   Mean   : 6.6128   Mean   :0.068  
+##  3rd Qu.: 0.0658190   3rd Qu.:0.077320   3rd Qu.: 8.4342   3rd Qu.:0.000  
+##  Max.   : 0.3724271   Max.   :0.822770   Max.   :42.5881   Max.   :3.000  
+##      score            log_score        gamma_alpha         R_s        
+##  Min.   : 0.00322   Min.   :-5.7385   Min.   :12.73   Min.   :0.2597  
+##  1st Qu.: 1.00000   1st Qu.: 0.0000   1st Qu.:18.58   1st Qu.:0.8271  
+##  Median : 1.00000   Median : 0.0000   Median :20.01   Median :0.9816  
+##  Mean   : 0.95322   Mean   :-0.2124   Mean   :20.01   Mean   :1.0004  
+##  3rd Qu.: 1.00000   3rd Qu.: 0.0000   3rd Qu.:21.38   3rd Qu.:1.1523  
+##  Max.   :26.65337   Max.   : 3.2829   Max.   :27.27   Max.   :2.2729  
+##       R_C             price           inertia       demand_friction
+##  Min.   :0.9800   Min.   : 2.297   Min.   :0.5882   Min.   :0.000  
+##  1st Qu.:0.9800   1st Qu.:12.162   1st Qu.:4.2755   1st Qu.:0.000  
+##  Median :0.9800   Median :15.321   Median :4.9965   Median :4.275  
+##  Mean   :0.9941   Mean   :15.950   Mean   :4.9941   Mean   :3.329  
+##  3rd Qu.:0.9800   3rd Qu.:19.074   3rd Qu.:5.7001   3rd Qu.:5.329  
+##  Max.   :1.2000   Max.   :53.962   Max.   :8.9843   Max.   :8.984  
+##      E_R_s            E_R_C        E_renewal_price        h           
+##  Min.   :0.6365   Min.   :0.9810   Min.   : 1.803   Min.   :-131.792  
+##  1st Qu.:0.9292   1st Qu.:0.9870   1st Qu.:11.475   1st Qu.: -49.972  
+##  Median :1.0005   Median :0.9907   Median :15.176   Median : -40.491  
+##  Mean   :1.0004   Mean   :0.9929   Mean   :16.148   Mean   : -42.041  
+##  3rd Qu.:1.0691   3rd Qu.:0.9964   3rd Qu.:19.789   3rd Qu.: -32.497  
+##  Max.   :1.3636   Max.   :1.1034   Max.   :67.130   Max.   :  -6.516  
 ##       e_t1               u               choice      
-##  Min.   :-2.2593   Min.   :-141.73   Min.   :0.0000  
-##  1st Qu.:-0.3373   1st Qu.: -48.90   1st Qu.:0.0000  
-##  Median : 0.3541   Median : -39.52   Median :0.0000  
-##  Mean   : 0.5661   Mean   : -41.07   Mean   :0.3333  
-##  3rd Qu.: 1.2285   3rd Qu.: -31.48   3rd Qu.:1.0000  
-##  Max.   : 9.9041   Max.   :  -4.61   Max.   :1.0000</code></pre>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="generate-data.html#cb14-1" aria-hidden="true" tabindex="-1"></a>summarize_choice_t1 <span class="ot">&lt;-</span> choice_t1 <span class="sc">%&gt;%</span> </span>
-<span id="cb14-2"><a href="generate-data.html#cb14-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(d) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-3"><a href="generate-data.html#cb14-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarise</span>(<span class="at">share =</span> <span class="fu">mean</span>(choice))</span>
-<span id="cb14-4"><a href="generate-data.html#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-5"><a href="generate-data.html#cb14-5" aria-hidden="true" tabindex="-1"></a>summarize_choice_t1</span></code></pre></div>
+##  Min.   :-2.2593   Min.   :-132.47   Min.   :0.0000  
+##  1st Qu.:-0.3363   1st Qu.: -49.47   1st Qu.:0.0000  
+##  Median : 0.3544   Median : -39.94   Median :0.0000  
+##  Mean   : 0.5663   Mean   : -41.47   Mean   :0.3333  
+##  3rd Qu.: 1.2293   3rd Qu.: -31.90   3rd Qu.:1.0000  
+##  Max.   : 9.9041   Max.   :  -2.74   Max.   :1.0000</code></pre>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="generate-data.html#cb18-1" aria-hidden="true" tabindex="-1"></a>summarize_choice_t1 <span class="ot">&lt;-</span> choice_t1 <span class="sc">%&gt;%</span> </span>
+<span id="cb18-2"><a href="generate-data.html#cb18-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(d) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-3"><a href="generate-data.html#cb18-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarise</span>(<span class="at">share =</span> <span class="fu">mean</span>(choice))</span>
+<span id="cb18-4"><a href="generate-data.html#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="generate-data.html#cb18-5" aria-hidden="true" tabindex="-1"></a>summarize_choice_t1</span></code></pre></div>
 <pre><code>## # A tibble: 3 × 2
 ##       d share
 ##   &lt;int&gt; &lt;dbl&gt;
-## 1     1 0.366
-## 2     2 0.306
-## 3     3 0.328</code></pre>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="generate-data.html#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Visualize Price in t = 1</span></span>
-<span id="cb16-2"><a href="generate-data.html#cb16-2" aria-hidden="true" tabindex="-1"></a>g_price_t1 <span class="ot">&lt;-</span> choice_t1 <span class="sc">%&gt;%</span> </span>
-<span id="cb16-3"><a href="generate-data.html#cb16-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">plan =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(d <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">&quot;Firm1&quot;</span>,</span>
-<span id="cb16-4"><a href="generate-data.html#cb16-4" aria-hidden="true" tabindex="-1"></a>                                        d <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="st">&quot;Firm2&quot;</span>,</span>
-<span id="cb16-5"><a href="generate-data.html#cb16-5" aria-hidden="true" tabindex="-1"></a>                                        d <span class="sc">==</span> <span class="dv">3</span> <span class="sc">~</span> <span class="st">&quot;Firm3&quot;</span>),</span>
-<span id="cb16-6"><a href="generate-data.html#cb16-6" aria-hidden="true" tabindex="-1"></a>                <span class="at">prior_plan =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(prior_choice <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">&quot;Firm1 Monitoring&quot;</span>,</span>
-<span id="cb16-7"><a href="generate-data.html#cb16-7" aria-hidden="true" tabindex="-1"></a>                                              prior_choice <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="st">&quot;Firm1 No Monitoring&quot;</span>,</span>
-<span id="cb16-8"><a href="generate-data.html#cb16-8" aria-hidden="true" tabindex="-1"></a>                                              prior_choice <span class="sc">==</span> <span class="dv">3</span> <span class="sc">~</span> <span class="st">&quot;Firm2&quot;</span>,</span>
-<span id="cb16-9"><a href="generate-data.html#cb16-9" aria-hidden="true" tabindex="-1"></a>                                              prior_choice <span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="st">&quot;Firm3&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-10"><a href="generate-data.html#cb16-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> price, <span class="at">fill =</span> prior_plan)) <span class="sc">+</span> </span>
-<span id="cb16-11"><a href="generate-data.html#cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">position =</span> <span class="st">&quot;identity&quot;</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>, <span class="at">binwidth =</span> <span class="fl">0.25</span>)</span>
-<span id="cb16-12"><a href="generate-data.html#cb16-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-13"><a href="generate-data.html#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_price_t1)</span></code></pre></div>
+## 1     1 0.386
+## 2     2 0.292
+## 3     3 0.322</code></pre>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="generate-data.html#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Visualize Price in t = 1</span></span>
+<span id="cb20-2"><a href="generate-data.html#cb20-2" aria-hidden="true" tabindex="-1"></a>g_price_t1 <span class="ot">&lt;-</span> choice_t1 <span class="sc">%&gt;%</span> </span>
+<span id="cb20-3"><a href="generate-data.html#cb20-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">plan =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(d <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">&quot;Firm1&quot;</span>,</span>
+<span id="cb20-4"><a href="generate-data.html#cb20-4" aria-hidden="true" tabindex="-1"></a>                                        d <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="st">&quot;Firm2&quot;</span>,</span>
+<span id="cb20-5"><a href="generate-data.html#cb20-5" aria-hidden="true" tabindex="-1"></a>                                        d <span class="sc">==</span> <span class="dv">3</span> <span class="sc">~</span> <span class="st">&quot;Firm3&quot;</span>),</span>
+<span id="cb20-6"><a href="generate-data.html#cb20-6" aria-hidden="true" tabindex="-1"></a>                <span class="at">prior_plan =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(prior_choice <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">&quot;Firm1 Monitoring&quot;</span>,</span>
+<span id="cb20-7"><a href="generate-data.html#cb20-7" aria-hidden="true" tabindex="-1"></a>                                              prior_choice <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="st">&quot;Firm1 No Monitoring&quot;</span>,</span>
+<span id="cb20-8"><a href="generate-data.html#cb20-8" aria-hidden="true" tabindex="-1"></a>                                              prior_choice <span class="sc">==</span> <span class="dv">3</span> <span class="sc">~</span> <span class="st">&quot;Firm2&quot;</span>,</span>
+<span id="cb20-9"><a href="generate-data.html#cb20-9" aria-hidden="true" tabindex="-1"></a>                                              prior_choice <span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="st">&quot;Firm3&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-10"><a href="generate-data.html#cb20-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> price, <span class="at">fill =</span> prior_plan)) <span class="sc">+</span> </span>
+<span id="cb20-11"><a href="generate-data.html#cb20-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">position =</span> <span class="st">&quot;identity&quot;</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>, <span class="at">binwidth =</span> <span class="fl">0.25</span>)</span>
+<span id="cb20-12"><a href="generate-data.html#cb20-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-13"><a href="generate-data.html#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_price_t1)</span></code></pre></div>
 <p><img src="Monte_Carlo_Simulation_Jin_and_Vasserman_2021_files/figure-html/visualize%20price%20in%20period%201-1.png" width="672" /></p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="generate-data.html#cb17-1" aria-hidden="true" tabindex="-1"></a>df_t0 <span class="ot">&lt;-</span> choice_t0 <span class="sc">%&gt;%</span> </span>
-<span id="cb17-2"><a href="generate-data.html#cb17-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(i, d, t, m, f, x_1, x_2, x_3, x_4, price, prior_firm, choice)</span>
-<span id="cb17-3"><a href="generate-data.html#cb17-3" aria-hidden="true" tabindex="-1"></a>df_t1 <span class="ot">&lt;-</span> choice_t1 <span class="sc">%&gt;%</span> </span>
-<span id="cb17-4"><a href="generate-data.html#cb17-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(i, d, t, m, f, x_1, x_2, x_3, x_4, price, prior_firm, choice)</span>
-<span id="cb17-5"><a href="generate-data.html#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-6"><a href="generate-data.html#cb17-6" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">rbind</span>(df_t0, df_t1) <span class="sc">%&gt;%</span> </span>
-<span id="cb17-7"><a href="generate-data.html#cb17-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">arrange</span>(t, i, d)</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="generate-data.html#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Visualize Realized R_s in t = 1</span></span>
+<span id="cb21-2"><a href="generate-data.html#cb21-2" aria-hidden="true" tabindex="-1"></a>g_R_s_t1 <span class="ot">&lt;-</span> choice_t1 <span class="sc">%&gt;%</span> </span>
+<span id="cb21-3"><a href="generate-data.html#cb21-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">plan =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(d <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">&quot;Firm1&quot;</span>,</span>
+<span id="cb21-4"><a href="generate-data.html#cb21-4" aria-hidden="true" tabindex="-1"></a>                                        d <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="st">&quot;Firm2&quot;</span>,</span>
+<span id="cb21-5"><a href="generate-data.html#cb21-5" aria-hidden="true" tabindex="-1"></a>                                        d <span class="sc">==</span> <span class="dv">3</span> <span class="sc">~</span> <span class="st">&quot;Firm3&quot;</span>),</span>
+<span id="cb21-6"><a href="generate-data.html#cb21-6" aria-hidden="true" tabindex="-1"></a>                <span class="at">prior_plan =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(prior_choice <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">&quot;Firm1 Monitoring&quot;</span>,</span>
+<span id="cb21-7"><a href="generate-data.html#cb21-7" aria-hidden="true" tabindex="-1"></a>                                              prior_choice <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="st">&quot;Firm1 No Monitoring&quot;</span>,</span>
+<span id="cb21-8"><a href="generate-data.html#cb21-8" aria-hidden="true" tabindex="-1"></a>                                              prior_choice <span class="sc">==</span> <span class="dv">3</span> <span class="sc">~</span> <span class="st">&quot;Firm2&quot;</span>,</span>
+<span id="cb21-9"><a href="generate-data.html#cb21-9" aria-hidden="true" tabindex="-1"></a>                                              prior_choice <span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="st">&quot;Firm3&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb21-10"><a href="generate-data.html#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> R_s, <span class="at">fill =</span> prior_plan)) <span class="sc">+</span> </span>
+<span id="cb21-11"><a href="generate-data.html#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">position =</span> <span class="st">&quot;identity&quot;</span>, <span class="at">alpha =</span> <span class="fl">0.4</span>, <span class="at">binwidth =</span> <span class="fl">0.01</span>)</span>
+<span id="cb21-12"><a href="generate-data.html#cb21-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-13"><a href="generate-data.html#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_R_s_t1)</span></code></pre></div>
+<p><img src="Monte_Carlo_Simulation_Jin_and_Vasserman_2021_files/figure-html/visualize%20realized%20R_s%20in%20period%201-1.png" width="672" /></p>
+</div>
+<div id="merge-choice-data" class="section level2 hasAnchor" number="1.7">
+<h2><span class="header-section-number">1.7</span> Merge Choice Data<a href="generate-data.html#merge-choice-data" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="generate-data.html#cb22-1" aria-hidden="true" tabindex="-1"></a>df_t0 <span class="ot">&lt;-</span> choice_t0 <span class="sc">%&gt;%</span> </span>
+<span id="cb22-2"><a href="generate-data.html#cb22-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(i, d, t, m, f, x_1, x_2, x_3, x_4, price, prior_firm, choice)</span>
+<span id="cb22-3"><a href="generate-data.html#cb22-3" aria-hidden="true" tabindex="-1"></a>df_t1 <span class="ot">&lt;-</span> choice_t1 <span class="sc">%&gt;%</span> </span>
+<span id="cb22-4"><a href="generate-data.html#cb22-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(i, d, t, m, f, x_1, x_2, x_3, x_4, price, prior_firm, choice)</span>
+<span id="cb22-5"><a href="generate-data.html#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="generate-data.html#cb22-6" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">rbind</span>(df_t0, df_t1) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-7"><a href="generate-data.html#cb22-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">arrange</span>(t, i, d)</span></code></pre></div>
 </div>
 </div>
             </section>

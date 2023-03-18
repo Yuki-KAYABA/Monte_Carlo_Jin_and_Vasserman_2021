@@ -88,9 +88,19 @@ lambda <- mu_lambda %>%
 g_lambda <- lambda %>% 
   dplyr::mutate(monitoring = ifelse(m == 1, "Monitored", "Unmonitored")) %>% 
   ggplot(aes(x = lambda, fill = monitoring)) + 
-  geom_histogram(position = "identity", alpha = 0.6, binwidth = 0.025)
+  geom_histogram(position = "identity", alpha = 0.6, binwidth = 0.01)
 
 plot(g_lambda)
+
+## Visualize 
+g_lambda_monitoring <- lambda %>% 
+  dplyr::mutate(monitoring = ifelse(m == 1, "Monitored", "Unmonitored")) %>% 
+  ggplot(aes(x = monitoring, y = lambda)) + 
+  geom_boxplot() + 
+  scale_y_continuous(limits=c(0,0.1))
+
+plot(g_lambda_monitoring)
+
 ```
 
 ## Generate (Expectation of) Monitoring Score and Out-of-Pocket
@@ -218,7 +228,7 @@ prior_firm_t0 <- expand.grid(i = 1:N) %>%
 ## Generate Renewal Price
 
 alpha_m0 <- c(20, 5, 3)
-alpha_m1 <- c(20, 5, 3, 10)
+alpha_m1 <- c(20, 5, 3, -2)
 beta <- 20
 
 ## Generate Inertia
@@ -245,7 +255,7 @@ choice_t0 <- expand.grid(i = 1:N, d = 1:D, t = 0) %>%
   dplyr::mutate(E_R_s = ifelse(m == 0, 
                            (alpha_m0[1] + alpha_m0[2]*x_1 + alpha_m0[3]*x_2) / beta,
                            (alpha_m1[1] + alpha_m1[2]*x_1 + alpha_m1[3]*x_2 + alpha_m1[4]*E_score) / beta),
-                E_R_C = 0.95 * exp(-lambda) + 1.1 * (1 - exp(-lambda)),
+                E_R_C = 0.98 * exp(-lambda) + 1.2 * (1 - exp(-lambda)),
                 E_renewal_price = price * E_R_s * E_R_C) %>% 
   dplyr::mutate(h = - price - demand_friction - E_oop - E_renewal_price)
 
@@ -284,6 +294,21 @@ plot(g_price_t0)
 
 ```
 
+- The following figure shows the expectation of $R_{idt}(s)$, which implies that monitored consumers tend to have smaller expected renewal prices, incentivizing them to opt-in
+
+```{r visualize E_R_s}
+## Visualize E_R_s in t = 0
+g_E_R_s_t0 <- choice_t0 %>% 
+  dplyr::filter(f == 1) %>% 
+  dplyr::mutate(plan = dplyr::case_when(m == 1 ~ "Monitoring",
+                                        m == 0 ~ "No Monitoring")) %>% 
+  ggplot(aes(x = E_R_s, fill = plan)) + 
+  geom_histogram(position = "identity", alpha = 0.6, binwidth = 0.01)
+
+plot(g_E_R_s_t0)
+
+```
+
 ## Generate Realization of Cost in $t = 0$
 
 - Since consumer's choice is path-dependent, i.e. price in next period depends on claims and monitoring score, we need to generate realization of costs in $t = 0$
@@ -313,6 +338,16 @@ cost_t0 <- cost_t0 %>%
                 score = ifelse(m == 1, score, 1),
                 log_score = log(score)) %>% 
   dplyr::select(i, claims, matches("sev."), score, log_score)
+
+```
+
+```{r visualize realized claims count}
+## Visualize realized claims count
+g_realized_claims_count <- cost_t0 %>%
+  ggplot(aes(x = claims)) + 
+  geom_histogram(binwidth = 0.5)
+
+plot(g_realized_claims_count)
 
 ```
 
@@ -371,7 +406,7 @@ choice_t1 <- expand.grid(i = 1:N, d = 1:(D - 1), t = 1) %>%
   dplyr::mutate(E_R_s = ifelse(m == 0, 
                            (alpha_m0[1] + alpha_m0[2]*x_1 + alpha_m0[3]*x_2) / beta,
                            (alpha_m1[1] + alpha_m1[2]*x_1 + alpha_m1[3]*x_2 + alpha_m1[4]*E_score) / beta),
-                E_R_C = 0.95 * exp(-lambda) + 1.1 * (1 - exp(-lambda)),
+                E_R_C = 0.98 * exp(-lambda) + 1.2 * (1 - exp(-lambda)),
                 E_renewal_price = price * E_R_s * E_R_C) %>% 
   dplyr::mutate(h = - price - demand_friction - E_oop - E_renewal_price) %>% 
   dplyr::arrange(i)
@@ -410,6 +445,24 @@ plot(g_price_t1)
 
 ```
 
+```{r visualize realized R_s in period 1}
+## Visualize Realized R_s in t = 1
+g_R_s_t1 <- choice_t1 %>% 
+  dplyr::mutate(plan = dplyr::case_when(d == 1 ~ "Firm1",
+                                        d == 2 ~ "Firm2",
+                                        d == 3 ~ "Firm3"),
+                prior_plan = dplyr::case_when(prior_choice == 1 ~ "Firm1 Monitoring",
+                                              prior_choice == 2 ~ "Firm1 No Monitoring",
+                                              prior_choice == 3 ~ "Firm2",
+                                              prior_choice == 4 ~ "Firm3")) %>% 
+  ggplot(aes(x = R_s, fill = prior_plan)) + 
+  geom_histogram(position = "identity", alpha = 0.4, binwidth = 0.01)
+
+plot(g_R_s_t1)
+
+```
+
+## Merge Choice Data
 
 ```{r merge}
 
@@ -424,4 +477,24 @@ df <- rbind(df_t0, df_t1) %>%
 ```
 
 # Estimation
+
+- Now we estimate the choice model, using data we generate
+- Again, the choice model in the paper is as follows:
+
+$$
+\begin{align}
+u_{idt}(C, s) &= u_{\gamma}(w_{it} + h_{idt}(C, s)) \\
+h_{idt}(C, s) &= -p_{idt} - \mathbf{1}_{d, t-1} \cdot \psi_{idt} - e(C, y_{d}) - p_{idt} \cdot R_{idt}(C, s) \\
+\text{where } \psi_{idt} &= \mathbf{1}_{d, t-1} \cdot \eta_{0} + \mathbf{1}_{f_{d}, t-1} \cdot \eta_{it} + \mathbf{1}_{m_{d}} \cdot \mathbf{1}_{t=0} \cdot \xi_{it}
+\end{align}
+$$
+
+- At each period $t$, consumer $i$ chooses $d$ so as to maximize her expected utility:
+
+$$
+\begin{align}
+d_{it} &= \mathop{\rm argmax}\limits_{d \in D_{it}} \left\{ v_{idt} + \varepsilon_{idt} \right\} \\
+\text{where } v_{idt} &= \mathbb{E}_{C, s}[u_{idt}(C, s)] = \mathbb{E}[h_{idt}] -\frac{\gamma}{2}\mathbb{E}[h_{idt}^{2}]
+\end{align}
+$$
 

@@ -139,6 +139,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="1.4" data-path="generate-data.html"><a href="generate-data.html#generate-choice-in-t-0"><i class="fa fa-check"></i><b>1.4</b> Generate Choice in <span class="math inline">\(t = 0\)</span></a></li>
 <li class="chapter" data-level="1.5" data-path="generate-data.html"><a href="generate-data.html#generate-realization-of-cost-in-t-0"><i class="fa fa-check"></i><b>1.5</b> Generate Realization of Cost in <span class="math inline">\(t = 0\)</span></a></li>
 <li class="chapter" data-level="1.6" data-path="generate-data.html"><a href="generate-data.html#generate-choice-in-t-1"><i class="fa fa-check"></i><b>1.6</b> Generate Choice in <span class="math inline">\(t = 1\)</span></a></li>
+<li class="chapter" data-level="1.7" data-path="generate-data.html"><a href="generate-data.html#merge-choice-data"><i class="fa fa-check"></i><b>1.7</b> Merge Choice Data</a></li>
 </ul></li>
 <li class="chapter" data-level="2" data-path="estimation.html"><a href="estimation.html"><i class="fa fa-check"></i><b>2</b> Estimation</a></li>
 </ul>
@@ -160,6 +161,26 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
             <section class="normal" id="section-">
 <div id="estimation" class="section level1 hasAnchor" number="2">
 <h1><span class="header-section-number">2</span> Estimation<a href="estimation.html#estimation" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<ul>
+<li>Now we estimate the choice model, using data we generate</li>
+<li>Again, the choice model in the paper is as follows:</li>
+</ul>
+<p><span class="math display">\[
+\begin{align}
+u_{idt}(C, s) &amp;= u_{\gamma}(w_{it} + h_{idt}(C, s)) \\
+h_{idt}(C, s) &amp;= -p_{idt} - \mathbf{1}_{d, t-1} \cdot \psi_{idt} - e(C, y_{d}) - p_{idt} \cdot R_{idt}(C, s) \\
+\text{where } \psi_{idt} &amp;= \mathbf{1}_{d, t-1} \cdot \eta_{0} + \mathbf{1}_{f_{d}, t-1} \cdot \eta_{it} + \mathbf{1}_{m_{d}} \cdot \mathbf{1}_{t=0} \cdot \xi_{it}
+\end{align}
+\]</span></p>
+<ul>
+<li>At each period <span class="math inline">\(t\)</span>, consumer <span class="math inline">\(i\)</span> chooses <span class="math inline">\(d\)</span> so as to maximize her expected utility:</li>
+</ul>
+<p><span class="math display">\[
+\begin{align}
+d_{it} &amp;= \mathop{\rm argmax}\limits_{d \in D_{it}} \left\{ v_{idt} + \varepsilon_{idt} \right\} \\
+\text{where } v_{idt} &amp;= \mathbb{E}_{C, s}[u_{idt}(C, s)] = \mathbb{E}[h_{idt}] -\frac{\gamma}{2}\mathbb{E}[h_{idt}^{2}]
+\end{align}
+\]</span></p>
 </div>
             </section>
 
