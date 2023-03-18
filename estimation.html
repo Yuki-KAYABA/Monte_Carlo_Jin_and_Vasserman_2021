@@ -198,196 +198,247 @@ d_{it} &amp;= \mathop{\rm argmax}\limits_{d \in D_{it}} \left\{ v_{idt} + \varep
 <li>Note that when optimizing an objective function, it is important to keep the realizations of the shocks the same across the evaluations of the objective function. If the realization of the shocks differ across the objective function evaluations, the optimization algorithm will not converge because it cannot distinguish the change in the value of the objective function due to the difference in the parameters and the difference in the realized shocks</li>
 <li>To avoid this problem, we generate <span class="math inline">\(\lambda\)</span> outside the optimization algorithm</li>
 </ul>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="estimation.html#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># cost_par[1:6] &lt;- theta_lambda</span></span>
-<span id="cb16-2"><a href="estimation.html#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co"># cost_par[7] &lt;- sigma_lambda</span></span>
-<span id="cb16-3"><a href="estimation.html#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co"># cost_par[8:11] &lt;- theta_score</span></span>
-<span id="cb16-4"><a href="estimation.html#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># cost_par[12] &lt;- sigma_score</span></span>
-<span id="cb16-5"><a href="estimation.html#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co"># cost_par[13] &lt;- l0</span></span>
-<span id="cb16-6"><a href="estimation.html#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co"># cost_par[14] &lt;- a_l</span></span>
-<span id="cb16-7"><a href="estimation.html#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb16-8"><a href="estimation.html#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co"># theta[1:4] &lt;- eta_f</span></span>
-<span id="cb16-9"><a href="estimation.html#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="co"># theta[5:6] &lt;- xi</span></span>
-<span id="cb16-10"><a href="estimation.html#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co"># theta[7:9] &lt;- alpha_m0</span></span>
-<span id="cb16-11"><a href="estimation.html#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="co"># theta[10:13] &lt;- alpha_m1</span></span>
-<span id="cb16-12"><a href="estimation.html#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="co"># theta[14] &lt;- beta</span></span>
-<span id="cb16-13"><a href="estimation.html#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-14"><a href="estimation.html#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="do">## Generate Lambda</span></span>
-<span id="cb16-15"><a href="estimation.html#cb16-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-16"><a href="estimation.html#cb16-16" aria-hidden="true" tabindex="-1"></a>gen_lambda <span class="ot">&lt;-</span> <span class="cf">function</span>(df, cost_par, R){</span>
-<span id="cb16-17"><a href="estimation.html#cb16-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters</span></span>
-<span id="cb16-18"><a href="estimation.html#cb16-18" aria-hidden="true" tabindex="-1"></a>  theta_lambda <span class="ot">&lt;-</span> cost_par[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>]</span>
-<span id="cb16-19"><a href="estimation.html#cb16-19" aria-hidden="true" tabindex="-1"></a>  sigma_lambda <span class="ot">&lt;-</span> cost_par[<span class="dv">7</span>]</span>
-<span id="cb16-20"><a href="estimation.html#cb16-20" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-21"><a href="estimation.html#cb16-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Generate mu_lambda</span></span>
-<span id="cb16-22"><a href="estimation.html#cb16-22" aria-hidden="true" tabindex="-1"></a>  output <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> </span>
-<span id="cb16-23"><a href="estimation.html#cb16-23" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">mu_lambda =</span> theta_lambda[<span class="dv">1</span>]</span>
-<span id="cb16-24"><a href="estimation.html#cb16-24" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">+</span> theta_lambda[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> theta_lambda[<span class="dv">3</span>]<span class="sc">*</span>x_2</span>
-<span id="cb16-25"><a href="estimation.html#cb16-25" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">+</span> theta_lambda[<span class="dv">4</span>]<span class="sc">*</span>x_3 <span class="sc">+</span> theta_lambda[<span class="dv">5</span>]<span class="sc">*</span>x_4</span>
-<span id="cb16-26"><a href="estimation.html#cb16-26" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">+</span> theta_lambda[<span class="dv">6</span>]<span class="sc">*</span><span class="fu">ifelse</span>(m <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> t <span class="sc">==</span> <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>))</span>
-<span id="cb16-27"><a href="estimation.html#cb16-27" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-28"><a href="estimation.html#cb16-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Generate epsilon_lambda (draw R times)</span></span>
-<span id="cb16-29"><a href="estimation.html#cb16-29" aria-hidden="true" tabindex="-1"></a>  epsilon_lambda <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(N <span class="sc">*</span> R, <span class="dv">0</span>, sigma_lambda), <span class="at">nrow =</span> N)</span>
-<span id="cb16-30"><a href="estimation.html#cb16-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(epsilon_lambda) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">paste</span>(<span class="st">&quot;lambda&quot;</span>, <span class="dv">1</span><span class="sc">:</span>R, <span class="at">sep =</span> <span class="st">&quot;_&quot;</span>))</span>
-<span id="cb16-31"><a href="estimation.html#cb16-31" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-32"><a href="estimation.html#cb16-32" aria-hidden="true" tabindex="-1"></a>  epsilon_lambda <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">expand_grid</span>(<span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>N), epsilon_lambda) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-33"><a href="estimation.html#cb16-33" aria-hidden="true" tabindex="-1"></a>    tibble<span class="sc">::</span><span class="fu">as_tibble</span>()</span>
-<span id="cb16-34"><a href="estimation.html#cb16-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-35"><a href="estimation.html#cb16-35" aria-hidden="true" tabindex="-1"></a>  <span class="do">## lambda</span></span>
-<span id="cb16-36"><a href="estimation.html#cb16-36" aria-hidden="true" tabindex="-1"></a>  output <span class="ot">&lt;-</span> output <span class="sc">%&gt;%</span></span>
-<span id="cb16-37"><a href="estimation.html#cb16-37" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">left_join</span>(epsilon_lambda, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb16-38"><a href="estimation.html#cb16-38" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate_at</span>(<span class="at">.vars =</span> <span class="fu">vars</span>(<span class="fu">starts_with</span>(<span class="st">&quot;lambda&quot;</span>)),</span>
-<span id="cb16-39"><a href="estimation.html#cb16-39" aria-hidden="true" tabindex="-1"></a>                     <span class="at">.funs =</span> <span class="sc">~</span> <span class="fu">exp</span>(mu_lambda <span class="sc">+</span> .)) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-40"><a href="estimation.html#cb16-40" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>mu_lambda)</span>
-<span id="cb16-41"><a href="estimation.html#cb16-41" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb16-42"><a href="estimation.html#cb16-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(output)</span>
-<span id="cb16-43"><a href="estimation.html#cb16-43" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb16-44"><a href="estimation.html#cb16-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-45"><a href="estimation.html#cb16-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate Choice Probability</span></span>
-<span id="cb16-46"><a href="estimation.html#cb16-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-47"><a href="estimation.html#cb16-47" aria-hidden="true" tabindex="-1"></a>gen_choice_probability <span class="ot">&lt;-</span> <span class="cf">function</span>(df, theta, cost_par, lambda){</span>
-<span id="cb16-48"><a href="estimation.html#cb16-48" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters</span></span>
-<span id="cb16-49"><a href="estimation.html#cb16-49" aria-hidden="true" tabindex="-1"></a>  eta_f <span class="ot">&lt;-</span> theta[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]</span>
-<span id="cb16-50"><a href="estimation.html#cb16-50" aria-hidden="true" tabindex="-1"></a>  xi <span class="ot">&lt;-</span> theta[<span class="dv">5</span><span class="sc">:</span><span class="dv">6</span>]</span>
-<span id="cb16-51"><a href="estimation.html#cb16-51" aria-hidden="true" tabindex="-1"></a>  alpha_m0 <span class="ot">&lt;-</span> theta[<span class="dv">7</span><span class="sc">:</span><span class="dv">9</span>]</span>
-<span id="cb16-52"><a href="estimation.html#cb16-52" aria-hidden="true" tabindex="-1"></a>  alpha_m1 <span class="ot">&lt;-</span> theta[<span class="dv">10</span><span class="sc">:</span><span class="dv">13</span>]</span>
-<span id="cb16-53"><a href="estimation.html#cb16-53" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> theta[<span class="dv">14</span>]</span>
-<span id="cb16-54"><a href="estimation.html#cb16-54" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-55"><a href="estimation.html#cb16-55" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Cost Parameters</span></span>
-<span id="cb16-56"><a href="estimation.html#cb16-56" aria-hidden="true" tabindex="-1"></a>  theta_score <span class="ot">&lt;-</span> cost_par[<span class="dv">8</span><span class="sc">:</span><span class="dv">11</span>]</span>
-<span id="cb16-57"><a href="estimation.html#cb16-57" aria-hidden="true" tabindex="-1"></a>  sigma_score <span class="ot">&lt;-</span> cost_par[<span class="dv">12</span>]</span>
-<span id="cb16-58"><a href="estimation.html#cb16-58" aria-hidden="true" tabindex="-1"></a>  l0 <span class="ot">&lt;-</span> cost_par[<span class="dv">13</span>]</span>
-<span id="cb16-59"><a href="estimation.html#cb16-59" aria-hidden="true" tabindex="-1"></a>  a_l <span class="ot">&lt;-</span> cost_par[<span class="dv">14</span>]</span>
-<span id="cb16-60"><a href="estimation.html#cb16-60" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-61"><a href="estimation.html#cb16-61" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Lambda</span></span>
-<span id="cb16-62"><a href="estimation.html#cb16-62" aria-hidden="true" tabindex="-1"></a>  lambda <span class="ot">&lt;-</span> lambda</span>
-<span id="cb16-63"><a href="estimation.html#cb16-63" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-64"><a href="estimation.html#cb16-64" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Price</span></span>
-<span id="cb16-65"><a href="estimation.html#cb16-65" aria-hidden="true" tabindex="-1"></a>  price <span class="ot">&lt;-</span> df<span class="sc">$</span>price <span class="sc">*</span> <span class="fu">matrix</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="fu">dim</span>(df)[<span class="dv">1</span>] <span class="sc">*</span> R), <span class="at">nrow =</span> <span class="fu">dim</span>(df)[<span class="dv">1</span>])</span>
-<span id="cb16-66"><a href="estimation.html#cb16-66" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(price) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">paste</span>(<span class="st">&quot;price&quot;</span>, <span class="dv">1</span><span class="sc">:</span>R, <span class="at">sep =</span> <span class="st">&quot;_&quot;</span>))</span>
-<span id="cb16-67"><a href="estimation.html#cb16-67" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-68"><a href="estimation.html#cb16-68" aria-hidden="true" tabindex="-1"></a>  price <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(price) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-69"><a href="estimation.html#cb16-69" aria-hidden="true" tabindex="-1"></a>    tibble<span class="sc">::</span><span class="fu">as_tibble</span>()  </span>
-<span id="cb16-70"><a href="estimation.html#cb16-70" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-71"><a href="estimation.html#cb16-71" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Generate Demand Friction</span></span>
-<span id="cb16-72"><a href="estimation.html#cb16-72" aria-hidden="true" tabindex="-1"></a>  demand_friction <span class="ot">&lt;-</span> lambda <span class="sc">%&gt;%</span> </span>
-<span id="cb16-73"><a href="estimation.html#cb16-73" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">starts_with</span>(<span class="st">&quot;lambda&quot;</span>)),</span>
-<span id="cb16-74"><a href="estimation.html#cb16-74" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">funs</span>(<span class="fu">ifelse</span>(d <span class="sc">==</span> prior_firm, </span>
-<span id="cb16-75"><a href="estimation.html#cb16-75" aria-hidden="true" tabindex="-1"></a>                                 <span class="dv">0</span>,  </span>
-<span id="cb16-76"><a href="estimation.html#cb16-76" aria-hidden="true" tabindex="-1"></a>                                 eta_f[<span class="dv">1</span>] <span class="sc">+</span> eta_f[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> eta_f[<span class="dv">3</span>]<span class="sc">*</span>x_2 <span class="sc">+</span> eta_f[<span class="dv">4</span>]<span class="sc">*</span>x_3) </span>
-<span id="cb16-77"><a href="estimation.html#cb16-77" aria-hidden="true" tabindex="-1"></a>                          <span class="sc">+</span> <span class="fu">ifelse</span>(d <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> t <span class="sc">==</span> <span class="dv">0</span>, </span>
-<span id="cb16-78"><a href="estimation.html#cb16-78" aria-hidden="true" tabindex="-1"></a>                                   xi[<span class="dv">1</span>] <span class="sc">+</span> xi[<span class="dv">2</span>]<span class="sc">*</span><span class="fu">log</span>(.), </span>
-<span id="cb16-79"><a href="estimation.html#cb16-79" aria-hidden="true" tabindex="-1"></a>                                   <span class="dv">0</span>))) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-80"><a href="estimation.html#cb16-80" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename_with</span>(\(x) <span class="fu">str_replace</span>(x, <span class="st">&quot;lambda&quot;</span>, <span class="st">&quot;demand_friction&quot;</span>), </span>
-<span id="cb16-81"><a href="estimation.html#cb16-81" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">starts_with</span>(<span class="st">&quot;lambda&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-82"><a href="estimation.html#cb16-82" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="fu">matches</span>(<span class="st">&quot;demand_friction&quot;</span>))</span>
-<span id="cb16-83"><a href="estimation.html#cb16-83" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-84"><a href="estimation.html#cb16-84" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Generate E_score</span></span>
-<span id="cb16-85"><a href="estimation.html#cb16-85" aria-hidden="true" tabindex="-1"></a>  E_score <span class="ot">&lt;-</span> lambda <span class="sc">%&gt;%</span> </span>
-<span id="cb16-86"><a href="estimation.html#cb16-86" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">starts_with</span>(<span class="st">&quot;lambda&quot;</span>)),</span>
-<span id="cb16-87"><a href="estimation.html#cb16-87" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">funs</span>(<span class="fu">ifelse</span>(t <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> m <span class="sc">==</span> <span class="dv">1</span>,</span>
-<span id="cb16-88"><a href="estimation.html#cb16-88" aria-hidden="true" tabindex="-1"></a>                                 <span class="fu">exp</span>(theta_score[<span class="dv">1</span>] <span class="sc">+</span> theta_score[<span class="dv">2</span>]<span class="sc">*</span><span class="fu">log</span>(.)</span>
-<span id="cb16-89"><a href="estimation.html#cb16-89" aria-hidden="true" tabindex="-1"></a>                                     <span class="sc">+</span> theta_score[<span class="dv">3</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> theta_score[<span class="dv">4</span>]<span class="sc">*</span>x_2</span>
-<span id="cb16-90"><a href="estimation.html#cb16-90" aria-hidden="true" tabindex="-1"></a>                                     <span class="sc">+</span> sigma_score<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="dv">2</span>),</span>
-<span id="cb16-91"><a href="estimation.html#cb16-91" aria-hidden="true" tabindex="-1"></a>                                 <span class="dv">0</span>))) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-92"><a href="estimation.html#cb16-92" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename_with</span>(\(x) <span class="fu">str_replace</span>(x, <span class="st">&quot;lambda&quot;</span>, <span class="st">&quot;E_score&quot;</span>), </span>
-<span id="cb16-93"><a href="estimation.html#cb16-93" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">starts_with</span>(<span class="st">&quot;lambda&quot;</span>))</span>
-<span id="cb16-94"><a href="estimation.html#cb16-94" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-95"><a href="estimation.html#cb16-95" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Generate E_oop</span></span>
-<span id="cb16-96"><a href="estimation.html#cb16-96" aria-hidden="true" tabindex="-1"></a>  E_oop <span class="ot">&lt;-</span> lambda <span class="sc">%&gt;%</span> </span>
-<span id="cb16-97"><a href="estimation.html#cb16-97" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">starts_with</span>(<span class="st">&quot;lambda&quot;</span>)),</span>
-<span id="cb16-98"><a href="estimation.html#cb16-98" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">funs</span>(.<span class="sc">*</span><span class="fu">exp</span>(<span class="sc">-</span>.)<span class="sc">*</span>(l0<span class="sc">^</span>(a_l)<span class="sc">/</span>(a_l <span class="sc">-</span> <span class="dv">1</span>))<span class="sc">*</span>policy_limit<span class="sc">^</span>(<span class="sc">-</span>a_l <span class="sc">+</span> <span class="dv">1</span>))) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-99"><a href="estimation.html#cb16-99" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename_with</span>(\(x) <span class="fu">str_replace</span>(x, <span class="st">&quot;lambda&quot;</span>, <span class="st">&quot;E_oop&quot;</span>), </span>
-<span id="cb16-100"><a href="estimation.html#cb16-100" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">starts_with</span>(<span class="st">&quot;lambda&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-101"><a href="estimation.html#cb16-101" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="fu">matches</span>(<span class="st">&quot;E_oop&quot;</span>))</span>
-<span id="cb16-102"><a href="estimation.html#cb16-102" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-103"><a href="estimation.html#cb16-103" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Generate E_R_s</span></span>
-<span id="cb16-104"><a href="estimation.html#cb16-104" aria-hidden="true" tabindex="-1"></a>  E_R_s <span class="ot">&lt;-</span> E_score <span class="sc">%&gt;%</span> </span>
-<span id="cb16-105"><a href="estimation.html#cb16-105" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">starts_with</span>(<span class="st">&quot;E_score&quot;</span>)),</span>
-<span id="cb16-106"><a href="estimation.html#cb16-106" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">funs</span>(<span class="fu">ifelse</span>(t <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> m <span class="sc">==</span> <span class="dv">1</span>,</span>
-<span id="cb16-107"><a href="estimation.html#cb16-107" aria-hidden="true" tabindex="-1"></a>                                 (alpha_m1[<span class="dv">1</span>] <span class="sc">+</span> alpha_m1[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> alpha_m1[<span class="dv">3</span>]<span class="sc">*</span>x_2 <span class="sc">+</span> alpha_m1[<span class="dv">4</span>]<span class="sc">*</span>.) <span class="sc">/</span> beta,</span>
-<span id="cb16-108"><a href="estimation.html#cb16-108" aria-hidden="true" tabindex="-1"></a>                                 (alpha_m0[<span class="dv">1</span>] <span class="sc">+</span> alpha_m0[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> alpha_m0[<span class="dv">3</span>]<span class="sc">*</span>x_2) <span class="sc">/</span> beta))) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-109"><a href="estimation.html#cb16-109" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename_with</span>(\(x) <span class="fu">str_replace</span>(x, <span class="st">&quot;E_score&quot;</span>, <span class="st">&quot;E_R_s&quot;</span>), </span>
-<span id="cb16-110"><a href="estimation.html#cb16-110" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">starts_with</span>(<span class="st">&quot;E_score&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-111"><a href="estimation.html#cb16-111" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="fu">matches</span>(<span class="st">&quot;E_R_s&quot;</span>))</span>
-<span id="cb16-112"><a href="estimation.html#cb16-112" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-113"><a href="estimation.html#cb16-113" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Generate E_R_C</span></span>
-<span id="cb16-114"><a href="estimation.html#cb16-114" aria-hidden="true" tabindex="-1"></a>  E_R_C <span class="ot">&lt;-</span> lambda <span class="sc">%&gt;%</span> </span>
-<span id="cb16-115"><a href="estimation.html#cb16-115" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">starts_with</span>(<span class="st">&quot;lambda&quot;</span>)),</span>
-<span id="cb16-116"><a href="estimation.html#cb16-116" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">funs</span>(<span class="fl">0.98</span> <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span>.) <span class="sc">+</span> <span class="fl">1.2</span> <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span>.)))) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-117"><a href="estimation.html#cb16-117" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename_with</span>(\(x) <span class="fu">str_replace</span>(x, <span class="st">&quot;lambda&quot;</span>, <span class="st">&quot;E_R_C&quot;</span>), </span>
-<span id="cb16-118"><a href="estimation.html#cb16-118" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">starts_with</span>(<span class="st">&quot;lambda&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-119"><a href="estimation.html#cb16-119" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="fu">matches</span>(<span class="st">&quot;E_R_C&quot;</span>))</span>
-<span id="cb16-120"><a href="estimation.html#cb16-120" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-121"><a href="estimation.html#cb16-121" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate E_h</span></span>
-<span id="cb16-122"><a href="estimation.html#cb16-122" aria-hidden="true" tabindex="-1"></a>  E_h <span class="ot">&lt;-</span> <span class="sc">-</span> price <span class="sc">-</span> demand_friction <span class="sc">-</span> E_oop <span class="sc">-</span> E_R_s <span class="sc">*</span> E_R_C <span class="sc">*</span> price</span>
-<span id="cb16-123"><a href="estimation.html#cb16-123" aria-hidden="true" tabindex="-1"></a>  E_h <span class="ot">&lt;-</span> E_h <span class="sc">%&gt;%</span> </span>
-<span id="cb16-124"><a href="estimation.html#cb16-124" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename_with</span>(\(x) <span class="fu">str_replace</span>(x, <span class="st">&quot;price&quot;</span>, <span class="st">&quot;E_h&quot;</span>), </span>
-<span id="cb16-125"><a href="estimation.html#cb16-125" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">starts_with</span>(<span class="st">&quot;price&quot;</span>))</span>
-<span id="cb16-126"><a href="estimation.html#cb16-126" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-127"><a href="estimation.html#cb16-127" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate v</span></span>
-<span id="cb16-128"><a href="estimation.html#cb16-128" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Note that now we ignore the second term of v and thus v = E_h</span></span>
-<span id="cb16-129"><a href="estimation.html#cb16-129" aria-hidden="true" tabindex="-1"></a>  v <span class="ot">&lt;-</span> E_h  <span class="sc">%&gt;%</span> </span>
-<span id="cb16-130"><a href="estimation.html#cb16-130" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename_with</span>(\(x) <span class="fu">str_replace</span>(x, <span class="st">&quot;E_h&quot;</span>, <span class="st">&quot;v&quot;</span>), </span>
-<span id="cb16-131"><a href="estimation.html#cb16-131" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">starts_with</span>(<span class="st">&quot;E_h&quot;</span>))</span>
-<span id="cb16-132"><a href="estimation.html#cb16-132" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-133"><a href="estimation.html#cb16-133" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Calculate Choice Probability</span></span>
-<span id="cb16-134"><a href="estimation.html#cb16-134" aria-hidden="true" tabindex="-1"></a>  choice_probability <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> </span>
-<span id="cb16-135"><a href="estimation.html#cb16-135" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">bind_cols</span>(v) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-136"><a href="estimation.html#cb16-136" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">group_by</span>(i, t) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-137"><a href="estimation.html#cb16-137" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">starts_with</span>(<span class="st">&quot;v&quot;</span>)),</span>
-<span id="cb16-138"><a href="estimation.html#cb16-138" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">funs</span>(<span class="fu">exp</span>(.) <span class="sc">/</span> <span class="fu">sum</span>(<span class="fu">exp</span>(.)))) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-139"><a href="estimation.html#cb16-139" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb16-140"><a href="estimation.html#cb16-140" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename_with</span>(\(x) <span class="fu">str_replace</span>(x, <span class="st">&quot;v&quot;</span>, <span class="st">&quot;choice_probability&quot;</span>), </span>
-<span id="cb16-141"><a href="estimation.html#cb16-141" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">starts_with</span>(<span class="st">&quot;v&quot;</span>))</span>
-<span id="cb16-142"><a href="estimation.html#cb16-142" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-143"><a href="estimation.html#cb16-143" aria-hidden="true" tabindex="-1"></a>  output <span class="ot">&lt;-</span> choice_probability</span>
-<span id="cb16-144"><a href="estimation.html#cb16-144" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(output)</span>
-<span id="cb16-145"><a href="estimation.html#cb16-145" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb16-146"><a href="estimation.html#cb16-146" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-147"><a href="estimation.html#cb16-147" aria-hidden="true" tabindex="-1"></a><span class="do">## Simulated Log-likelihood</span></span>
-<span id="cb16-148"><a href="estimation.html#cb16-148" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-149"><a href="estimation.html#cb16-149" aria-hidden="true" tabindex="-1"></a>SLL <span class="ot">&lt;-</span> <span class="cf">function</span>(df, theta, cost_par, lambda){</span>
-<span id="cb16-150"><a href="estimation.html#cb16-150" aria-hidden="true" tabindex="-1"></a>  SLL <span class="ot">&lt;-</span> <span class="fu">gen_choice_probability</span>(df, theta, cost_par, lambda) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-151"><a href="estimation.html#cb16-151" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">starts_with</span>(<span class="st">&quot;choice_probability&quot;</span>)),</span>
-<span id="cb16-152"><a href="estimation.html#cb16-152" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">funs</span>(choice <span class="sc">*</span> <span class="fu">log</span>(.))) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-153"><a href="estimation.html#cb16-153" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">summarise_at</span>(<span class="fu">vars</span>(<span class="fu">starts_with</span>(<span class="st">&quot;choice_probability&quot;</span>)),</span>
-<span id="cb16-154"><a href="estimation.html#cb16-154" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">funs</span>(<span class="fu">sum</span>(.)))</span>
-<span id="cb16-155"><a href="estimation.html#cb16-155" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-156"><a href="estimation.html#cb16-156" aria-hidden="true" tabindex="-1"></a>  output <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(SLL) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-157"><a href="estimation.html#cb16-157" aria-hidden="true" tabindex="-1"></a>    <span class="fu">apply</span>(<span class="dv">1</span>, mean)</span>
-<span id="cb16-158"><a href="estimation.html#cb16-158" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-159"><a href="estimation.html#cb16-159" aria-hidden="true" tabindex="-1"></a>  output <span class="ot">&lt;-</span> (<span class="sc">-</span><span class="dv">1</span>) <span class="sc">*</span> output</span>
-<span id="cb16-160"><a href="estimation.html#cb16-160" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-161"><a href="estimation.html#cb16-161" aria-hidden="true" tabindex="-1"></a>  <span class="co"># print(output)</span></span>
-<span id="cb16-162"><a href="estimation.html#cb16-162" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-163"><a href="estimation.html#cb16-163" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(output)</span>
-<span id="cb16-164"><a href="estimation.html#cb16-164" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="estimation.html#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># cost_par[1:6] &lt;- theta_lambda</span></span>
+<span id="cb24-2"><a href="estimation.html#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co"># cost_par[7] &lt;- sigma_lambda</span></span>
+<span id="cb24-3"><a href="estimation.html#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="co"># cost_par[8:11] &lt;- theta_score</span></span>
+<span id="cb24-4"><a href="estimation.html#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co"># cost_par[12] &lt;- sigma_score</span></span>
+<span id="cb24-5"><a href="estimation.html#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="co"># cost_par[13] &lt;- l0</span></span>
+<span id="cb24-6"><a href="estimation.html#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="co"># cost_par[14] &lt;- a_l</span></span>
+<span id="cb24-7"><a href="estimation.html#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb24-8"><a href="estimation.html#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="co"># theta[1:4] &lt;- eta_f</span></span>
+<span id="cb24-9"><a href="estimation.html#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="co"># theta[5:6] &lt;- xi</span></span>
+<span id="cb24-10"><a href="estimation.html#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="co"># theta[7:9] &lt;- alpha_m0</span></span>
+<span id="cb24-11"><a href="estimation.html#cb24-11" aria-hidden="true" tabindex="-1"></a><span class="co"># theta[10:13] &lt;- alpha_m1</span></span>
+<span id="cb24-12"><a href="estimation.html#cb24-12" aria-hidden="true" tabindex="-1"></a><span class="co"># theta[14] &lt;- beta</span></span>
+<span id="cb24-13"><a href="estimation.html#cb24-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-14"><a href="estimation.html#cb24-14" aria-hidden="true" tabindex="-1"></a><span class="do">## Generate Lambda</span></span>
+<span id="cb24-15"><a href="estimation.html#cb24-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-16"><a href="estimation.html#cb24-16" aria-hidden="true" tabindex="-1"></a>gen_lambda <span class="ot">&lt;-</span> <span class="cf">function</span>(df, cost_par, R){</span>
+<span id="cb24-17"><a href="estimation.html#cb24-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters</span></span>
+<span id="cb24-18"><a href="estimation.html#cb24-18" aria-hidden="true" tabindex="-1"></a>  theta_lambda <span class="ot">&lt;-</span> cost_par[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>]</span>
+<span id="cb24-19"><a href="estimation.html#cb24-19" aria-hidden="true" tabindex="-1"></a>  sigma_lambda <span class="ot">&lt;-</span> cost_par[<span class="dv">7</span>]</span>
+<span id="cb24-20"><a href="estimation.html#cb24-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-21"><a href="estimation.html#cb24-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Generate mu_lambda</span></span>
+<span id="cb24-22"><a href="estimation.html#cb24-22" aria-hidden="true" tabindex="-1"></a>  output <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> </span>
+<span id="cb24-23"><a href="estimation.html#cb24-23" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">mu_lambda =</span> theta_lambda[<span class="dv">1</span>]</span>
+<span id="cb24-24"><a href="estimation.html#cb24-24" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">+</span> theta_lambda[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> theta_lambda[<span class="dv">3</span>]<span class="sc">*</span>x_2</span>
+<span id="cb24-25"><a href="estimation.html#cb24-25" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">+</span> theta_lambda[<span class="dv">4</span>]<span class="sc">*</span>x_3 <span class="sc">+</span> theta_lambda[<span class="dv">5</span>]<span class="sc">*</span>x_4</span>
+<span id="cb24-26"><a href="estimation.html#cb24-26" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">+</span> theta_lambda[<span class="dv">6</span>]<span class="sc">*</span><span class="fu">ifelse</span>(m <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> t <span class="sc">==</span> <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>))</span>
+<span id="cb24-27"><a href="estimation.html#cb24-27" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-28"><a href="estimation.html#cb24-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Generate epsilon_lambda (draw R times)</span></span>
+<span id="cb24-29"><a href="estimation.html#cb24-29" aria-hidden="true" tabindex="-1"></a>  epsilon_lambda <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(N <span class="sc">*</span> R, <span class="dv">0</span>, sigma_lambda), <span class="at">nrow =</span> N)</span>
+<span id="cb24-30"><a href="estimation.html#cb24-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(epsilon_lambda) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">paste</span>(<span class="st">&quot;lambda&quot;</span>, <span class="dv">1</span><span class="sc">:</span>R, <span class="at">sep =</span> <span class="st">&quot;_&quot;</span>))</span>
+<span id="cb24-31"><a href="estimation.html#cb24-31" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-32"><a href="estimation.html#cb24-32" aria-hidden="true" tabindex="-1"></a>  epsilon_lambda <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">expand_grid</span>(<span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>N), epsilon_lambda) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-33"><a href="estimation.html#cb24-33" aria-hidden="true" tabindex="-1"></a>    tibble<span class="sc">::</span><span class="fu">as_tibble</span>()</span>
+<span id="cb24-34"><a href="estimation.html#cb24-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-35"><a href="estimation.html#cb24-35" aria-hidden="true" tabindex="-1"></a>  <span class="do">## lambda</span></span>
+<span id="cb24-36"><a href="estimation.html#cb24-36" aria-hidden="true" tabindex="-1"></a>  output <span class="ot">&lt;-</span> output <span class="sc">%&gt;%</span></span>
+<span id="cb24-37"><a href="estimation.html#cb24-37" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">left_join</span>(epsilon_lambda, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;i&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb24-38"><a href="estimation.html#cb24-38" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate_at</span>(<span class="at">.vars =</span> <span class="fu">vars</span>(<span class="fu">starts_with</span>(<span class="st">&quot;lambda&quot;</span>)),</span>
+<span id="cb24-39"><a href="estimation.html#cb24-39" aria-hidden="true" tabindex="-1"></a>                     <span class="at">.funs =</span> <span class="sc">~</span> <span class="fu">exp</span>(mu_lambda <span class="sc">+</span> .)) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-40"><a href="estimation.html#cb24-40" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>mu_lambda)</span>
+<span id="cb24-41"><a href="estimation.html#cb24-41" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb24-42"><a href="estimation.html#cb24-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(output)</span>
+<span id="cb24-43"><a href="estimation.html#cb24-43" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb24-44"><a href="estimation.html#cb24-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-45"><a href="estimation.html#cb24-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate Choice Probability</span></span>
+<span id="cb24-46"><a href="estimation.html#cb24-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-47"><a href="estimation.html#cb24-47" aria-hidden="true" tabindex="-1"></a>gen_choice_probability <span class="ot">&lt;-</span> <span class="cf">function</span>(df, theta, cost_par, lambda){</span>
+<span id="cb24-48"><a href="estimation.html#cb24-48" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters</span></span>
+<span id="cb24-49"><a href="estimation.html#cb24-49" aria-hidden="true" tabindex="-1"></a>  eta_f <span class="ot">&lt;-</span> theta[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]</span>
+<span id="cb24-50"><a href="estimation.html#cb24-50" aria-hidden="true" tabindex="-1"></a>  xi <span class="ot">&lt;-</span> theta[<span class="dv">5</span><span class="sc">:</span><span class="dv">6</span>]</span>
+<span id="cb24-51"><a href="estimation.html#cb24-51" aria-hidden="true" tabindex="-1"></a>  alpha_m0 <span class="ot">&lt;-</span> theta[<span class="dv">7</span><span class="sc">:</span><span class="dv">9</span>]</span>
+<span id="cb24-52"><a href="estimation.html#cb24-52" aria-hidden="true" tabindex="-1"></a>  alpha_m1 <span class="ot">&lt;-</span> theta[<span class="dv">10</span><span class="sc">:</span><span class="dv">13</span>]</span>
+<span id="cb24-53"><a href="estimation.html#cb24-53" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> theta[<span class="dv">14</span>]</span>
+<span id="cb24-54"><a href="estimation.html#cb24-54" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-55"><a href="estimation.html#cb24-55" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Cost Parameters</span></span>
+<span id="cb24-56"><a href="estimation.html#cb24-56" aria-hidden="true" tabindex="-1"></a>  theta_score <span class="ot">&lt;-</span> cost_par[<span class="dv">8</span><span class="sc">:</span><span class="dv">11</span>]</span>
+<span id="cb24-57"><a href="estimation.html#cb24-57" aria-hidden="true" tabindex="-1"></a>  sigma_score <span class="ot">&lt;-</span> cost_par[<span class="dv">12</span>]</span>
+<span id="cb24-58"><a href="estimation.html#cb24-58" aria-hidden="true" tabindex="-1"></a>  l0 <span class="ot">&lt;-</span> cost_par[<span class="dv">13</span>]</span>
+<span id="cb24-59"><a href="estimation.html#cb24-59" aria-hidden="true" tabindex="-1"></a>  a_l <span class="ot">&lt;-</span> cost_par[<span class="dv">14</span>]</span>
+<span id="cb24-60"><a href="estimation.html#cb24-60" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-61"><a href="estimation.html#cb24-61" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Lambda</span></span>
+<span id="cb24-62"><a href="estimation.html#cb24-62" aria-hidden="true" tabindex="-1"></a>  lambda <span class="ot">&lt;-</span> lambda</span>
+<span id="cb24-63"><a href="estimation.html#cb24-63" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-64"><a href="estimation.html#cb24-64" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Price</span></span>
+<span id="cb24-65"><a href="estimation.html#cb24-65" aria-hidden="true" tabindex="-1"></a>  price <span class="ot">&lt;-</span> df<span class="sc">$</span>price <span class="sc">*</span> <span class="fu">matrix</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="fu">dim</span>(df)[<span class="dv">1</span>] <span class="sc">*</span> R), <span class="at">nrow =</span> <span class="fu">dim</span>(df)[<span class="dv">1</span>])</span>
+<span id="cb24-66"><a href="estimation.html#cb24-66" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(price) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">paste</span>(<span class="st">&quot;price&quot;</span>, <span class="dv">1</span><span class="sc">:</span>R, <span class="at">sep =</span> <span class="st">&quot;_&quot;</span>))</span>
+<span id="cb24-67"><a href="estimation.html#cb24-67" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-68"><a href="estimation.html#cb24-68" aria-hidden="true" tabindex="-1"></a>  price <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(price) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-69"><a href="estimation.html#cb24-69" aria-hidden="true" tabindex="-1"></a>    tibble<span class="sc">::</span><span class="fu">as_tibble</span>()  </span>
+<span id="cb24-70"><a href="estimation.html#cb24-70" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-71"><a href="estimation.html#cb24-71" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Generate Demand Friction</span></span>
+<span id="cb24-72"><a href="estimation.html#cb24-72" aria-hidden="true" tabindex="-1"></a>  demand_friction <span class="ot">&lt;-</span> lambda <span class="sc">%&gt;%</span> </span>
+<span id="cb24-73"><a href="estimation.html#cb24-73" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">starts_with</span>(<span class="st">&quot;lambda&quot;</span>)),</span>
+<span id="cb24-74"><a href="estimation.html#cb24-74" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">funs</span>(<span class="fu">ifelse</span>(d <span class="sc">==</span> prior_firm, </span>
+<span id="cb24-75"><a href="estimation.html#cb24-75" aria-hidden="true" tabindex="-1"></a>                                 <span class="dv">0</span>,  </span>
+<span id="cb24-76"><a href="estimation.html#cb24-76" aria-hidden="true" tabindex="-1"></a>                                 eta_f[<span class="dv">1</span>] <span class="sc">+</span> eta_f[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> eta_f[<span class="dv">3</span>]<span class="sc">*</span>x_2 <span class="sc">+</span> eta_f[<span class="dv">4</span>]<span class="sc">*</span>x_3) </span>
+<span id="cb24-77"><a href="estimation.html#cb24-77" aria-hidden="true" tabindex="-1"></a>                          <span class="sc">+</span> <span class="fu">ifelse</span>(d <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> t <span class="sc">==</span> <span class="dv">0</span>, </span>
+<span id="cb24-78"><a href="estimation.html#cb24-78" aria-hidden="true" tabindex="-1"></a>                                   xi[<span class="dv">1</span>] <span class="sc">+</span> xi[<span class="dv">2</span>]<span class="sc">*</span><span class="fu">log</span>(.), </span>
+<span id="cb24-79"><a href="estimation.html#cb24-79" aria-hidden="true" tabindex="-1"></a>                                   <span class="dv">0</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-80"><a href="estimation.html#cb24-80" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename_with</span>(\(x) <span class="fu">str_replace</span>(x, <span class="st">&quot;lambda&quot;</span>, <span class="st">&quot;demand_friction&quot;</span>), </span>
+<span id="cb24-81"><a href="estimation.html#cb24-81" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">starts_with</span>(<span class="st">&quot;lambda&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-82"><a href="estimation.html#cb24-82" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="fu">matches</span>(<span class="st">&quot;demand_friction&quot;</span>))</span>
+<span id="cb24-83"><a href="estimation.html#cb24-83" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-84"><a href="estimation.html#cb24-84" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Generate E_score</span></span>
+<span id="cb24-85"><a href="estimation.html#cb24-85" aria-hidden="true" tabindex="-1"></a>  E_score <span class="ot">&lt;-</span> lambda <span class="sc">%&gt;%</span> </span>
+<span id="cb24-86"><a href="estimation.html#cb24-86" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">starts_with</span>(<span class="st">&quot;lambda&quot;</span>)),</span>
+<span id="cb24-87"><a href="estimation.html#cb24-87" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">funs</span>(<span class="fu">ifelse</span>(t <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> m <span class="sc">==</span> <span class="dv">1</span>,</span>
+<span id="cb24-88"><a href="estimation.html#cb24-88" aria-hidden="true" tabindex="-1"></a>                                 <span class="fu">exp</span>(theta_score[<span class="dv">1</span>] <span class="sc">+</span> theta_score[<span class="dv">2</span>]<span class="sc">*</span><span class="fu">log</span>(.)</span>
+<span id="cb24-89"><a href="estimation.html#cb24-89" aria-hidden="true" tabindex="-1"></a>                                     <span class="sc">+</span> theta_score[<span class="dv">3</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> theta_score[<span class="dv">4</span>]<span class="sc">*</span>x_2</span>
+<span id="cb24-90"><a href="estimation.html#cb24-90" aria-hidden="true" tabindex="-1"></a>                                     <span class="sc">+</span> sigma_score<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="dv">2</span>),</span>
+<span id="cb24-91"><a href="estimation.html#cb24-91" aria-hidden="true" tabindex="-1"></a>                                 <span class="dv">0</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-92"><a href="estimation.html#cb24-92" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename_with</span>(\(x) <span class="fu">str_replace</span>(x, <span class="st">&quot;lambda&quot;</span>, <span class="st">&quot;E_score&quot;</span>), </span>
+<span id="cb24-93"><a href="estimation.html#cb24-93" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">starts_with</span>(<span class="st">&quot;lambda&quot;</span>))</span>
+<span id="cb24-94"><a href="estimation.html#cb24-94" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-95"><a href="estimation.html#cb24-95" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Generate E_oop</span></span>
+<span id="cb24-96"><a href="estimation.html#cb24-96" aria-hidden="true" tabindex="-1"></a>  E_oop <span class="ot">&lt;-</span> lambda <span class="sc">%&gt;%</span> </span>
+<span id="cb24-97"><a href="estimation.html#cb24-97" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">starts_with</span>(<span class="st">&quot;lambda&quot;</span>)),</span>
+<span id="cb24-98"><a href="estimation.html#cb24-98" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">funs</span>(.<span class="sc">*</span><span class="fu">exp</span>(<span class="sc">-</span>.)<span class="sc">*</span>(l0<span class="sc">^</span>(a_l)<span class="sc">/</span>(a_l <span class="sc">-</span> <span class="dv">1</span>))<span class="sc">*</span>policy_limit<span class="sc">^</span>(<span class="sc">-</span>a_l <span class="sc">+</span> <span class="dv">1</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-99"><a href="estimation.html#cb24-99" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename_with</span>(\(x) <span class="fu">str_replace</span>(x, <span class="st">&quot;lambda&quot;</span>, <span class="st">&quot;E_oop&quot;</span>), </span>
+<span id="cb24-100"><a href="estimation.html#cb24-100" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">starts_with</span>(<span class="st">&quot;lambda&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-101"><a href="estimation.html#cb24-101" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="fu">matches</span>(<span class="st">&quot;E_oop&quot;</span>))</span>
+<span id="cb24-102"><a href="estimation.html#cb24-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-103"><a href="estimation.html#cb24-103" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Generate E_R_s</span></span>
+<span id="cb24-104"><a href="estimation.html#cb24-104" aria-hidden="true" tabindex="-1"></a>  E_R_s <span class="ot">&lt;-</span> E_score <span class="sc">%&gt;%</span> </span>
+<span id="cb24-105"><a href="estimation.html#cb24-105" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">starts_with</span>(<span class="st">&quot;E_score&quot;</span>)),</span>
+<span id="cb24-106"><a href="estimation.html#cb24-106" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">funs</span>(<span class="fu">ifelse</span>(t <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> m <span class="sc">==</span> <span class="dv">1</span>,</span>
+<span id="cb24-107"><a href="estimation.html#cb24-107" aria-hidden="true" tabindex="-1"></a>                                 (alpha_m1[<span class="dv">1</span>] <span class="sc">+</span> alpha_m1[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> alpha_m1[<span class="dv">3</span>]<span class="sc">*</span>x_2 <span class="sc">+</span> alpha_m1[<span class="dv">4</span>]<span class="sc">*</span>.) <span class="sc">/</span> beta,</span>
+<span id="cb24-108"><a href="estimation.html#cb24-108" aria-hidden="true" tabindex="-1"></a>                                 (alpha_m0[<span class="dv">1</span>] <span class="sc">+</span> alpha_m0[<span class="dv">2</span>]<span class="sc">*</span>x_1 <span class="sc">+</span> alpha_m0[<span class="dv">3</span>]<span class="sc">*</span>x_2) <span class="sc">/</span> beta))) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-109"><a href="estimation.html#cb24-109" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename_with</span>(\(x) <span class="fu">str_replace</span>(x, <span class="st">&quot;E_score&quot;</span>, <span class="st">&quot;E_R_s&quot;</span>), </span>
+<span id="cb24-110"><a href="estimation.html#cb24-110" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">starts_with</span>(<span class="st">&quot;E_score&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-111"><a href="estimation.html#cb24-111" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="fu">matches</span>(<span class="st">&quot;E_R_s&quot;</span>))</span>
+<span id="cb24-112"><a href="estimation.html#cb24-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-113"><a href="estimation.html#cb24-113" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Generate E_R_C</span></span>
+<span id="cb24-114"><a href="estimation.html#cb24-114" aria-hidden="true" tabindex="-1"></a>  E_R_C <span class="ot">&lt;-</span> lambda <span class="sc">%&gt;%</span> </span>
+<span id="cb24-115"><a href="estimation.html#cb24-115" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">starts_with</span>(<span class="st">&quot;lambda&quot;</span>)),</span>
+<span id="cb24-116"><a href="estimation.html#cb24-116" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">funs</span>(<span class="fl">0.98</span> <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span>.) <span class="sc">+</span> <span class="fl">1.2</span> <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span>.)))) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-117"><a href="estimation.html#cb24-117" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename_with</span>(\(x) <span class="fu">str_replace</span>(x, <span class="st">&quot;lambda&quot;</span>, <span class="st">&quot;E_R_C&quot;</span>), </span>
+<span id="cb24-118"><a href="estimation.html#cb24-118" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">starts_with</span>(<span class="st">&quot;lambda&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-119"><a href="estimation.html#cb24-119" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="fu">matches</span>(<span class="st">&quot;E_R_C&quot;</span>))</span>
+<span id="cb24-120"><a href="estimation.html#cb24-120" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-121"><a href="estimation.html#cb24-121" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate E_h</span></span>
+<span id="cb24-122"><a href="estimation.html#cb24-122" aria-hidden="true" tabindex="-1"></a>  E_h <span class="ot">&lt;-</span> <span class="sc">-</span> price <span class="sc">-</span> demand_friction <span class="sc">-</span> E_oop <span class="sc">-</span> E_R_s <span class="sc">*</span> E_R_C <span class="sc">*</span> price</span>
+<span id="cb24-123"><a href="estimation.html#cb24-123" aria-hidden="true" tabindex="-1"></a>  E_h <span class="ot">&lt;-</span> E_h <span class="sc">%&gt;%</span> </span>
+<span id="cb24-124"><a href="estimation.html#cb24-124" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename_with</span>(\(x) <span class="fu">str_replace</span>(x, <span class="st">&quot;price&quot;</span>, <span class="st">&quot;E_h&quot;</span>), </span>
+<span id="cb24-125"><a href="estimation.html#cb24-125" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">starts_with</span>(<span class="st">&quot;price&quot;</span>))</span>
+<span id="cb24-126"><a href="estimation.html#cb24-126" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-127"><a href="estimation.html#cb24-127" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate v</span></span>
+<span id="cb24-128"><a href="estimation.html#cb24-128" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Note that now we ignore the second term of v and thus v = E_h</span></span>
+<span id="cb24-129"><a href="estimation.html#cb24-129" aria-hidden="true" tabindex="-1"></a>  v <span class="ot">&lt;-</span> E_h  <span class="sc">%&gt;%</span> </span>
+<span id="cb24-130"><a href="estimation.html#cb24-130" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename_with</span>(\(x) <span class="fu">str_replace</span>(x, <span class="st">&quot;E_h&quot;</span>, <span class="st">&quot;v&quot;</span>), </span>
+<span id="cb24-131"><a href="estimation.html#cb24-131" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">starts_with</span>(<span class="st">&quot;E_h&quot;</span>))</span>
+<span id="cb24-132"><a href="estimation.html#cb24-132" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-133"><a href="estimation.html#cb24-133" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Calculate Choice Probability</span></span>
+<span id="cb24-134"><a href="estimation.html#cb24-134" aria-hidden="true" tabindex="-1"></a>  choice_probability <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> </span>
+<span id="cb24-135"><a href="estimation.html#cb24-135" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">bind_cols</span>(v) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-136"><a href="estimation.html#cb24-136" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">group_by</span>(i, t) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-137"><a href="estimation.html#cb24-137" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">starts_with</span>(<span class="st">&quot;v&quot;</span>)),</span>
+<span id="cb24-138"><a href="estimation.html#cb24-138" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">funs</span>(<span class="fu">exp</span>(.) <span class="sc">/</span> <span class="fu">sum</span>(<span class="fu">exp</span>(.)))) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-139"><a href="estimation.html#cb24-139" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb24-140"><a href="estimation.html#cb24-140" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename_with</span>(\(x) <span class="fu">str_replace</span>(x, <span class="st">&quot;v&quot;</span>, <span class="st">&quot;choice_probability&quot;</span>), </span>
+<span id="cb24-141"><a href="estimation.html#cb24-141" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">starts_with</span>(<span class="st">&quot;v&quot;</span>))</span>
+<span id="cb24-142"><a href="estimation.html#cb24-142" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-143"><a href="estimation.html#cb24-143" aria-hidden="true" tabindex="-1"></a>  output <span class="ot">&lt;-</span> choice_probability</span>
+<span id="cb24-144"><a href="estimation.html#cb24-144" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(output)</span>
+<span id="cb24-145"><a href="estimation.html#cb24-145" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb24-146"><a href="estimation.html#cb24-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-147"><a href="estimation.html#cb24-147" aria-hidden="true" tabindex="-1"></a><span class="do">##</span></span>
+<span id="cb24-148"><a href="estimation.html#cb24-148" aria-hidden="true" tabindex="-1"></a>LL_renewal_price <span class="ot">&lt;-</span> <span class="cf">function</span>(df, theta, cost_par, lambda){</span>
+<span id="cb24-149"><a href="estimation.html#cb24-149" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-150"><a href="estimation.html#cb24-150" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb24-151"><a href="estimation.html#cb24-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-152"><a href="estimation.html#cb24-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-153"><a href="estimation.html#cb24-153" aria-hidden="true" tabindex="-1"></a><span class="do">## Simulated Log-likelihood</span></span>
+<span id="cb24-154"><a href="estimation.html#cb24-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-155"><a href="estimation.html#cb24-155" aria-hidden="true" tabindex="-1"></a>SLL <span class="ot">&lt;-</span> <span class="cf">function</span>(df, theta, cost_par, lambda){</span>
+<span id="cb24-156"><a href="estimation.html#cb24-156" aria-hidden="true" tabindex="-1"></a>  SLL <span class="ot">&lt;-</span> <span class="fu">gen_choice_probability</span>(df, theta, cost_par, lambda) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-157"><a href="estimation.html#cb24-157" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">starts_with</span>(<span class="st">&quot;choice_probability&quot;</span>)),</span>
+<span id="cb24-158"><a href="estimation.html#cb24-158" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">funs</span>(choice <span class="sc">*</span> <span class="fu">log</span>(.))) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-159"><a href="estimation.html#cb24-159" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">summarise_at</span>(<span class="fu">vars</span>(<span class="fu">starts_with</span>(<span class="st">&quot;choice_probability&quot;</span>)),</span>
+<span id="cb24-160"><a href="estimation.html#cb24-160" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">funs</span>(<span class="fu">sum</span>(.)))</span>
+<span id="cb24-161"><a href="estimation.html#cb24-161" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-162"><a href="estimation.html#cb24-162" aria-hidden="true" tabindex="-1"></a>  output <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(SLL) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-163"><a href="estimation.html#cb24-163" aria-hidden="true" tabindex="-1"></a>    <span class="fu">apply</span>(<span class="dv">1</span>, mean)</span>
+<span id="cb24-164"><a href="estimation.html#cb24-164" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-165"><a href="estimation.html#cb24-165" aria-hidden="true" tabindex="-1"></a>  output <span class="ot">&lt;-</span> (<span class="sc">-</span><span class="dv">1</span>) <span class="sc">*</span> output</span>
+<span id="cb24-166"><a href="estimation.html#cb24-166" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-167"><a href="estimation.html#cb24-167" aria-hidden="true" tabindex="-1"></a>  <span class="co"># print(output)</span></span>
+<span id="cb24-168"><a href="estimation.html#cb24-168" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-169"><a href="estimation.html#cb24-169" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(output)</span>
+<span id="cb24-170"><a href="estimation.html#cb24-170" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 </div>
 <div id="optimization" class="section level2 hasAnchor" number="2.2">
 <h2><span class="header-section-number">2.2</span> Optimization<a href="estimation.html#optimization" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="estimation.html#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate lambda</span></span>
-<span id="cb17-2"><a href="estimation.html#cb17-2" aria-hidden="true" tabindex="-1"></a>R <span class="ot">&lt;-</span> <span class="dv">50</span></span>
-<span id="cb17-3"><a href="estimation.html#cb17-3" aria-hidden="true" tabindex="-1"></a>lambda <span class="ot">&lt;-</span> <span class="fu">gen_lambda</span>(df, cost_par, R)</span>
-<span id="cb17-4"><a href="estimation.html#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-5"><a href="estimation.html#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="do">## Initial Value</span></span>
-<span id="cb17-6"><a href="estimation.html#cb17-6" aria-hidden="true" tabindex="-1"></a>x0 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, <span class="fu">length</span>(theta))</span>
-<span id="cb17-7"><a href="estimation.html#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-8"><a href="estimation.html#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="do">## Optimization</span></span>
-<span id="cb17-9"><a href="estimation.html#cb17-9" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">optim</span>(<span class="at">par =</span> x0,</span>
-<span id="cb17-10"><a href="estimation.html#cb17-10" aria-hidden="true" tabindex="-1"></a>             <span class="at">fn =</span> SLL, </span>
-<span id="cb17-11"><a href="estimation.html#cb17-11" aria-hidden="true" tabindex="-1"></a>             <span class="at">method =</span> <span class="st">&quot;Nelder-Mead&quot;</span>,</span>
-<span id="cb17-12"><a href="estimation.html#cb17-12" aria-hidden="true" tabindex="-1"></a>             <span class="at">df =</span> df, </span>
-<span id="cb17-13"><a href="estimation.html#cb17-13" aria-hidden="true" tabindex="-1"></a>             <span class="at">cost_par =</span> cost_par, </span>
-<span id="cb17-14"><a href="estimation.html#cb17-14" aria-hidden="true" tabindex="-1"></a>             <span class="at">lambda =</span> lambda)</span>
-<span id="cb17-15"><a href="estimation.html#cb17-15" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb17-16"><a href="estimation.html#cb17-16" aria-hidden="true" tabindex="-1"></a>theta_est <span class="ot">&lt;-</span> res<span class="sc">$</span>par</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="estimation.html#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cost Parameters</span></span>
+<span id="cb25-2"><a href="estimation.html#cb25-2" aria-hidden="true" tabindex="-1"></a>cost_par <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb25-3"><a href="estimation.html#cb25-3" aria-hidden="true" tabindex="-1"></a>cost_par[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>] <span class="ot">&lt;-</span> theta_lambda</span>
+<span id="cb25-4"><a href="estimation.html#cb25-4" aria-hidden="true" tabindex="-1"></a>cost_par[<span class="dv">7</span>] <span class="ot">&lt;-</span> sigma_lambda</span>
+<span id="cb25-5"><a href="estimation.html#cb25-5" aria-hidden="true" tabindex="-1"></a>cost_par[<span class="dv">8</span><span class="sc">:</span><span class="dv">11</span>] <span class="ot">&lt;-</span> theta_score</span>
+<span id="cb25-6"><a href="estimation.html#cb25-6" aria-hidden="true" tabindex="-1"></a>cost_par[<span class="dv">12</span>] <span class="ot">&lt;-</span> sigma_score</span>
+<span id="cb25-7"><a href="estimation.html#cb25-7" aria-hidden="true" tabindex="-1"></a>cost_par[<span class="dv">13</span>] <span class="ot">&lt;-</span> l0</span>
+<span id="cb25-8"><a href="estimation.html#cb25-8" aria-hidden="true" tabindex="-1"></a>cost_par[<span class="dv">14</span>] <span class="ot">&lt;-</span> a_l</span>
+<span id="cb25-9"><a href="estimation.html#cb25-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-10"><a href="estimation.html#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Choice Parameters</span></span>
+<span id="cb25-11"><a href="estimation.html#cb25-11" aria-hidden="true" tabindex="-1"></a>theta <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb25-12"><a href="estimation.html#cb25-12" aria-hidden="true" tabindex="-1"></a>theta[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>] <span class="ot">&lt;-</span> eta_f</span>
+<span id="cb25-13"><a href="estimation.html#cb25-13" aria-hidden="true" tabindex="-1"></a>theta[<span class="dv">5</span><span class="sc">:</span><span class="dv">6</span>] <span class="ot">&lt;-</span> xi</span>
+<span id="cb25-14"><a href="estimation.html#cb25-14" aria-hidden="true" tabindex="-1"></a>theta[<span class="dv">7</span><span class="sc">:</span><span class="dv">9</span>] <span class="ot">&lt;-</span> alpha_m0</span>
+<span id="cb25-15"><a href="estimation.html#cb25-15" aria-hidden="true" tabindex="-1"></a>theta[<span class="dv">10</span><span class="sc">:</span><span class="dv">13</span>] <span class="ot">&lt;-</span> alpha_m1</span>
+<span id="cb25-16"><a href="estimation.html#cb25-16" aria-hidden="true" tabindex="-1"></a>theta[<span class="dv">14</span>] <span class="ot">&lt;-</span> beta</span>
+<span id="cb25-17"><a href="estimation.html#cb25-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-18"><a href="estimation.html#cb25-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate lambda</span></span>
+<span id="cb25-19"><a href="estimation.html#cb25-19" aria-hidden="true" tabindex="-1"></a>R <span class="ot">&lt;-</span> <span class="dv">50</span></span>
+<span id="cb25-20"><a href="estimation.html#cb25-20" aria-hidden="true" tabindex="-1"></a>lambda <span class="ot">&lt;-</span> <span class="fu">gen_lambda</span>(df, cost_par, R)</span>
+<span id="cb25-21"><a href="estimation.html#cb25-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-22"><a href="estimation.html#cb25-22" aria-hidden="true" tabindex="-1"></a><span class="do">## Initial Value</span></span>
+<span id="cb25-23"><a href="estimation.html#cb25-23" aria-hidden="true" tabindex="-1"></a>x0 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, <span class="fu">length</span>(theta))</span>
+<span id="cb25-24"><a href="estimation.html#cb25-24" aria-hidden="true" tabindex="-1"></a><span class="co"># x0 &lt;- theta * 0.8</span></span>
+<span id="cb25-25"><a href="estimation.html#cb25-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-26"><a href="estimation.html#cb25-26" aria-hidden="true" tabindex="-1"></a><span class="do">## Optimization</span></span>
+<span id="cb25-27"><a href="estimation.html#cb25-27" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">optim</span>(<span class="at">par =</span> x0,</span>
+<span id="cb25-28"><a href="estimation.html#cb25-28" aria-hidden="true" tabindex="-1"></a>             <span class="at">fn =</span> SLL, </span>
+<span id="cb25-29"><a href="estimation.html#cb25-29" aria-hidden="true" tabindex="-1"></a>             <span class="at">method =</span> <span class="st">&quot;Nelder-Mead&quot;</span>,</span>
+<span id="cb25-30"><a href="estimation.html#cb25-30" aria-hidden="true" tabindex="-1"></a>             <span class="at">df =</span> df, </span>
+<span id="cb25-31"><a href="estimation.html#cb25-31" aria-hidden="true" tabindex="-1"></a>             <span class="at">cost_par =</span> cost_par, </span>
+<span id="cb25-32"><a href="estimation.html#cb25-32" aria-hidden="true" tabindex="-1"></a>             <span class="at">lambda =</span> lambda)</span></code></pre></div>
+<pre><code>## Warning: `funs()` was deprecated in dplyr 0.8.0.
+## Please use a list of either functions or lambdas: 
+## 
+##   # Simple named list: 
+##   list(mean = mean, median = median)
+## 
+##   # Auto named with `tibble::lst()`: 
+##   tibble::lst(mean, median)
+## 
+##   # Using lambdas
+##   list(~ mean(., trim = .2), ~ median(., na.rm = TRUE))
+## This warning is displayed once every 8 hours.
+## Call `lifecycle::last_warnings()` to see where this warning was generated.</code></pre>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="estimation.html#cb27-1" aria-hidden="true" tabindex="-1"></a>theta_est <span class="ot">&lt;-</span> res<span class="sc">$</span>par</span></code></pre></div>
 </div>
 <div id="estimation-results" class="section level2 hasAnchor" number="2.3">
 <h2><span class="header-section-number">2.3</span> Estimation Results<a href="estimation.html#estimation-results" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="estimation.html#cb18-1" aria-hidden="true" tabindex="-1"></a>table <span class="ot">&lt;-</span> <span class="fu">cbind</span>(theta, theta_est)</span>
-<span id="cb18-2"><a href="estimation.html#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(table) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;true&quot;</span>, <span class="st">&quot;estimates&quot;</span>)</span>
-<span id="cb18-3"><a href="estimation.html#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-4"><a href="estimation.html#cb18-4" aria-hidden="true" tabindex="-1"></a>table</span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="estimation.html#cb28-1" aria-hidden="true" tabindex="-1"></a>table <span class="ot">&lt;-</span> <span class="fu">cbind</span>(theta, theta_est)</span>
+<span id="cb28-2"><a href="estimation.html#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(table) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;true&quot;</span>, <span class="st">&quot;estimates&quot;</span>)</span>
+<span id="cb28-3"><a href="estimation.html#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="estimation.html#cb28-4" aria-hidden="true" tabindex="-1"></a>table</span></code></pre></div>
+<pre><code>##       true   estimates
+##  [1,]  5.0  2.96280415
+##  [2,]  1.0  1.48005218
+##  [3,]  2.0  0.64214460
+##  [4,]  2.0  0.89955120
+##  [5,]  1.0  0.15606517
+##  [6,] -2.5  0.37142583
+##  [7,] 20.0  0.15786460
+##  [8,]  5.0  1.29713239
+##  [9,]  3.0  0.70337145
+## [10,] 20.0  1.68201383
+## [11,]  5.0  0.68144086
+## [12,]  3.0  0.57405407
+## [13,] -2.0 -0.07052488
+## [14,] 20.0  2.85436874</code></pre>
 </div>
 </div>
             </section>
