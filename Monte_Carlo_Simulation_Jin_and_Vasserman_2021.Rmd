@@ -10,7 +10,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval = TRUE, cache = FALSE)
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE, cache = FALSE)
 library(bookdown)
 library(magrittr)
 library(tidyverse)
@@ -21,7 +21,6 @@ library(MASS)
 
 ## メモ
 - $v_{idt} = \mathbb{E}[h_{idt}] -\frac{\gamma}{2}\mathbb{E}[h_{idt}^{2}]$の第2項は無視している
-- gamma_alphaチェック要
 
 First we generate data in the following procedure.
 
@@ -37,7 +36,7 @@ First we generate data in the following procedure.
 ```{r generate lambda}
 rm(list = ls())
 
-N <- 10^4
+N <- 10^3
 T <- 1
 D <- 4
 
@@ -235,7 +234,7 @@ prior_firm_t0 <- expand.grid(i = 1:N) %>%
 ## Generate Renewal Price
 
 alpha_m0 <- c(20, 5, 3)
-alpha_m1 <- c(20, 5, 3, -2)
+alpha_m1 <- c(20, 5, 3, -1)
 beta <- 20
 
 ## Generate Inertia
@@ -365,7 +364,7 @@ plot(g_realized_claims_count)
 g_realized_score <- cost_t0 %>%
   dplyr::filter(score != 1) %>% 
   ggplot(aes(x = log_score)) + 
-  geom_histogram(binwidth = 0.1)
+  geom_histogram(binwidth = 0.25)
 
 plot(g_realized_score)
 
@@ -402,7 +401,7 @@ choice_t1 <- expand.grid(i = 1:N, d = 1:(D - 1), t = 1) %>%
   dplyr::left_join(lambda, by = c("i", "m", "t")) %>% 
   dplyr::left_join(oop, by = c("i", "m", "t")) %>% 
   dplyr::left_join(cost_t0, by = c("i")) %>% 
-  dplyr::mutate(gamma_alpha = ifelse(m == 0,
+  dplyr::mutate(gamma_alpha = ifelse(score == 1,
                                      alpha_m0[1] + alpha_m0[2]*x_1 + alpha_m0[3]*x_2,
                                      alpha_m1[1] + alpha_m1[2]*x_1 + alpha_m1[3]*x_2 + alpha_m1[4]*score)) %>% 
   dplyr::mutate(R_s = rgamma(N * (D - 1), gamma_alpha, beta),
@@ -463,7 +462,7 @@ g_R_s_t1 <- choice_t1 %>%
                                               prior_choice == 3 ~ "Firm2",
                                               prior_choice == 4 ~ "Firm3")) %>% 
   ggplot(aes(x = R_s, fill = prior_plan)) + 
-  geom_histogram(position = "identity", alpha = 0.4, binwidth = 0.01)
+  geom_histogram(position = "identity", alpha = 0.4, binwidth = 0.025)
 
 plot(g_R_s_t1)
 
@@ -476,9 +475,9 @@ plot(g_R_s_t1)
 df_t0 <- choice_t0 %>% 
   dplyr::select(i, d, t, m, f, x_1, x_2, x_3, x_4, price, prior_firm, choice)
 df_t1 <- choice_t1 %>% 
-  dplyr::select(i, d, t, m, f, x_1, x_2, x_3, x_4, price, prior_firm, choice)
+  dplyr::select(i, d, t, m, f, x_1, x_2, x_3, x_4, price, prior_firm, choice, claims, score, R_s, R_C)
 
-df <- rbind(df_t0, df_t1) %>% 
+df <- dplyr::bind_rows(df_t0, df_t1) %>% 
   dplyr::arrange(t, i, d)
 
 ```
@@ -505,30 +504,41 @@ d_{it} &= \mathop{\rm argmax}\limits_{d \in D_{it}} \left\{ v_{idt} + \varepsilo
 \end{align}
 $$
 
+- We estimate the model by simulated maximum likelihood method. In doing so, we adopt a two-step estimation procedure since the cost model is easier to estimate but requires a large amount of data, while the demand model is making use of rich variations in choice but computationally demanding. 
+- Therefore, we estimate risk and monitoring score parameters $(\theta_{\lambda}, \sigma_{\lambda}, \theta_{s}, \sigma_{s})$ first. 
+- Then, we feed the estimates into the demand models as truth.
+
+- The overall log likelihood function is expressed as follows:
+
+$$
+\begin{align}
+    \mathscr{L}_{i} = \sum_{t \leq T_{i}} \int_{\lambda} \underbrace{\mathscr{L}(R_{it}, s_{i}, C_{it}, d_{it} \mid \lambda, \psi, x_{it}, p_{it}, D_{it}, d_{i, t-1} ; \Theta)}_{(A): \text{obs. stoc outcome}} \cdot \underbrace{g_{\lambda}(\lambda \mid x_{it} ; \theta_{\lambda}, \sigma_{\lambda})}_{(B): \text{latent var.}} d\lambda
+\end{align}
+$$
+
+- We can decompose the likelihood component A as follows:
+
+$$
+\begin{align}
+    (A) = & \ln \Pr(d_{it} \mid \lambda, x_{it}, p_{it}, D_{it}, d_{i, t-1}; a, \psi_{0}, \psi_{1}, \theta_{\eta}, \theta_{\xi}, \alpha, \theta_{\beta}) \notag \\
+    & + \ln \Pr(C_{it} \mid \lambda, x_{it}) + \ln g(l_{it} \mid d_{it}, x_{it}; \alpha, \theta_{\beta}) \notag \\
+    & + \ln g_{s}(s_{i} \mid \lambda, x_{it}; \theta_{s}, \sigma_{s}) + \ln g_{R}(R_{idt} \mid C_{it}, s_{i}, \lambda, x_{it}; \theta_{R}, \theta_{R, m}, \sigma_{R})
+\end{align}
+$$
+
+
 ## Fuctions
 
 - To estimate the choice model, we write the following functions:
   - `gen_lambda` is a function that draws unobserved consumer risk $\lambda$. In this function, we draw $\lambda$ for $R$ times
-  - `gen_choice_probability` is a function that calculates choice probability that a consumer chooses each plan for each draw of $\lambda$
+  - `LL_choice` is a function that calculates choice probability that a consumer chooses each plan for each draw of $\lambda$
+  - `LL_renewal_price` is a function that calculates choice probability that a consumer chooses each plan for each draw of $\lambda$
   - `SLL` is a function that calculates the simulated log-likelihood of consumer's choice. We maximize this fucntion to get the estimates of choice model parameters
 - Note that when optimizing an objective function, it is important to keep the realizations of the shocks the same across the evaluations of the objective function. If the realization of the shocks differ across the objective function evaluations, the optimization algorithm will not converge because it cannot distinguish the change in the value of the objective function due to the difference in the parameters and the difference in the realized shocks
 - To avoid this problem, we generate $\lambda$ outside the optimization algorithm
 
 
 ```{r function gen_lambda}
-
-# cost_par[1:6] <- theta_lambda
-# cost_par[7] <- sigma_lambda
-# cost_par[8:11] <- theta_score
-# cost_par[12] <- sigma_score
-# cost_par[13] <- l0
-# cost_par[14] <- a_l
-# 
-# theta[1:4] <- eta_f
-# theta[5:6] <- xi
-# theta[7:9] <- alpha_m0
-# theta[10:13] <- alpha_m1
-# theta[14] <- beta
 
 ## Generate Lambda
 
@@ -561,9 +571,9 @@ gen_lambda <- function(df, cost_par, R){
   return(output)
 }
 
-# Generate Choice Probability
+# Log-likelihood for Choice Probability
 
-gen_choice_probability <- function(df, theta, cost_par, lambda){
+LL_choice <- function(df, theta, cost_par, lambda){
   # Parameters
   eta_f <- theta[1:4]
   xi <- theta[5:6]
@@ -659,30 +669,80 @@ gen_choice_probability <- function(df, theta, cost_par, lambda){
     dplyr::rename_with(\(x) str_replace(x, "v", "choice_probability"), 
                        starts_with("v"))
   
-  output <- choice_probability
+  ## Calculate Log-likelihood
+  LL_choice <- choice_probability %>% 
+    dplyr::mutate_at(vars(starts_with("choice_probability")),
+                     funs(choice * log(.))) %>% 
+    dplyr::summarise_at(vars(starts_with("choice_probability")),
+                        funs(sum(.)))
+  
+  LL_choice <- as.matrix(LL_choice) %>% 
+    apply(1, mean)
+  
+  # Output
+  output <- LL_choice
+  
   return(output)
 }
 
-##
+# Log-likelihood for Renewal Price
+
 LL_renewal_price <- function(df, theta, cost_par, lambda){
+  # Parameters
+  alpha_m0 <- theta[7:9]
+  alpha_m1 <- theta[10:13]
+  beta <- theta[14]
   
+  # Generate log-likelihood of R_s
+  ## In the paper, we assume away uncertainty in s
+  R_s <- df %>% 
+    dplyr::filter(t == 1) %>% 
+    dplyr::mutate(gamma_alpha = ifelse(score == 1,
+                                       alpha_m0[1] + alpha_m0[2]*x_1 + alpha_m0[3]*x_2,
+                                       alpha_m1[1] + alpha_m1[2]*x_1 + alpha_m1[3]*x_2 + alpha_m1[4]*score),
+                  LL_gamma = log(((beta^gamma_alpha)/gamma(gamma_alpha)) * R_s^(gamma_alpha - 1) * exp(-beta * R_s)))
+  
+  LL_R_s <- sum(R_s$LL_gamma)
+  
+  ## 作ったが、Choice Modelの推定においては不要
+  # Generate log-likelihood of R_C
+  ## We first match lambda in t = 0, since claim surcharge is resulted from lambda in t = 0
+  
+  # lambda_t0 <- lambda %>% 
+  #   dplyr::filter(t == 0, f == 1) %>% 
+  #   dplyr::select(i, m, matches("lambda"))
+  # 
+  # R_C <- df %>% 
+  #   dplyr::filter(t == 1) %>% 
+  #   dplyr::mutate(m = ifelse(score == 1, 0, 1)) %>% 
+  #   dplyr::left_join(lambda_t0, by = c("i", "m")) %>% 
+  #   dplyr::mutate_at(vars(starts_with("lambda")),
+  #                    funs((exp(-.)^(R_C == 0.98)) * (1 - exp(-.)^(R_C == 1.2)))) %>% 
+  #   dplyr::rename_with(\(x) str_replace(x, "lambda", "LL_surcharge"), 
+  #                      starts_with("lambda")) %>% 
+  #   dplyr::summarise_at(vars(starts_with("LL_surcharge")),
+  #                       funs(sum(.)))
+  # 
+  # LL_R_C <- as.matrix(R_C) %>% 
+  #   apply(1, mean)
+  
+  output <- LL_R_s
+  
+  return(output)
 }
 
 
 ## Simulated Log-likelihood
 
 SLL <- function(df, theta, cost_par, lambda){
-  SLL <- gen_choice_probability(df, theta, cost_par, lambda) %>% 
-    dplyr::mutate_at(vars(starts_with("choice_probability")),
-                     funs(choice * log(.))) %>% 
-    dplyr::summarise_at(vars(starts_with("choice_probability")),
-                        funs(sum(.)))
+  ## Choice Probability
+  LL_choice <- LL_choice(df, theta, cost_par, lambda)
   
-  output <- as.matrix(SLL) %>% 
-    apply(1, mean)
+  ## Renewal Price
+  LL_renewal_price <- LL_renewal_price(df, theta, cost_par, lambda)
   
-  output <- (-1) * output
-  
+  ## Output
+  output <- (-1) * (LL_choice + LL_renewal_price)
   # print(output)
   
   return(output)
@@ -716,6 +776,9 @@ lambda <- gen_lambda(df, cost_par, R)
 
 ## Initial Value
 x0 <- rep(1, length(theta))
+x0[7] <- 25
+x0[10] <- 25
+x0[14] <- 25
 # x0 <- theta * 0.8
 
 ## Optimization
@@ -735,8 +798,13 @@ theta_est <- res$par
 ```{r estimation results}
 
 table <- cbind(theta, theta_est)
+table <- format(round(table, 2), 2)
 colnames(table) <- c("true", "estimates")
-
+rownames(table) <- c("eta_f", "", "", "", 
+                     "xi", "", 
+                     "alpha_m0", "", "", "", 
+                     "alpha_m1", "", "", 
+                     "beta")
 table
 
 ```
