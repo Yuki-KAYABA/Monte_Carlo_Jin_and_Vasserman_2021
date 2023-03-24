@@ -1,7 +1,7 @@
 ---
 title: 'Monte Carlo Simulation: Jin and Vasserman (2021)'
 author: "Yuki KAYABA"
-date: "2/26/2023"
+date: "3/24/2023"
 site: bookdown::bookdown_site
 output:
   bookdown::gitbook: default
@@ -10,7 +10,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval = TRUE, cache = FALSE)
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE, cache = TRUE)
 library(bookdown)
 library(magrittr)
 library(tidyverse)
@@ -152,13 +152,14 @@ policy_limit <- 1000
 l0 <- 500
 a_l <- 2.5
 
-oop <- lambda %>% 
+E_oop <- lambda %>% 
   dplyr::mutate(prob_C1 = lambda * exp(-lambda),
-                E_oop = prob_C1 * (l0^(a_l)/(a_l - 1))*policy_limit^(-a_l + 1)) %>% 
-  dplyr::select(i, m, t, E_oop)
+                E_oop = prob_C1 * (l0^(a_l)/(a_l - 1))*policy_limit^(-a_l + 1),
+                E_oop_sq = prob_C1 * ((2 * l0^(a_l)) / ((a_l - 1) * (a_l - 1))) * policy_limit^(-a_l + 2)) %>% 
+  dplyr::select(i, m, t, E_oop, E_oop_sq)
 
 ## Visualize OOP
-g_oop <- oop %>% 
+g_oop <- E_oop %>% 
   ggplot(aes(x = E_oop)) + 
   geom_histogram(binwidth = 0.5)
 
@@ -243,6 +244,8 @@ alpha_m0 <- c(20, 5, 3)
 alpha_m1 <- c(20, 5, 3, -1)
 beta <- 20
 
+### Risk Aversion
+risk_aversion <- 10^(-4)
 
 ## Generate Choice
 
@@ -255,7 +258,7 @@ choice_t0 <- expand.grid(i = 1:N, d = 1:D, t = 0) %>%
                   d == 4 ~ 3)) %>% 
   dplyr::left_join(lambda, by = c("i", "m", "t")) %>% 
   dplyr::left_join(score, by = c("i", "m", "t")) %>% 
-  dplyr::left_join(oop, by = c("i", "m", "t")) %>% 
+  dplyr::left_join(E_oop, by = c("i", "m", "t")) %>% 
   price_gen_t0(price_par_t0_d1, price_par_t0_d2, price_par_t0_d3, price_par_t0_d4) %>% 
   dplyr::left_join(prior_firm_t0, by = c("i")) %>% 
   dplyr::mutate(inertia = eta_f[1] + eta_f[2]*x_1 + eta_f[3]*x_2 + eta_f[4]*x_3,
@@ -265,15 +268,23 @@ choice_t0 <- expand.grid(i = 1:N, d = 1:D, t = 0) %>%
   dplyr::mutate(E_R_s = ifelse(m == 0, 
                            (alpha_m0[1] + alpha_m0[2]*x_1 + alpha_m0[3]*x_2) / beta,
                            (alpha_m1[1] + alpha_m1[2]*x_1 + alpha_m1[3]*x_2 + alpha_m1[4]*E_score) / beta),
+                E_R_s_sq = E_R_s / beta,
                 E_R_C = 0.98 * exp(-lambda) + 1.2 * (1 - exp(-lambda)),
-                E_renewal_price = price * E_R_s * E_R_C) %>% 
-  dplyr::mutate(h = - price - demand_friction - E_oop - E_renewal_price)
+                E_R_C_sq = 0.98^2 * exp(-lambda) + 1.2^2 * (1 - exp(-lambda)),
+                E_renewal_price = price * E_R_s * E_R_C,
+                E_renewal_price_sq = price^2 * E_R_s_sq * E_R_C_sq) %>% 
+  dplyr::mutate(h = - price - demand_friction - E_oop - E_renewal_price,
+                h_sq = price^2 - demand_friction^2 + E_oop_sq + E_renewal_price_sq
+                + 2*price*demand_friction + 2*price*E_oop + 2*price*E_renewal_price
+                + 2*demand_friction*E_oop + 2*demand_friction*E_renewal_price
+                + 2*E_oop*E_renewal_price)
 
 # draw idiosyncratic shocks
 e_t0 <- evd::rgev(dim(choice_t0)[1])
 
 choice_t0 <- cbind(choice_t0, e_t0) %>% 
-  dplyr::mutate(u = h + e_t0) %>% 
+  dplyr::mutate(v = h - (risk_aversion / 2)*h_sq,
+                u = v + e_t0) %>% 
   dplyr::group_by(i, t) %>% 
   dplyr::mutate(choice = ifelse(u == max(u), 1, 0)) %>% 
   dplyr::ungroup()
@@ -403,7 +414,7 @@ choice_t1 <- expand.grid(i = 1:N, d = 1:(D - 1), t = 1) %>%
   dplyr::left_join(prior_firm_t1, by = c("i")) %>% 
   dplyr::left_join(prior_price_t1, by = c("i", "f")) %>% 
   dplyr::left_join(lambda, by = c("i", "m", "t")) %>% 
-  dplyr::left_join(oop, by = c("i", "m", "t")) %>% 
+  dplyr::left_join(E_oop, by = c("i", "m", "t")) %>% 
   dplyr::left_join(cost_t0, by = c("i")) %>% 
   dplyr::mutate(gamma_alpha = ifelse(score == 1,
                                      alpha_m0[1] + alpha_m0[2]*x_1 + alpha_m0[3]*x_2,
@@ -416,16 +427,24 @@ choice_t1 <- expand.grid(i = 1:N, d = 1:(D - 1), t = 1) %>%
   dplyr::mutate(E_R_s = ifelse(m == 0, 
                            (alpha_m0[1] + alpha_m0[2]*x_1 + alpha_m0[3]*x_2) / beta,
                            (alpha_m1[1] + alpha_m1[2]*x_1 + alpha_m1[3]*x_2 + alpha_m1[4]*E_score) / beta),
+                E_R_s_sq = E_R_s / beta,
                 E_R_C = 0.98 * exp(-lambda) + 1.2 * (1 - exp(-lambda)),
-                E_renewal_price = price * E_R_s * E_R_C) %>% 
-  dplyr::mutate(h = - price - demand_friction - E_oop - E_renewal_price) %>% 
+                E_R_C_sq = 0.98^2 * exp(-lambda) + 1.2^2 * (1 - exp(-lambda)),
+                E_renewal_price = price * E_R_s * E_R_C,
+                E_renewal_price_sq = price^2 * E_R_s_sq * E_R_C_sq) %>% 
+  dplyr::mutate(h = - price - demand_friction - E_oop - E_renewal_price,
+                h_sq = price^2 - demand_friction^2 + E_oop_sq + E_renewal_price_sq
+                + 2*price*demand_friction + 2*price*E_oop + 2*price*E_renewal_price
+                + 2*demand_friction*E_oop + 2*demand_friction*E_renewal_price
+                + 2*E_oop*E_renewal_price) %>% 
   dplyr::arrange(i)
 
 # draw idiosyncratic shocks
 e_t1 <- evd::rgev(dim(choice_t1)[1])
 
 choice_t1 <- cbind(choice_t1, e_t1) %>% 
-  dplyr::mutate(u = h + e_t1) %>% 
+  dplyr::mutate(v = h - (risk_aversion / 2)*h_sq,
+                u = v + e_t1) %>% 
   dplyr::group_by(i, t) %>% 
   dplyr::mutate(choice = ifelse(u == max(u), 1, 0)) %>% 
   dplyr::ungroup()
@@ -588,6 +607,7 @@ LL_choice <- function(df, theta, cost_par, lambda){
   alpha_m0 <- theta[7:9]
   alpha_m1 <- theta[10:13]
   beta <- theta[14]
+  risk_aversion <- theta[15]
   
   # Cost Parameters
   theta_score <- cost_par[8:11]
@@ -636,6 +656,14 @@ LL_choice <- function(df, theta, cost_par, lambda){
     dplyr::rename_with(\(x) str_replace(x, "lambda", "E_oop"), 
                        starts_with("lambda")) %>% 
     dplyr::select(matches("E_oop"))
+  
+  # Generate E_oop_sq
+  E_oop_sq <- lambda %>% 
+    dplyr::mutate_at(vars(starts_with("lambda")),
+                     funs(.*exp(-.)*((2 * l0^(a_l)) / ((a_l - 1) * (a_l - 1))) * policy_limit^(-a_l + 2))) %>% 
+    dplyr::rename_with(\(x) str_replace(x, "lambda", "E_oop_sq"), 
+                       starts_with("lambda")) %>% 
+    dplyr::select(matches("E_oop_sq"))
 
   # Generate E_R_s
   E_R_s <- E_score %>% 
@@ -647,6 +675,16 @@ LL_choice <- function(df, theta, cost_par, lambda){
                        starts_with("E_score")) %>% 
     dplyr::select(matches("E_R_s"))
 
+  # Generate E_R_s_sq
+  E_R_s_sq <- E_score %>% 
+    dplyr::mutate_at(vars(starts_with("E_score")),
+                     funs(ifelse(t == 0 & m == 1,
+                                 (alpha_m1[1] + alpha_m1[2]*x_1 + alpha_m1[3]*x_2 + alpha_m1[4]*.) / beta^2,
+                                 (alpha_m0[1] + alpha_m0[2]*x_1 + alpha_m0[3]*x_2) / beta^2))) %>% 
+    dplyr::rename_with(\(x) str_replace(x, "E_score", "E_R_s_sq"), 
+                       starts_with("E_score")) %>% 
+    dplyr::select(matches("E_R_s_sq"))  
+  
   # Generate E_R_C
   E_R_C <- lambda %>% 
     dplyr::mutate_at(vars(starts_with("lambda")),
@@ -654,6 +692,14 @@ LL_choice <- function(df, theta, cost_par, lambda){
     dplyr::rename_with(\(x) str_replace(x, "lambda", "E_R_C"), 
                        starts_with("lambda")) %>% 
     dplyr::select(matches("E_R_C"))
+
+  # Generate E_R_C_sq
+  E_R_C_sq <- lambda %>% 
+    dplyr::mutate_at(vars(starts_with("lambda")),
+                     funs(0.98^2 * exp(-.) + 1.2^2 * (1 - exp(-.)))) %>% 
+    dplyr::rename_with(\(x) str_replace(x, "lambda", "E_R_C_sq"), 
+                       starts_with("lambda")) %>% 
+    dplyr::select(matches("E_R_C_sq"))
   
   # Calculate E_h
   E_h <- - price - demand_friction - E_oop - E_R_s * E_R_C * price
@@ -661,9 +707,18 @@ LL_choice <- function(df, theta, cost_par, lambda){
     dplyr::rename_with(\(x) str_replace(x, "price", "E_h"), 
                        starts_with("price"))
   
+  # Calculate E_h_sq
+  E_h_sq <- price^2 + demand_friction^2 + E_oop_sq + E_R_s_sq*E_R_C_sq*price^2
+  + 2*price*demand_friction + 2*price*E_oop + 2*price*(E_R_s*E_R_C*price)
+  + 2*demand_friction*E_oop + 2*demand_friction*(E_R_s*E_R_C*price)
+  + 2*E_oop*(E_R_s*E_R_C*price)
+    
+  E_h_sq <- E_h_sq %>% 
+    dplyr::rename_with(\(x) str_replace(x, "price", "E_h_sq"), 
+                       starts_with("price"))
+  
   # Calculate v
-  ## Note that now we ignore the second term of v and thus v = E_h
-  v <- E_h  %>% 
+  v <- (E_h - (risk_aversion / 2) * E_h_sq) %>% 
     dplyr::rename_with(\(x) str_replace(x, "E_h", "v"), 
                        starts_with("E_h"))
   
@@ -689,7 +744,7 @@ LL_choice <- function(df, theta, cost_par, lambda){
   
   # Output
   output <- LL_choice
-  
+
   return(output)
 }
 
@@ -751,7 +806,7 @@ SLL <- function(df, theta, cost_par, lambda){
   
   ## Output
   output <- (-1) * (LL_choice + LL_renewal_price)
-  # print(output)
+  print(output)
   
   return(output)
 }
@@ -777,21 +832,30 @@ theta[5:6] <- xi
 theta[7:9] <- alpha_m0
 theta[10:13] <- alpha_m1
 theta[14] <- beta
+theta[15] <- risk_aversion
 
 # Generate lambda
 R <- 50
 lambda <- gen_lambda(df, cost_par, R)
 
 ## Initial Value
-x0 <- rep(1, length(theta))
-x0[7] <- 25
-x0[10] <- 25
-x0[14] <- 25
-# x0 <- theta * 0.8
+# x0 <- rep(1, length(theta))
+# x0[7] <- 20
+# x0[10] <- 20
+# x0[14] <- 20
+# x0[15] <- 0
+
+x0 <- numeric(length(theta))
+x0[7] <- 1
+x0[10] <- 1
+x0[14] <- 1
+
+#x0 <- theta
 
 ## Optimization
 res <- optim(par = x0,
              fn = SLL, 
+             control = list(maxit = 10^6),
              method = "Nelder-Mead",
              df = df, 
              cost_par = cost_par, 
@@ -806,13 +870,30 @@ theta_est <- res$par
 ```{r estimation results}
 
 table <- cbind(theta, theta_est)
-table <- format(round(table, 2), 2)
+table <- format(round(table, 3), 3)
+
 colnames(table) <- c("true", "estimates")
 rownames(table) <- c("eta_f", "", "", "", 
                      "xi", "", 
                      "alpha_m0", "", "", "", 
                      "alpha_m1", "", "", 
-                     "beta")
+                     "beta",
+                     "risk_aversion")
 table
+
+```
+
+
+# Counterfactual Simulation
+
+## Welfare Calculation
+
+1. For each driver $i$, simulate random coefficients (private risk) $L \in \mathbb{N}^{+}$ times
+2. For each draw $l \in \{ 1, ..., L \}$, calculate ex-ante utility directly and the corresponding certainty equivalent. First-period choice probabilities are also calculated, which gives us the monitoring share. Expected cost of the first semester can be calculated directly. But we also need to form an expectation of the second-period cost (and prices) in order to calculate total surplus (and profit):
+3. Simulate$K \in \mathbb{N}^{+}$ draws of first-period claim occurrence and monitoring score based on private risk . Each draw pins down the renewal price change that driver $i$ would face in the second period. All other prices remain constant. For each first-period choice $d$, we can then calculate the second period choice probability and the corresponding expected cost
+
+```{r welfare calculation}
+
+
 
 ```

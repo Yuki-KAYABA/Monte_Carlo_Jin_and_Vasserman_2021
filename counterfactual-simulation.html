@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>2 Generate Data for Cost Model | Monte Carlo Simulation: Jin and Vasserman (2021)</title>
-  <meta name="description" content="2 Generate Data for Cost Model | Monte Carlo Simulation: Jin and Vasserman (2021)" />
+  <title>4 Counterfactual Simulation | Monte Carlo Simulation: Jin and Vasserman (2021)</title>
+  <meta name="description" content="4 Counterfactual Simulation | Monte Carlo Simulation: Jin and Vasserman (2021)" />
   <meta name="generator" content="bookdown 0.31 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="2 Generate Data for Cost Model | Monte Carlo Simulation: Jin and Vasserman (2021)" />
+  <meta property="og:title" content="4 Counterfactual Simulation | Monte Carlo Simulation: Jin and Vasserman (2021)" />
   <meta property="og:type" content="book" />
   
   
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="2 Generate Data for Cost Model | Monte Carlo Simulation: Jin and Vasserman (2021)" />
+  <meta name="twitter:title" content="4 Counterfactual Simulation | Monte Carlo Simulation: Jin and Vasserman (2021)" />
   
   
   
@@ -29,8 +29,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="generate-data-for-choice-model.html"/>
-<link rel="next" href="estimation.html"/>
+<link rel="prev" href="estimation.html"/>
+
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -169,17 +169,24 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="generate-data-for-cost-model" class="section level1 hasAnchor" number="2">
-<h1><span class="header-section-number">2</span> Generate Data for Cost Model<a href="generate-data-for-cost-model.html#generate-data-for-cost-model" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<p>[Later]</p>
+<div id="counterfactual-simulation" class="section level1 hasAnchor" number="4">
+<h1><span class="header-section-number">4</span> Counterfactual Simulation<a href="counterfactual-simulation.html#counterfactual-simulation" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="welfare-calculation" class="section level2 hasAnchor" number="4.1">
+<h2><span class="header-section-number">4.1</span> Welfare Calculation<a href="counterfactual-simulation.html#welfare-calculation" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<ol style="list-style-type: decimal">
+<li>For each driver <span class="math inline">\(i\)</span>, simulate random coefficients (private risk) <span class="math inline">\(L \in \mathbb{N}^{+}\)</span> times</li>
+<li>For each draw <span class="math inline">\(l \in \{ 1, ..., L \}\)</span>, calculate ex-ante utility directly and the corresponding certainty equivalent. First-period choice probabilities are also calculated, which gives us the monitoring share. Expected cost of the first semester can be calculated directly. But we also need to form an expectation of the second-period cost (and prices) in order to calculate total surplus (and profit):</li>
+<li>Simulate<span class="math inline">\(K \in \mathbb{N}^{+}\)</span> draws of first-period claim occurrence and monitoring score based on private risk . Each draw pins down the renewal price change that driver <span class="math inline">\(i\)</span> would face in the second period. All other prices remain constant. For each first-period choice <span class="math inline">\(d\)</span>, we can then calculate the second period choice probability and the corresponding expected cost</li>
+</ol>
+</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="generate-data-for-choice-model.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="estimation.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="estimation.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
