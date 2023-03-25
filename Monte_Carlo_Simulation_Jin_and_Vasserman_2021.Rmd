@@ -36,7 +36,7 @@ First we generate data in the following procedure.
 ```{r generate lambda}
 rm(list = ls())
 
-N <- 10^4
+N <- 10^3
 T <- 1
 D <- 4
 
@@ -598,10 +598,9 @@ gen_lambda <- function(df, cost_par, R){
   return(output)
 }
 
-# Log-likelihood for Choice Probability
-
-LL_choice <- function(df, theta, cost_par, lambda){
-  # Parameters
+# Calculate Choice Probability
+cal_v <- function(df, theta, cost_par, R, lambda){
+ # Parameters
   eta_f <- theta[1:4]
   xi <- theta[5:6]
   alpha_m0 <- theta[7:9]
@@ -722,15 +721,32 @@ LL_choice <- function(df, theta, cost_par, lambda){
     dplyr::rename_with(\(x) str_replace(x, "E_h", "v"), 
                        starts_with("E_h"))
   
+  output <- df %>% 
+    dplyr::bind_cols(v)
+  
+  return(output)
+}
+    
+cal_choice_probability <- function(df, theta, cost_par, R, lambda){
+  ## Calculate v
+  v <- cal_v(df, theta, cost_par, R, lambda)
+  
   ## Calculate Choice Probability
-  choice_probability <- df %>% 
-    dplyr::bind_cols(v) %>% 
+  output <- v %>% 
     dplyr::group_by(i, t) %>% 
     dplyr::mutate_at(vars(starts_with("v")),
                      funs(exp(.) / sum(exp(.)))) %>% 
     dplyr::ungroup() %>% 
     dplyr::rename_with(\(x) str_replace(x, "v", "choice_probability"), 
-                       starts_with("v"))
+                       starts_with("v")) 
+}
+
+
+# Log-likelihood for Choice Probability
+
+LL_choice <- function(df, theta, cost_par, R, lambda){
+  ## Calculate Choice Probability
+  choice_probability <- cal_choice_probability(df, theta, cost_par, R, lambda)
   
   ## Calculate Log-likelihood
   LL_choice <- choice_probability %>% 
@@ -797,9 +813,9 @@ LL_renewal_price <- function(df, theta, cost_par, lambda){
 
 ## Simulated Log-likelihood
 
-SLL <- function(df, theta, cost_par, lambda){
+SLL <- function(df, theta, cost_par, R, lambda){
   ## Choice Probability
-  LL_choice <- LL_choice(df, theta, cost_par, lambda)
+  LL_choice <- LL_choice(df, theta, cost_par, R, lambda)
   
   ## Renewal Price
   LL_renewal_price <- LL_renewal_price(df, theta, cost_par, lambda)
@@ -850,7 +866,7 @@ x0[7] <- 1
 x0[10] <- 1
 x0[14] <- 1
 
-#x0 <- theta
+x0 <- theta
 
 ## Optimization
 res <- optim(par = x0,
@@ -859,6 +875,7 @@ res <- optim(par = x0,
              method = "Nelder-Mead",
              df = df, 
              cost_par = cost_par, 
+             R = R,
              lambda = lambda)
   
 theta_est <- res$par
@@ -888,12 +905,108 @@ table
 
 ## Welfare Calculation
 
+Using our demand estimates, we evaluate the impact that the monitoring program has on consumer welfare and on firm profits in the status quo. To do this, we simulate a counterfactual scenario in which monitoring is not available, and compare it to the status quo baseline with monitoring.
+
 1. For each driver $i$, simulate random coefficients (private risk) $L \in \mathbb{N}^{+}$ times
 2. For each draw $l \in \{ 1, ..., L \}$, calculate ex-ante utility directly and the corresponding certainty equivalent. First-period choice probabilities are also calculated, which gives us the monitoring share. Expected cost of the first semester can be calculated directly. But we also need to form an expectation of the second-period cost (and prices) in order to calculate total surplus (and profit):
-3. Simulate$K \in \mathbb{N}^{+}$ draws of first-period claim occurrence and monitoring score based on private risk . Each draw pins down the renewal price change that driver $i$ would face in the second period. All other prices remain constant. For each first-period choice $d$, we can then calculate the second period choice probability and the corresponding expected cost
+3. Simulate $K \in \mathbb{N}^{+}$ draws of first-period claim occurrence and monitoring score based on private risk . Each draw pins down the renewal price change that driver $i$ would face in the second period. All other prices remain constant. For each first-period choice $d$, we can then calculate the second period choice probability and the corresponding expected cost
 
 ```{r welfare calculation}
+# Number of Draws
+L <- 100
+K <- 50
 
+## df for t = 0
+df_t0 <- df %>% 
+  dplyr::filter(t == 0)
 
+## Simulate Private Risk Lambda
+sim_lambda <- gen_lambda(df_t0, cost_par, L)
+
+## Calculate Certainty Equivalent for Each Draw
+### theta_estを入れるのが正しいが挙動確認のためthetaを入れている
+cal_certainty_equivalent <- function(df, theta, cost_par, R, lambda){
+  ## Risk Aversion
+  risk_aversion <- theta[15]
+  
+  ## Calculate CE
+  ### We apply `cal_v` to obtain v
+  output <- cal_v(df, theta, cost_par, R, lambda) %>% 
+    dplyr::mutate_at(vars(starts_with("v")),
+                     funs(1 / risk_aversion - sqrt((1 / risk_aversion^2) - 2*. / risk_aversion))) %>% 
+    dplyr::rename_with(\(x) str_replace(x, "v", "certatinty_equivalent"), 
+                       starts_with("v"))
+
+  return(output)
+}
+
+sim_renewal_price <- function(df, theta, cost_par, R, lambda){
+  ## Generate Claims
+  lambda_mat <- lambda %>% 
+    dplyr::select(starts_with("lambda")) %>% 
+    as.matrix()
+  
+  claims <- matrix(rpois(dim(df)[1]*L*K, lambda = lambda_mat), nrow = dim(df)[1])
+  colnames(claims) <- paste("claims", 1:(L*K), sep = "_")
+  
+  claims <- data.frame(claims) %>% 
+    tibble::as_tibble()  
+  
+  ## Generate Monitoring Score
+  theta_score <- cost_par[8:11]
+  sigma_score <- cost_par[12]
+
+  mu_score <- lambda %>%
+    dplyr::mutate_at(vars(starts_with("lambda")),
+                     funs(theta_score[1] + theta_score[2]*log(.)
+                          + theta_score[3]*x_1 + theta_score[4]*x_2)) %>%
+    dplyr::rename_with(\(x) str_replace(x, "lambda", "mu_score"),
+                       starts_with("lambda")) %>%
+    dplyr::select(starts_with("mu_score")) %>%
+    as.matrix()
+  
+  score <- matrix(rlnorm(dim(df)[1]*L*K, mu_score, sigma_score), nrow = dim(df)[1])
+  colnames(score) <- paste("score", 1:(L*K), sep = "_")
+
+  score <- data.frame(score) %>%
+    tibble::as_tibble()
+  
+  ## Calculate Claim Surcharge R_C
+  R_C <- claims %>% 
+    dplyr::mutate_at(vars(starts_with("claims")),
+                     funs(ifelse(. == 0, 0.98, 1.2))) %>%
+    dplyr::rename_with(\(x) str_replace(x, "claims", "R_C"),
+                       starts_with("claims"))
+
+  ## Calculate Base R_s
+  ### Note that, for simplicity, assume that R0 is deterministic conditional on s. In reality, the spread of baseline R0 without monitoring may have subtle nonlinear effects on consumer choice, which we assume away
+  alpha_m0 <- theta[7:9]
+  alpha_m1 <- theta[10:13]
+  beta <- theta[14]
+  
+  R_s <- df %>% 
+    dplyr::select(m, x_1, x_2) %>% 
+    dplyr::bind_cols(score) %>% 
+    dplyr::mutate_at(vars(starts_with("score")),
+                     funs(ifelse(m == 0,
+                                 (alpha_m0[1] + alpha_m0[2]*x_1 + alpha_m0[3]*x_2) / beta,
+                                 (alpha_m1[1] + alpha_m1[2]*x_1 + alpha_m1[3]*x_2 + alpha_m1[4]*.) / beta))) %>%
+    dplyr::rename_with(\(x) str_replace(x, "score", "R_s"),
+                       starts_with("score")) %>% 
+      dplyr::select(-c(m, x_1, x_2))
+  
+  ## Calculate Base Renewal Price
+  price <- df$price * matrix(rep(1, dim(df)[1] * L * K), nrow = dim(df)[1])
+  colnames(price) <- c(paste("price", 1:(L * K), sep = "_"))
+  
+  price <- data.frame(price) %>% 
+    tibble::as_tibble()
+  
+  output <- price * R_C * R_s
+  
+  return(output)
+}
+
+tmp_score <- sim_renewal_price(df_t0, theta, cost_par, R, sim_lambda)
 
 ```
