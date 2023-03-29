@@ -910,6 +910,76 @@ Using our demand estimates, we evaluate the impact that the monitoring program h
 2. For each draw $l \in \{ 1, ..., L \}$, calculate ex-ante utility directly and the corresponding certainty equivalent. First-period choice probabilities are also calculated, which gives us the monitoring share. Expected cost of the first semester can be calculated directly. But we also need to form an expectation of the second-period cost (and prices) in order to calculate total surplus (and profit):
 3. Simulate $K \in \mathbb{N}^{+}$ draws of first-period claim occurrence and monitoring score based on private risk . Each draw pins down the renewal price change that driver $i$ would face in the second period. All other prices remain constant. For each first-period choice $d$, we can then calculate the second period choice probability and the corresponding expected cost
 
+
+- To do this, we need to generate choice sequence. First we calculate choice probability in $t = 0$ for each draw of $\lambda$
+
+|i    |d    |t    |Prior|Price|$\lambda_{1}$|...|$\lambda_{L}$|...|$\Pr_{1}$|...|$\Pr_{L}$|
+|:---:|:---:|:---:|:---:|:---:|:-----------:|:-:|:-----------:|:-:|:-------:|:-:|:-------:|
+|1    |1    |0    |3    |100  |0.04         |...|0.02         |...|0.25     |...|0.20     |
+|1    |2    |0    |1    |110  |0.05         |...|0.03         |...|0.05     |...|0.10     |
+|1    |3    |0    |2    |90   |0.05         |...|0.03         |...|0.35     |...|0.40     |
+|1    |4    |0    |2    |95   |0.05         |...|0.03         |...|0.35     |...|0.30     |
+|2    |1    |0    |1    |130  |0.02         |...|0.01         |...|0.15     |...|0.20     |
+
+- Next, we simulate $K \in \mathbb{N}^{+}$ draws of first-period claim occurrence and monitoring score based on private risk for each $\lambda$ (thus we simulate $L \times K$ claims and monitoiring score in total)
+
+|i    |d    |t    |$\lambda_{1}$|...|$\lambda_{L}$|$Claim_{11}$|...|$Claim_{LK}$|$Score_{11}$|...|$Score_{LK}$|
+|:---:|:---:|:---:|:-----------:|:-:|:-----------:|:----------:|:-:|:----------:|:----------:|:-:|:----------:|
+|1    |1    |0    |0.05         |...|0.03         |0           |...|1           |-3.0        |...|-1.0        |
+|1    |2    |0    |0.05         |...|0.03         |0           |...|0           |0.0         |...|0.0         |
+|1    |3    |0    |0.05         |...|0.03         |1           |...|0           |0.0         |...|0.0         |
+|1    |4    |0    |0.05         |...|0.03         |0           |...|0           |0.0         |...|0.0         |
+|2    |1    |0    |0.02         |...|0.01         |2           |...|0           |-2.5        |...|-1.2        |
+
+- Based on each claim and monitoring score, renewal price multiplier $R_{0}$ is calculated
+
+|i    |d    |t    |$R_{C, 11}$|...|$R_{C, LK}$|$R_{s, 11}$|...|$R_{s, LK}$|$R_{0, 11}$|...|$R_{0, LK}$|
+|:---:|:---:|:---:|:---------:|:-:|:---------:|:---------:|:-:|:---------:|:---------:|:-:|:---------:|
+|1    |1    |0    |0.98       |...|1.20       |0.99       |...|0.95       |0.97       |...|1.15       |
+|1    |2    |0    |0.98       |...|0.98       |1.02       |...|0.98       |1.00       |...|0.96       |
+|1    |3    |0    |1.20       |...|0.98       |1.02       |...|0.98       |1.22       |...|0.96       |
+|1    |4    |0    |0.98       |...|0.98       |1.02       |...|0.98       |1.00       |...|0.96       |
+|2    |1    |0    |1.20       |...|0.98       |0.87       |...|0.90       |1.07       |...|0.88       |
+
+- Renewal price itself is expanded to the following table:
+
+|i    |d    |t    |Prior|Prior_Price|$R_{0, 11}$|...|$R_{0, LK}$|$Price_{11}$|...|$Price_{LK}$|
+|:---:|:---:|:---:|:---:|:---------:|:---------:|:-:|:---------:|:----------:|:-:|:----------:|
+|1    |1    |1    |1    |100        |0.97       |...|1.15       |97          |...|115         |
+|1    |2    |1    |1    |90         |0.97       |...|1.15       |87          |...|105         |
+|1    |3    |1    |1    |95         |0.97       |...|1.15       |92          |...|105         |
+|1    |1    |1    |2    |110        |1.00       |...|0.96       |110         |...|105         |
+|1    |2    |1    |2    |90         |1.00       |...|0.96       |90          |...|85          |
+|1    |3    |1    |2    |95         |1.00       |...|0.96       |95          |...|90          |
+|1    |1    |1    |3    |110        |1.22       |...|0.96       |130         |...|105         |
+|1    |2    |1    |3    |90         |1.22       |...|0.96       |110         |...|85          |
+|1    |3    |1    |3    |95         |1.22       |...|0.96       |115         |...|90          |
+|1    |1    |1    |4    |110        |1.00       |...|0.96       |110         |...|105         |
+|1    |2    |1    |4    |90         |1.00       |...|0.96       |90          |...|85          |
+|1    |3    |1    |4    |95         |1.00       |...|0.96       |95          |...|90          |
+|2    |1    |1    |1    |130        |1.07       |...|0.88       |137         |...|105         |
+
+- Renewal price itself is expanded to the following table:
+
+|i    |d    |t    |Prior|$Price_{11}$|...|$Price_{LK}$|$\lambda_{1}$|...|$\lambda_{L}$|...|$\Pr_{11}$|...|$\Pr_{LK}$|
+|:---:|:---:|:---:|:---:|:----------:|:-:|:----------:|:-----------:|:-:|:-----------:|:-:|:--------:|:-:|:--------:|
+|1    |1    |1    |1    |97          |...|115         |0.06         |...|0.04         |...|0.45      |...|0.40      |
+|1    |2    |1    |1    |87          |...|105         |0.06         |...|0.04         |...|0.25      |...|0.30      |
+|1    |3    |1    |1    |92          |...|105         |0.06         |...|0.04         |...|0.30      |...|0.30      |
+|1    |1    |1    |2    |110         |...|105         |0.06         |...|0.04         |...|0.25      |...|0.20      |
+|1    |2    |1    |2    |90          |...|85          |0.06         |...|0.04         |...|0.25      |...|0.40      |
+|1    |3    |1    |2    |95          |...|90          |0.06         |...|0.04         |...|0.50      |...|0.40      |
+|1    |1    |1    |3    |130         |...|105         |0.06         |...|0.04         |...|0.20      |...|0.10      |
+|1    |2    |1    |3    |110         |...|85          |0.06         |...|0.04         |...|0.35      |...|0.50      |
+|1    |3    |1    |3    |115         |...|90          |0.06         |...|0.04         |...|0.45      |...|0.40      |
+|1    |1    |1    |4    |110         |...|105         |0.06         |...|0.04         |...|0.55      |...|0.30      |
+|1    |2    |1    |4    |90          |...|85          |0.06         |...|0.04         |...|0.15      |...|0.30      |
+|1    |3    |1    |4    |95          |...|90          |0.06         |...|0.04         |...|0.35      |...|0.40      |
+|2    |1    |1    |1    |137         |...|105         |0.03         |...|0.07         |...|0.25      |...|0.20      |
+
+
+
+
 ```{r welfare calculation}
 # Number of Draws
 L <- 100
@@ -923,10 +993,10 @@ df_t1 <- df %>%
   dplyr::filter(t == 1)
 
 ## Simulate Private Risk Lambda
-sim_lambda <- gen_lambda(df_t0, cost_par, L) %>% 
+sim_lambda <- gen_lambda(df, cost_par, L) %>% 
   dplyr::select(starts_with("lambda"))
 
-sim_lambda_expand <- gen_lambda(df_t0, cost_par, L)
+sim_lambda_expand <- gen_lambda(df, cost_par, L)
 
 for(k in 1:(K - 1)){
   sim_lambda_expand <- dplyr::bind_cols(sim_lambda_expand, sim_lambda)
@@ -953,8 +1023,10 @@ colnames(sim_lambda_expand) <- c("i", "d", "t", "m", "f",
                                        rep(1:K, L),
                                        sep = "_"))
 
-sim_lambda <- gen_lambda(df_t0, cost_par, L) %>% 
-  dplyr::select(starts_with("lambda"))
+sim_lambda_expand_t0 <- sim_lambda_expand %>% 
+  dplyr::filter(t == 0)
+sim_lambda_expand_t1 <- sim_lambda_expand %>% 
+  dplyr::filter(t == 1)
 
 ## Calculate Certainty Equivalent for Each Draw
 ### theta_estを入れるのが正しいが挙動確認のためthetaを入れている
@@ -1042,10 +1114,10 @@ sim_renewal_price <- function(df, theta, cost_par, R, lambda){
   return(output)
 }
 
-#tmp_score <- sim_renewal_price(df_t0, theta, cost_par, R, sim_lambda_expand)
+#tmp_price <- sim_renewal_price(df_t0, theta, cost_par, R, sim_lambda_expand)
 
-# Calculate Choice Probability
-cal_v_modified <- function(df, theta, cost_par, R, lambda){
+# Calculate Choice Probability in t = 1
+cal_v_modified <- function(df, theta, cost_par, R, lambda_t0, lambda_t1){
  # Parameters
   eta_f <- theta[1:4]
   xi <- theta[5:6]
@@ -1060,16 +1132,14 @@ cal_v_modified <- function(df, theta, cost_par, R, lambda){
   l0 <- cost_par[13]
   a_l <- cost_par[14]
   
-  ## Lambda
-  lambda <- lambda
-  
   # Price
-  price <- sim_renewal_price(df, theta, cost_par, R, lambda)
+  price <- sim_renewal_price(df, theta, cost_par, R, lambda_t0)
   
   # Generate Demand Friction
-  demand_friction <- lambda %>% 
+  demand_friction <- df %>% 
+    dplyr::left_join(lambda_t1, by = c("i", "f")) %>% 
     dplyr::mutate_at(vars(starts_with("lambda")),
-                     funs(ifelse(d == prior_firm, 
+                     funs(~ifelse(d == prior_firm, 
                                  0,  
                                  eta_f[1] + eta_f[2]*x_1 + eta_f[3]*x_2 + eta_f[4]*x_3) 
                           + ifelse(d == 1 & t == 0, 
@@ -1080,7 +1150,8 @@ cal_v_modified <- function(df, theta, cost_par, R, lambda){
     dplyr::select(matches("demand_friction"))
   
   # Generate E_score
-  E_score <- lambda %>% 
+  E_score <- df %>% 
+    dplyr::left_join(lambda_t1, by = c("i", "f")) %>% 
     dplyr::mutate_at(vars(starts_with("lambda")),
                      funs(ifelse(t == 0 & m == 1,
                                  exp(theta_score[1] + theta_score[2]*log(.)
@@ -1091,7 +1162,8 @@ cal_v_modified <- function(df, theta, cost_par, R, lambda){
                        starts_with("lambda"))
   
   # Generate E_oop
-  E_oop <- lambda %>% 
+  E_oop <- df %>% 
+    dplyr::left_join(lambda_t1, by = c("i", "f")) %>% 
     dplyr::mutate_at(vars(starts_with("lambda")),
                      funs(.*exp(-.)*(l0^(a_l)/(a_l - 1))*policy_limit^(-a_l + 1))) %>% 
     dplyr::rename_with(\(x) str_replace(x, "lambda", "E_oop"), 
@@ -1099,7 +1171,8 @@ cal_v_modified <- function(df, theta, cost_par, R, lambda){
     dplyr::select(matches("E_oop"))
   
   # Generate E_oop_sq
-  E_oop_sq <- lambda %>% 
+  E_oop_sq <- df %>% 
+    dplyr::left_join(lambda_t1, by = c("i", "f")) %>% 
     dplyr::mutate_at(vars(starts_with("lambda")),
                      funs(.*exp(-.)*((2 * l0^(a_l)) / ((a_l - 1) * (a_l - 1))) * policy_limit^(-a_l + 2))) %>% 
     dplyr::rename_with(\(x) str_replace(x, "lambda", "E_oop_sq"), 
@@ -1127,7 +1200,8 @@ cal_v_modified <- function(df, theta, cost_par, R, lambda){
     dplyr::select(matches("E_R_s_sq"))  
   
   # Generate E_R_C
-  E_R_C <- lambda %>% 
+  E_R_C <- df %>% 
+    dplyr::left_join(lambda_t1, by = c("i", "f")) %>% 
     dplyr::mutate_at(vars(starts_with("lambda")),
                      funs(0.98 * exp(-.) + 1.2 * (1 - exp(-.)))) %>% 
     dplyr::rename_with(\(x) str_replace(x, "lambda", "E_R_C"), 
@@ -1135,7 +1209,8 @@ cal_v_modified <- function(df, theta, cost_par, R, lambda){
     dplyr::select(matches("E_R_C"))
 
   # Generate E_R_C_sq
-  E_R_C_sq <- lambda %>% 
+  E_R_C_sq <- df %>% 
+    dplyr::left_join(lambda_t1, by = c("i", "f")) %>% 
     dplyr::mutate_at(vars(starts_with("lambda")),
                      funs(0.98^2 * exp(-.) + 1.2^2 * (1 - exp(-.)))) %>% 
     dplyr::rename_with(\(x) str_replace(x, "lambda", "E_R_C_sq"), 
@@ -1169,11 +1244,9 @@ cal_v_modified <- function(df, theta, cost_par, R, lambda){
   return(output)
 }
 
-
-
-cal_choice_probability_modified <- function(df, theta, cost_par, R, lambda){
+cal_choice_probability_modified <- function(df, theta, cost_par, R, lambda_t0, lambda_t1){
   ## Calculate v
-  v <- cal_v_modified(df, theta, cost_par, R, lambda)
+  v <- cal_v_modified(df, theta, cost_par, R, lambda_t0, lambda_t1)
   
   ## Calculate Choice Probability
   output <- v %>% 
@@ -1185,5 +1258,5 @@ cal_choice_probability_modified <- function(df, theta, cost_par, R, lambda){
                        starts_with("v")) 
 }
 
-tmp_choice_prob <- cal_choice_probability_modified(df_t0, theta, cost_par, R, sim_lambda_expand)
+tmp_choice_prob <- cal_choice_probability_modified(df_t0, theta, cost_par, R, sim_lambda_expand_t0, sim_lambda_expand_t1)
 ```
