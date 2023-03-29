@@ -649,7 +649,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </tbody>
 </table>
 <ul>
-<li>Renewal price itself is expanded to the following table:</li>
+<li>Finally we calculate choice probability in <span class="math inline">\(t = 1\)</span> based on each renewal price and <span class="math inline">\(\lambda\)</span> in <span class="math inline">\(t = 1\)</span>. Note that <span class="math inline">\(\lambda\)</span> in <span class="math inline">\(t = 1\)</span> is different from that of <span class="math inline">\(t = 0\)</span>, and hence we need to draw again</li>
 </ul>
 <table>
 <thead>
@@ -881,6 +881,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </tr>
 </tbody>
 </table>
+<ul>
+<li>Thus, while choice probability in <span class="math inline">\(t = 0\)</span> has <span class="math inline">\((4N \times L)\)</span> matrix form, choice probability in <span class="math inline">\(t = 1\)</span> is <span class="math inline">\((12N \times LK)\)</span> matrix, due to <span class="math inline">\(K\)</span> times draw of claims and monitoring score as well as path dependence of choice</li>
+</ul>
 <div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="counterfactual-simulation.html#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Number of Draws</span></span>
 <span id="cb19-2"><a href="counterfactual-simulation.html#cb19-2" aria-hidden="true" tabindex="-1"></a>L <span class="ot">&lt;-</span> <span class="dv">100</span></span>
 <span id="cb19-3"><a href="counterfactual-simulation.html#cb19-3" aria-hidden="true" tabindex="-1"></a>K <span class="ot">&lt;-</span> <span class="dv">50</span></span>

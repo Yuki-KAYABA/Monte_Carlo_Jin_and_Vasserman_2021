@@ -959,7 +959,7 @@ Using our demand estimates, we evaluate the impact that the monitoring program h
 |1    |3    |1    |4    |95         |1.00       |...|0.96       |95          |...|90          |
 |2    |1    |1    |1    |130        |1.07       |...|0.88       |137         |...|105         |
 
-- Renewal price itself is expanded to the following table:
+- Finally we calculate choice probability in $t = 1$ based on each renewal price and $\lambda$ in $t = 1$. Note that $\lambda$ in $t = 1$ is different from that of $t = 0$, and hence we need to draw again
 
 |i    |d    |t    |Prior|$Price_{11}$|...|$Price_{LK}$|$\lambda_{1}$|...|$\lambda_{L}$|...|$\Pr_{11}$|...|$\Pr_{LK}$|
 |:---:|:---:|:---:|:---:|:----------:|:-:|:----------:|:-----------:|:-:|:-----------:|:-:|:--------:|:-:|:--------:|
@@ -977,7 +977,7 @@ Using our demand estimates, we evaluate the impact that the monitoring program h
 |1    |3    |1    |4    |95          |...|90          |0.06         |...|0.04         |...|0.35      |...|0.40      |
 |2    |1    |1    |1    |137         |...|105         |0.03         |...|0.07         |...|0.25      |...|0.20      |
 
-
+- Thus, while choice probability in $t = 0$ has $(4N \times L)$ matrix form, choice probability in $t = 1$ is $(12N \times LK)$ matrix, due to $K$ times draw of claims and monitoring score as well as path dependence of choice
 
 
 ```{r welfare calculation}
